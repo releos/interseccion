@@ -83,9 +83,12 @@
         const dom = {
             tabs: document.querySelectorAll('.tab-button'), tabContents: document.querySelectorAll('.tab-content'), enCursoContainer: document.getElementById('en-curso'), archivoContainer: document.getElementById('archivo'),
             modal: document.getElementById('game-modal'), modalTitle: document.getElementById('modal-title'), modalContent: document.getElementById('modal-content'), modalCloseBtn: document.getElementById('modal-close-btn'),
+            exampleGameBtn: document.getElementById('example-game-btn'), // Añadido para seleccionar el botón de ejemplo
         };
 
         const GAMES_INDEX_PATH = 'games/index.json';
+        // Path para el misterio de ejemplo
+        const EXAMPLE_GAME_PATH = 'games/ejemplo_resuelto.json'; 
 
         function getVisibleClues(game) {
             if (!game.clues || game.isSolved) return game.clues || [];
@@ -242,6 +245,27 @@
             dom.modalCloseBtn.addEventListener('click', closeModal);
             dom.modal.addEventListener('click', (e) => { if (e.target === dom.modal) closeModal(); });
             document.addEventListener('keydown', (e) => { if (e.key === "Escape" && dom.modal.classList.contains('active')) closeModal(); });
+
+            // Añadir el event listener para el botón "Misterio de Ejemplo"
+            if (dom.exampleGameBtn) {
+                dom.exampleGameBtn.addEventListener('click', async () => {
+                    try {
+                        const response = await fetch(`${EXAMPLE_GAME_PATH}?v=${Date.now()}`); // Usamos ?v=${Date.now()} para evitar la caché
+                        if (!response.ok) {
+                            throw new Error(`No se pudo cargar el misterio de ejemplo: ${response.statusText}`);
+                        }
+                        const exampleGame = await response.json();
+                        openModalWithGame(exampleGame);
+                    } catch (error) {
+                        console.error("Error al cargar el misterio de ejemplo:", error);
+                        // Aquí podrías añadir un mensaje al usuario en la UI si lo deseas
+                        dom.modalTitle.textContent = "Error";
+                        dom.modalContent.innerHTML = `<p class="text-red-400 text-center">No se pudo cargar el misterio de ejemplo. Por favor, asegúrate de que el archivo 'ejemplo_resuelto.json' existe en la carpeta 'games' y es accesible.</p>`;
+                        dom.modal.classList.add('active');
+                    }
+                });
+            }
+
             loadGames();
         }
         init();
