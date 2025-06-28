@@ -93,6 +93,11 @@
             return game.clues.filter(clue => clue.publishDate && new Date(clue.publishDate) <= now);
         }
 
+        function getAllClues(game) {
+            if (!game.clues || game.isSolved) return game.clues || [];
+            return game.clues.filter(clue => clue.publishDate);
+        }
+        
         function renderSummaryCard(game) {
             const statusPill = game.isSolved ? `<span class="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full">Resuelto</span>` : `<span class="bg-yellow-500 text-gray-900 text-xs font-semibold px-2 py-1 rounded-full">En curso</span>`;
             const startDate = game.startDate ? new Date(game.startDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
@@ -101,7 +106,7 @@
             const descriptionHTML = game.notes ? `<p class="text-sm text-gray-400 mt-2 italic">${game.notes}</p>` : '';
             const card = document.createElement('div');
             card.className = 'bg-gray-800/80 hover:bg-gray-800 transition-colors cursor-pointer rounded-xl shadow-lg p-5 flex flex-col justify-between fade-in';
-            card.innerHTML = `<div><div class="flex justify-between items-start mb-2"><h3 class="text-xl font-bold text-white pr-2">${game.title || 'Misterio sin título'}</h3>${statusPill}</div>${descriptionHTML}<p class="text-sm text-gray-500 mt-3">Pistas reveladas: ${getVisibleClues(game).length}/${game.clues}</p></div><div class="mt-4 border-t border-gray-700 pt-3 text-right"><p class="text-xs text-gray-500">${dateText}</p></div>`;
+            card.innerHTML = `<div><div class="flex justify-between items-start mb-2"><h3 class="text-xl font-bold text-white pr-2">${game.title || 'Misterio sin título'}</h3>${statusPill}</div>${descriptionHTML}<p class="text-sm text-gray-500 mt-3">Pistas reveladas: ${getVisibleClues(game).length}/${game.clues.length}</p></div><div class="mt-4 border-t border-gray-700 pt-3 text-right"><p class="text-xs text-gray-500">${dateText}</p></div>`;
             card.addEventListener('click', () => openModalWithGame(game));
             return card;
         }
