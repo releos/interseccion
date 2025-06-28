@@ -97,12 +97,12 @@
             if (game.isSolved) return game.clues;
             
             const timeZone = 'Etc/GMT';
-            const nowInGMT = dateFnsTz.utcToZonedTime(new Date(), timeZone);
+            const nowInGMT = window.dateFnsTz.utcToZonedTime(new Date(), timeZone);
 
             return game.clues.filter(clue => {
                 if (!clue.publishDate) return false;
-                const publishDate = dateFns.parseISO(clue.publishDate);
-                return dateFns.isBefore(publishDate, nowInGMT);
+                const publishDate = window.dateFns.parseISO(clue.publishDate);
+                return window.dateFns.isBefore(publishDate, nowInGMT);
             });
         }
 
