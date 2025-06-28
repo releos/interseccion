@@ -6,11 +6,8 @@
     <title>La Intersección</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-    <!-- Librerías para generar PDF y manejar fechas/horas con zonas horarias -->
+    <!-- Librería para generar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.28.0/index.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/date-fns-tz@1.3.0/dist/date-fns-tz.min.js"></script>
-
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #111827; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -58,18 +55,14 @@
                         <div class="md:col-span-2 bg-gray-800 rounded-xl shadow-lg p-8 flex flex-col">
                              <h3 class="text-2xl font-bold text-indigo-400 mb-6">Contacto y Opiniones</h3>
                              <div class="space-y-4 flex-grow flex flex-col justify-center">
-                                <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="group flex items-center gap-4 bg-gray-700/50 hover:bg-gray-700 p-4 rounded-lg transition-all">
+                                <a href="https://www.instagram.com/interseccion_juego?igsh=MWw5c3YxYXcwa3Vmbg==" target="_blank" rel="noopener noreferrer" class="group flex items-center gap-4 bg-gray-700/50 hover:bg-gray-700 p-4 rounded-lg transition-all">
                                      <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-purple-600 via-pink-600 to-yellow-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="text-white" viewBox="0 0 16 16"><path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.917 3.917 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zM8 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 1.442a2.558 2.558 0 1 0 0 5.116 2.558 2.558 0 0 0 0-5.116z"/></svg></div>
                                      <div><div class="font-bold text-white">Instagram</div><div class="text-sm text-gray-400 group-hover:text-gray-200 transition">Sigue el juego</div></div>
                                  </a>
-                                 <a href="#" target="_blank" rel="noopener noreferrer" class="group flex items-center gap-4 bg-gray-700/50 hover:bg-gray-700 p-4 rounded-lg transition-all">
+                                 <a href="https://forms.gle/CTqcoBsGsf2kX1WKA" target="_blank" rel="noopener noreferrer" class="group flex items-center gap-4 bg-gray-700/50 hover:bg-gray-700 p-4 rounded-lg transition-all">
                                      <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-blue-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="text-white" viewBox="0 0 16 16"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 0 1.5H4.5A1 1 0 0 0 3.5 3h10a1 1 0 0 0 1-1 .75.75 0 0 1 1.5 0v1A1.5 1.5 0 0 1 14.5 4h-13A1.5 1.5 0 0 1 0 2.5v-1A1.5 1.5 0 0 1 1.5 0H2z"/><path d="M16 5.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 5.5v-1A1.5 1.5 0 0 1 1.5 3H2a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1h.5a1.5 1.5 0 0 1 1.5 1.5v1zM1.5 9h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1zm0 2.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1z"/></svg></div>
                                      <div><div class="font-bold text-white">Dame tu opinión</div><div class="text-sm text-gray-400 group-hover:text-gray-200 transition">Formulario de feedback</div></div>
                                  </a>
-                                 <button id="example-game-btn" class="group flex items-center gap-4 bg-gray-700/50 hover:bg-gray-700 p-4 rounded-lg transition-all w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                                    <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-teal-500"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="text-white" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/></svg></div>
-                                    <div><div class="font-bold text-white">Misterio de Ejemplo</div><div class="text-sm text-gray-400 group-hover:text-gray-200 transition">Prueba el juego</div></div>
-                                </button>
                              </div>
                         </div>
                     </div>
@@ -82,28 +75,17 @@
     <div id="game-modal" class="modal fixed inset-0 bg-black bg-opacity-80 items-center justify-center p-4 z-50"><div class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"><header class="flex-shrink-0 p-4 border-b border-gray-700 flex justify-between items-center"><h2 id="modal-title" class="text-2xl font-bold text-white"></h2><button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl leading-none">&times;</button></header><div id="modal-content" class="p-6 overflow-y-auto modal-content-scroll"></div></div></div>
 
     <script>
-        // --- SCRIPT PRINCIPAL ---
-
         const dom = {
             tabs: document.querySelectorAll('.tab-button'), tabContents: document.querySelectorAll('.tab-content'), enCursoContainer: document.getElementById('en-curso'), archivoContainer: document.getElementById('archivo'),
             modal: document.getElementById('game-modal'), modalTitle: document.getElementById('modal-title'), modalContent: document.getElementById('modal-content'), modalCloseBtn: document.getElementById('modal-close-btn'),
         };
 
-        const GAMES_FOLDER_PATH = 'juegos/';
-        const GAMES_INDEX_PATH = `juegos/lista.json`;
+        const GAMES_INDEX_PATH = 'games/index.json';
 
         function getVisibleClues(game) {
-            if (!game.clues) return [];
-            if (game.isSolved) return game.clues;
-            
-            const timeZone = 'Etc/GMT'; // Usamos GMT como referencia
-            const nowInGMT = dateFnsTz.utcToZonedTime(new Date(), timeZone);
-
-            return game.clues.filter(clue => {
-                if (!clue.publishDate) return false;
-                const publishDate = dateFns.parseISO(clue.publishDate);
-                return dateFns.isBefore(publishDate, nowInGMT);
-            });
+            if (!game.clues || game.isSolved) return game.clues || [];
+            const now = new Date();
+            return game.clues.filter(clue => clue.publishDate && new Date(clue.publishDate) <= now);
         }
 
         function renderSummaryCard(game) {
@@ -112,11 +94,9 @@
             const endDate = game.endDate ? new Date(game.endDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
             const dateText = game.isSolved ? `Del ${startDate.replace(/ de/g, '')} al ${endDate.replace(/ de/g, '')}` : `Iniciado: ${startDate.replace(/ de/g, '')}`;
             const descriptionHTML = game.notes ? `<p class="text-sm text-gray-400 mt-2 italic">${game.notes}</p>` : '';
-            const visibleClues = getVisibleClues(game).length;
-            const totalClues = game.clues?.length || 0;
             const card = document.createElement('div');
             card.className = 'bg-gray-800/80 hover:bg-gray-800 transition-colors cursor-pointer rounded-xl shadow-lg p-5 flex flex-col justify-between fade-in';
-            card.innerHTML = `<div><div class="flex justify-between items-start mb-2"><h3 class="text-xl font-bold text-white pr-2">${game.title || 'Misterio sin título'}</h3>${statusPill}</div>${descriptionHTML}<p class="text-sm text-gray-500 mt-3">Pistas reveladas: ${visibleClues} de ${totalClues}</p></div><div class="mt-4 border-t border-gray-700 pt-3 text-right"><p class="text-xs text-gray-500">${dateText}</p></div>`;
+            card.innerHTML = `<div><div class="flex justify-between items-start mb-2"><h3 class="text-xl font-bold text-white pr-2">${game.title || 'Misterio sin título'}</h3>${statusPill}</div>${descriptionHTML}<p class="text-sm text-gray-500 mt-3">Pistas reveladas: ${getVisibleClues(game).length}</p></div><div class="mt-4 border-t border-gray-700 pt-3 text-right"><p class="text-xs text-gray-500">${dateText}</p></div>`;
             card.addEventListener('click', () => openModalWithGame(game));
             return card;
         }
@@ -126,7 +106,8 @@
             if (clue.type === 'text') { mainTextHTML = `<p>${clue.content || ''}</p>`; } 
             else if (clue.text) { mainTextHTML = `<p>${clue.text}</p>`; }
             if (clue.type !== 'text' && clue.content) {
-                let url = clue.content; if (!/^https?:\/\//i.test(url)) { url = 'https://' + url; }
+                let url = clue.content;
+                if (!/^https?:\/\//i.test(url)) { url = 'https://' + url; }
                 switch (clue.type) {
                     case 'image': mediaHTML = `<img src="${url}" alt="Pista" class="mt-2 rounded-lg w-full h-auto object-cover max-h-96">`; break;
                     case 'audio': mediaHTML = `<audio controls src="${url}" class="mt-2 w-full"></audio>`; break;
@@ -145,6 +126,7 @@
         function renderModalContent(game, mode = 'full', clueIndex = -1) {
             dom.modalTitle.textContent = game.title || 'Misterio';
             const availableClues = getVisibleClues(game);
+
             if (mode === 'pre-solved') {
                 const contentHTML = `<div class="text-center space-y-4 p-4"><p>Este misterio ya ha sido resuelto.</p><div class="flex flex-col sm:flex-row justify-center gap-4"><button id="play-solved-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg">Jugar pista a pista</button><button id="show-solution-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Mostrar solución completa</button></div></div>`;
                 dom.modalContent.innerHTML = contentHTML;
@@ -154,12 +136,16 @@
                 const cluesToShow = availableClues.slice(0, clueIndex + 1);
                 const cluesHTML = cluesToShow.map((clue, i) => renderClue(clue, i)).join('');
                 let ctaHTML = '';
-                if (clueIndex < availableClues.length - 1) { ctaHTML = `<div class="text-center mt-6"><button id="next-clue-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg">Mostrar siguiente pista</button></div>`; } 
-                else { ctaHTML = `<div class="text-center mt-6"><button id="reveal-solution-btn" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg">Mostrar Solución</button></div>`; }
+                if (clueIndex < availableClues.length - 1) {
+                    ctaHTML = `<div class="text-center mt-6"><button id="next-clue-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg">Mostrar siguiente pista</button></div>`;
+                } else {
+                    ctaHTML = `<div class="text-center mt-6"><button id="reveal-solution-btn" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg">Mostrar Solución</button></div>`;
+                }
                 dom.modalContent.innerHTML = `<div id="pdf-content" class="space-y-4">${cluesHTML}</div>${ctaHTML}`;
+
                 if (document.getElementById('next-clue-btn')) { document.getElementById('next-clue-btn').addEventListener('click', () => renderModalContent(game, 'step-by-step', clueIndex + 1)); }
                 if (document.getElementById('reveal-solution-btn')) { document.getElementById('reveal-solution-btn').addEventListener('click', () => renderModalContent(game, 'full')); }
-            } else {
+            } else { // 'full' mode
                 const allCluesHTML = availableClues.map((clue, i) => renderClue(clue, i)).join('');
                 const solutionHTML = game.isSolved ? getSolutionHTML(game) : '';
                 const ctaHTML = `<div class="mt-8 text-center flex flex-col sm:flex-row justify-center gap-4">${game.googleFormLink && !game.isSolved ? `<a href="${game.googleFormLink}" target="_blank" rel="noopener noreferrer" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg">¡Adivina aquí!</a>` : ''}<button id="download-pdf-btn" class="inline-flex items-center justify-center gap-2 bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>Descargar PDF</button></div>`;
@@ -179,9 +165,10 @@
         function downloadGameAsPDF(game) {
             const element = document.createElement('div');
             const showSolution = game.isSolved;
+            
             const visibleClues = getVisibleClues(game);
             const renderPdfClue = (clue, index) => {
-                let mainTextHTML = '', mediaHTML = '';
+                let mainTextHTML = ''; let mediaHTML = '';
                 if (clue.type === 'text') { mainTextHTML = `<p>${clue.content || ''}</p>`; } 
                 else if (clue.text) { mainTextHTML = `<p>${clue.text}</p>`; }
                 if (clue.type !== 'text' && clue.content) {
@@ -212,41 +199,22 @@
                 const gameFiles = await response.json();
                 if (!Array.isArray(gameFiles)) throw new Error("El índice de juegos no es un array válido.");
                 const gamePromises = gameFiles.map(async (file) => {
-                    try { const res = await fetch(`${GAMES_FOLDER_PATH}${file}?v=${Date.now()}`); if (!res.ok) throw new Error(`No se pudo cargar ${file}`); const gameData = await res.json(); gameData.fileName = file; return gameData; } 
+                    try { const res = await fetch(`games/${file}?v=${Date.now()}`); if (!res.ok) throw new Error(`No se pudo cargar ${file}`); return await res.json(); } 
                     catch (error) { console.error(`Error procesando el archivo de juego ${file}:`, error); return null; }
                 });
-                const allGames = (await Promise.all(gamePromises)).filter(Boolean);
+                const games = (await Promise.all(gamePromises)).filter(Boolean);
                 dom.enCursoContainer.innerHTML = ''; dom.archivoContainer.innerHTML = '';
-                
-                let exampleGame = null;
-                const otherGames = allGames.filter(game => {
-                    if (game.fileName === 'ejemplo.json') {
-                        exampleGame = game;
-                        return false;
+                games.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
+                let enCursoCount = 0, archivoCount = 0;
+                games.forEach(game => {
+                    if (game && game.title) {
+                        const card = renderSummaryCard(game);
+                        if (game.isSolved) { dom.archivoContainer.appendChild(card); archivoCount++; } 
+                        else { dom.enCursoContainer.appendChild(card); enCursoCount++; }
                     }
-                    return true;
                 });
-                
-                otherGames.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
-
-                otherGames.forEach(game => {
-                    if (game.isSolved) { dom.archivoContainer.appendChild(renderSummaryCard(game)); } 
-                    else { dom.enCursoContainer.appendChild(renderSummaryCard(game)); }
-                });
-                
-                if (exampleGame) {
-                    dom.enCursoContainer.prepend(renderSummaryCard({ ...exampleGame, isSolved: false }));
-                    dom.archivoContainer.prepend(renderSummaryCard({ ...exampleGame, isSolved: true }));
-                    const exampleBtn = document.getElementById('example-game-btn');
-                    if(exampleBtn) {
-                        exampleBtn.disabled = false;
-                        exampleBtn.addEventListener('click', () => openModalWithGame(exampleGame));
-                    }
-                }
-
-                if (dom.enCursoContainer.children.length === 0) dom.enCursoContainer.innerHTML = '<p class="text-center text-gray-400 col-span-full">Aún no hay misterios en curso. ¡Vuelve pronto!</p>';
-                if (dom.archivoContainer.children.length === 0) dom.archivoContainer.innerHTML = '<p class="text-center text-gray-400 col-span-full">Aún no hay misterios resueltos.</p>';
-
+                if (enCursoCount === 0) dom.enCursoContainer.innerHTML = '<p class="text-center text-gray-400 col-span-full">Aún no hay misterios en curso. ¡Vuelve pronto!</p>';
+                if (archivoCount === 0) dom.archivoContainer.innerHTML = '<p class="text-center text-gray-400 col-span-full">Aún no hay misterios resueltos.</p>';
             } catch (error) {
                 console.error("Error al cargar el índice de juegos:", error);
                 const errorHTML = `<p class="text-center text-red-500 col-span-full">Error fatal al cargar los juegos. Revisa la consola (F12).</p>`;
