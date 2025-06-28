@@ -2,56 +2,56 @@
   "title": "Ejemplo",
   "googleFormLink": "https://forms.gle/WuD3VHF62H6ubz6W8",
   "notes": "Este es un pequeño ejemplo de cómo es un juego. ¡Pulsa para empezar!",
-  "startDate": "2000-01-01",
+  "startDate": "2025-06-27",
   "endDate": "",
   "clues": [
     {
       "type": "text",
       "content": "Esta sería la primera pista, publicada nada más comenzar.",
       "text": "",
-      "publishDate": "2025-06-28T00:00"
+      "publishDate": "2025-06-27T00:00"
     },
     {
       "type": "image",
       "content": "https://calahorra.es/wp-content/uploads/20220504-pista-de-atletismo-1-1536x1042.jpeg",
       "text": "Las pistas pueden ser cualquier cosa: fotos, audios, vídeos, textos, enlaces...",
-      "publishDate": "2025-06-28T01:00"
+      "publishDate": "2025-06-27T01:00"
     },
     {
       "type": "text",
       "content": "No todas las pistas estarán disponibles a la vez: la idea es que se publique una cada semana (o cada cierto tiempo).",
       "text": "",
-      "publishDate": "2025-06-28T02:00"
+      "publishDate": "2025-06-27T02:00"
     },
     {
       "type": "text",
       "content": "De hecho, si te fijas bien, bajo cada pista hay una fecha con hora.",
       "text": "",
-      "publishDate": "2025-06-28T03:00"
+      "publishDate": "2025-06-27T03:00"
     },
     {
       "type": "text",
       "content": "Una vez publicadas todas las pistas, ya no habrá ninguna más hasta que alguien adivine la solución que las conecta todas (la « Intersección », de ahí el nombre del juego).",
       "text": "",
-      "publishDate": "2025-06-28T04:00"
+      "publishDate": "2025-06-27T04:00"
     },
     {
       "type": "text",
       "content": "Sin embargo, si sabes la solución (aunque aún no se hayan publicado todas las pistas), intenta adivinarla rellenando el formulario que encontrarás bajo las pistas.",
       "text": "",
-      "publishDate": "2025-06-28T05:00"
+      "publishDate": "2025-06-27T05:00"
     },
     {
       "type": "text",
       "content": "¡Ánimo, y mucha suerte! 💖🍀",
       "text": "",
-      "publishDate": "2025-06-28T06:00"
+      "publishDate": "2025-06-27T06:00"
     },
     {
       "type": "text",
       "content": "Por cierto, puedes meterte en juegos ya pasados para practicar. 😉",
       "text": "",
-      "publishDate": "2025-06-28T07:00"
+      "publishDate": "2025-06-27T07:00"
     }
   ],
   "isSolved": false,
