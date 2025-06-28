@@ -92,11 +92,6 @@
             const now = new Date();
             return game.clues.filter(clue => clue.publishDate && new Date(clue.publishDate) <= now);
         }
-
-        function getAllClues(game) {
-            if (!game.clues || game.isSolved) return game.clues || [];
-            return game.clues.filter(clue => clue.publishDate);
-        }
         
         function renderSummaryCard(game) {
             const statusPill = game.isSolved ? `<span class="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full">Resuelto</span>` : `<span class="bg-yellow-500 text-gray-900 text-xs font-semibold px-2 py-1 rounded-full">En curso</span>`;
