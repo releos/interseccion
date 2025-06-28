@@ -260,7 +260,7 @@
                         console.error("Error al cargar el misterio de ejemplo:", error);
                         // Aquí podrías añadir un mensaje al usuario en la UI si lo deseas
                         dom.modalTitle.textContent = "Error";
-                        dom.modalContent.innerHTML = `<p class="text-red-400 text-center">No se pudo cargar el misterio de ejemplo. Por favor, asegúrate de que el archivo 'ejemplo_resuelto.json' existe en la carpeta 'games' y es accesible.</p>`;
+                        dom.modalContent.innerHTML = `<p class="text-red-400 text-center">No se pudo cargar el misterio de ejemplo. Por favor, asegúrate de que el archivo 'ejemplo_resuelto.json' está en la carpeta y es accesible (prueba a recargar la página).</p>`;
                         dom.modal.classList.add('active');
                     }
                 });
