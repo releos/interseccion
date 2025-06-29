@@ -136,7 +136,7 @@
             const availableClues = getVisibleClues(game);
 
             if (mode === 'pre-solved') {
-                const contentHTML = `<div class="text-center space-y-4 p-4"><p>Este misterio ya ha sido resuelto.</p><div class="flex flex-col sm:flex-row justify-center gap-4"><button id="play-solved-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg">Jugar pista a pista</button><button id="show-solution-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Mostrar solución completa</button></div></div>`;
+                const contentHTML = `<div class="text-center space-y-4 p-4"><p>Este ya ha sido resuelto. Puedes intentar resolverlo paso a paso (o mirar la solución directamente, pero eso le quita la gracia).</p><div class="flex flex-col sm:flex-row justify-center gap-4"><button id="play-solved-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg">Jugar pista a pista</button><button id="show-solution-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Mostrar solución completa</button></div></div>`;
                 dom.modalContent.innerHTML = contentHTML;
                 document.getElementById('play-solved-btn').addEventListener('click', () => renderModalContent(game, 'step-by-step', 0));
                 document.getElementById('show-solution-btn').addEventListener('click', () => renderModalContent(game, 'full'));
