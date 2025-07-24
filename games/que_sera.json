@@ -28,6 +28,12 @@
       "content": "https://drive.google.com/file/d/1Nv-A5lUG3RsCwhFHTqSntO664fIybUV9/view?usp=sharing",
       "text": "Cuarta pista (vídeo).",
       "publishDate": "2025-07-22T10:00"
+    },
+{
+      "type": "photo",
+      "content": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Bennu_bird.svg/1280px-Bennu_bird.svg.png",
+      "text": "Quinta pista.",
+      "publishDate": "2025-07-29T10:00"
     }
   ],
   "isSolved": false,
