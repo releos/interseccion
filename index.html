@@ -3,37 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- Favicon. -->
-
-<link rel="apple-touch-icon-precomposed" sizes="57x57" href="apple-touch-icon-57x57.png" />
-<link rel="apple-touch-icon-precomposed" sizes="114x114" href="apple-touch-icon-114x114.png" />
-<link rel="apple-touch-icon-precomposed" sizes="72x72" href="apple-touch-icon-72x72.png" />
-<link rel="apple-touch-icon-precomposed" sizes="144x144" href="apple-touch-icon-144x144.png" />
-<link rel="apple-touch-icon-precomposed" sizes="60x60" href="apple-touch-icon-60x60.png" />
-<link rel="apple-touch-icon-precomposed" sizes="120x120" href="apple-touch-icon-120x120.png" />
-<link rel="apple-touch-icon-precomposed" sizes="76x76" href="apple-touch-icon-76x76.png" />
-<link rel="apple-touch-icon-precomposed" sizes="152x152" href="apple-touch-icon-152x152.png" />
-<link rel="icon" type="image/png" href="favicon-196x196.png" sizes="196x196" />
-<link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
-<link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32" />
-<link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16" />
-<link rel="icon" type="image/png" href="favicon-128.png" sizes="128x128" />
-<meta name="application-name" content="&nbsp;"/>
-<meta name="msapplication-TileColor" content="#FFFFFF" />
-<meta name="msapplication-TileImage" content="mstile-144x144.png" />
-<meta name="msapplication-square70x70logo" content="mstile-70x70.png" />
-<meta name="msapplication-square150x150logo" content="mstile-150x150.png" />
-<meta name="msapplication-wide310x150logo" content="mstile-310x150.png" />
-<meta name="msapplication-square310x310logo" content="mstile-310x310.png" />
-
-
-
     <title>La Intersección</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-    <!-- Librería para generar PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Librerías para el calendario (Flatpickr) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #111827; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -44,6 +21,17 @@
         .modal-content-scroll::-webkit-scrollbar { width: 8px; }
         .modal-content-scroll::-webkit-scrollbar-track { background: #1f2937; }
         .modal-content-scroll::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
+        #toast-notification.show { opacity: 1; transform: translateY(0); }
+        .filter-btn { background-color: #374151; }
+        .filter-btn.active { background-color: #4f46e5; }
+        /* Estilos para el calendario Flatpickr en modo oscuro */
+        .flatpickr-calendar.dark { background: #1f2937; border-color: #374151; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .flatpickr-calendar.dark .flatpickr-month, .flatpickr-calendar.dark .flatpickr-weekday, .flatpickr-calendar.dark .flatpickr-day { color: #d1d5db; }
+        .flatpickr-calendar.dark .flatpickr-day.today { border-color: #4f46e5; }
+        .flatpickr-calendar.dark .flatpickr-day.selected, .flatpickr-calendar.dark .flatpickr-day.startRange, .flatpickr-calendar.dark .flatpickr-day.endRange { background: #4f46e5; border-color: #4f46e5; color: #fff; }
+        .flatpickr-calendar.dark .flatpickr-day:hover { background: #374151; }
+        .flatpickr-calendar.dark .flatpickr-day.inRange { background: rgba(79, 70, 229, 0.2); box-shadow: none; border-color: transparent; }
+        .flatpickr-calendar.dark .numInput, .flatpickr-calendar.dark .arrowUp, .flatpickr-calendar.dark .arrowDown { color: #d1d5db; }
     </style>
 </head>
 <body class="text-gray-200">
@@ -61,7 +49,35 @@
 
         <main>
             <div id="en-curso" class="tab-content grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[100px]"></div>
-            <div id="archivo" class="tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[100px]"></div>
+            
+            <div id="archivo" class="tab-content hidden min-h-[100px]">
+                <!-- Buscador para el archivo -->
+                <div class="mb-6 bg-gray-800/50 p-4 rounded-xl fade-in space-y-4">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div class="relative flex-grow">
+                            <input type="text" id="search-text" placeholder="Buscar en misterios resueltos..." class="w-full bg-gray-700 border-gray-600 rounded-lg p-3 pl-10 focus:ring-2 focus:ring-indigo-500 transition border">
+                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
+                        </div>
+                        <button id="toggle-date-filter-btn" class="flex-shrink-0 bg-gray-600 hover:bg-gray-500 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>
+                            <span>Filtrar por fecha</span>
+                        </button>
+                    </div>
+                    <div id="date-filter-container" class="hidden">
+                        <input type="text" id="search-date" placeholder="Selecciona un rango de fechas" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3">
+                    </div>
+                    <div id="type-filter-container" class="flex flex-wrap items-center gap-2">
+                        <span class="text-sm font-medium text-gray-400 mr-2">Tipo:</span>
+                        <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors active" data-type="Todos">Todos</button>
+                        <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors" data-type="Semanal">Semanal</button>
+                        <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors" data-type="Diario">Diario</button>
+                        <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors" data-type="Relámpago">Relámpago</button>
+                    </div>
+                </div>
+                <!-- Contenedor para los juegos resueltos -->
+                <div id="archivo-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+            </div>
+
             <div id="sobre" class="tab-content hidden">
                  <div class="space-y-8 fade-in">
                     <div class="bg-gray-800 rounded-xl shadow-lg p-8">
@@ -75,7 +91,7 @@
                                 <li class="flex"><div class="flex-shrink-0 bg-indigo-600 rounded-full text-white font-bold w-8 h-8 flex items-center justify-center mr-4">1</div><div class="pt-1">Visita la pestaña <strong>Misterios en Curso</strong> o el <strong>Archivo</strong> para elegir un juego.</div></li>
                                 <li class="flex"><div class="flex-shrink-0 bg-indigo-600 rounded-full text-white font-bold w-8 h-8 flex items-center justify-center mr-4">2</div><div class="pt-1">Si está resuelto, puedes elegir entre ver la solución directamente o jugar pista a pista.</div></li>
                                 <li class="flex"><div class="flex-shrink-0 bg-indigo-600 rounded-full text-white font-bold w-8 h-8 flex items-center justify-center mr-4">3</div><div class="pt-1">Cuando creas tener la solución (en un juego en curso), ¡usa el formulario para enviarla!</div></li>
-                                <li class="flex"><div class="flex-shrink-0 bg-indigo-600 rounded-full text-white font-bold w-8 h-8 flex items-center justify-center mr-4">4</div><div class="pt-1">Puedes descargar un resumen de cada misterio en PDF en cualquier momento (cutre, pero funcional).</div></li>
+                                <li class="flex"><div class="flex-shrink-0 bg-indigo-600 rounded-full text-white font-bold w-8 h-8 flex items-center justify-center mr-4">4</div><div class="pt-1">Puedes descargar un resumen de cada misterio en PDF en cualquier momento.</div></li>
                             </ol>
                         </div>
                         <div class="md:col-span-2 bg-gray-800 rounded-xl shadow-lg p-8 flex flex-col">
@@ -93,7 +109,6 @@
                                      <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-teal-500"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="text-white" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/></svg></div>
                                      <div><div class="font-bold text-white">Misterio de Ejemplo</div><div class="text-sm text-gray-400 group-hover:text-gray-200 transition">Prueba el juego</div></div>
                                  </button>
-                                </button>
                              </div>
                         </div>
                     </div>
@@ -104,24 +119,69 @@
 
     <!-- Modal Structure -->
     <div id="game-modal" class="modal fixed inset-0 bg-black bg-opacity-80 items-center justify-center p-4 z-50"><div class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"><header class="flex-shrink-0 p-4 border-b border-gray-700 flex justify-between items-center"><h2 id="modal-title" class="text-2xl font-bold text-white"></h2><button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl leading-none">&times;</button></header><div id="modal-content" class="p-6 overflow-y-auto modal-content-scroll"></div></div></div>
+    
+    <!-- Toast Notification for Share -->
+    <div id="toast-notification" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg transition-opacity duration-300 opacity-0 transform translate-y-2 z-[60]">
+        ¡Enlace copiado al portapapeles!
+    </div>
 
     <script>
         const dom = {
-            tabs: document.querySelectorAll('.tab-button'), tabContents: document.querySelectorAll('.tab-content'), enCursoContainer: document.getElementById('en-curso'), archivoContainer: document.getElementById('archivo'),
+            tabs: document.querySelectorAll('.tab-button'), tabContents: document.querySelectorAll('.tab-content'), enCursoContainer: document.getElementById('en-curso'), archivoContainer: document.getElementById('archivo'), archivoGrid: document.getElementById('archivo-grid'),
             modal: document.getElementById('game-modal'), modalTitle: document.getElementById('modal-title'), modalContent: document.getElementById('modal-content'), modalCloseBtn: document.getElementById('modal-close-btn'),
-            exampleGameBtn: document.getElementById('example-game-btn'), // Añadido para seleccionar el botón de ejemplo
+            exampleGameBtn: document.getElementById('example-game-btn'),
+            searchText: document.getElementById('search-text'),
+            toggleDateFilterBtn: document.getElementById('toggle-date-filter-btn'),
+            dateFilterContainer: document.getElementById('date-filter-container'),
+            searchDate: document.getElementById('search-date'),
+            typeFilterContainer: document.getElementById('type-filter-container'),
         };
 
         const GAMES_INDEX_PATH = 'games/index.json';
-        // Path para el misterio de ejemplo
         const EXAMPLE_GAME_PATH = 'games/ejemplo_resuelto.json'; 
+        let allGames = [];
+        let datePicker;
+
+        // --- FUNCIONES DE UTILIDAD ---
 
         function getVisibleClues(game) {
             if (!game.clues || game.isSolved) return game.clues || [];
             const now = new Date();
             return game.clues.filter(clue => clue.publishDate && new Date(clue.publishDate) <= now);
         }
-        
+
+        function normalizeText(text) {
+            if (!text) return '';
+            return text.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast-notification');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function copyToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast('¡Enlace copiado al portapapeles!');
+            } catch (err) {
+                console.error('No se pudo copiar el enlace', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // --- FUNCIONES DE RENDERIZADO ---
+
         function renderSummaryCard(game) {
             const statusPill = game.isSolved ? `<span class="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full">Resuelto</span>` : `<span class="bg-yellow-500 text-gray-900 text-xs font-semibold px-2 py-1 rounded-full">En curso</span>`;
             const startDate = game.startDate ? new Date(game.startDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
@@ -130,26 +190,29 @@
             const descriptionHTML = game.notes ? `<p class="text-sm text-gray-400 mt-2 italic">${game.notes}</p>` : '';
             const card = document.createElement('div');
             card.className = 'bg-gray-800/80 hover:bg-gray-800 transition-colors cursor-pointer rounded-xl shadow-lg p-5 flex flex-col justify-between fade-in';
-            card.innerHTML = `<div><div class="flex justify-between items-start mb-2"><h3 class="text-xl font-bold text-white pr-2">${game.title || 'Misterio sin título'}</h3>${statusPill}</div>${descriptionHTML}<p class="text-sm text-gray-500 mt-3">Pistas reveladas: ${getVisibleClues(game).length}/${game.clues.length}</p></div><div class="mt-4 border-t border-gray-700 pt-3 text-right"><p class="text-xs text-gray-500">${dateText}</p></div>`;
+            card.innerHTML = `<div><div class="flex justify-between items-start mb-2"><h3 class="text-xl font-bold text-white pr-2">${game.title || 'Misterio sin título'}</h3>${statusPill}</div><p class="text-xs font-semibold uppercase tracking-wider text-indigo-400">${game.type || 'Misterio'}</p>${descriptionHTML}<p class="text-sm text-gray-500 mt-3">Pistas reveladas: ${getVisibleClues(game).length}/${game.clues.length}</p></div><div class="mt-4 border-t border-gray-700 pt-3 text-right"><p class="text-xs text-gray-500">${dateText}</p></div>`;
             card.addEventListener('click', () => openModalWithGame(game));
             return card;
         }
 
         function renderClue(clue, index) {
             let mainTextHTML = '', mediaHTML = '';
-            if (clue.type === 'text') { mainTextHTML = `<p>${clue.content || ''}</p>`; } 
-            else if (clue.text) { mainTextHTML = `<p>${clue.text}</p>`; }
+            const textContent = clue.type === 'text' ? clue.content : clue.text;
+            if (textContent) {
+                mainTextHTML = `<div class="prose prose-invert max-w-none prose-p:text-gray-300 prose-p:my-0">${textContent}</div>`;
+            }
+
             if (clue.type !== 'text' && clue.content) {
                 let url = clue.content;
                 if (!/^https?:\/\//i.test(url)) { url = 'https://' + url; }
                 switch (clue.type) {
-                    case 'image': mediaHTML = `<img src="${url}" alt="Pista" class="mt-2 rounded-lg w-full h-auto object-cover max-h-96">`; break;
-                    case 'audio': mediaHTML = `<audio controls src="${url}" class="mt-2 w-full"></audio>`; break;
-                    case 'video': mediaHTML = `<video controls muted playsinline src="${url}" class="mt-2 rounded-lg w-full" onerror="this.outerHTML='<div class=\\'text-red-400 text-sm p-2 bg-red-900/50 rounded-lg\\'>Error al cargar el vídeo.</div>'"></video>`; break;
-                    case 'link': mediaHTML = `<a href="${url}" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/></svg><span>Abrir Enlace</span></a>`; break;
+                    case 'image': mediaHTML = `<img src="${url}" alt="Pista de imagen" class="mt-4 rounded-lg w-full h-auto object-contain">`; break;
+                    case 'audio': mediaHTML = `<audio controls src="${url}" class="mt-4 w-full"></audio>`; break;
+                    case 'video': mediaHTML = `<video controls muted playsinline src="${url}" class="mt-4 rounded-lg w-full" onerror="this.outerHTML='<div class=\\'text-red-400 text-sm p-2 bg-red-900/50 rounded-lg\\'>Error al cargar el vídeo.</div>'"></video>`; break;
+                    case 'link': mediaHTML = `<a href="${url}" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/></svg><span>Abrir Enlace</span></a>`; break;
                 }
             }
-            return `<div class="flex items-start gap-4 p-4 bg-gray-700/50 rounded-lg"><div class="flex-shrink-0 bg-indigo-600 h-8 w-8 rounded-full flex items-center justify-center font-bold text-white text-sm">${index + 1}</div><div class="flex-grow prose prose-invert max-w-none prose-p:text-gray-300 text-sm">${mainTextHTML}${mediaHTML}</div></div>`;
+            return `<div class="flex items-start gap-4 p-4 bg-gray-700/50 rounded-lg"><div class="flex-shrink-0 bg-indigo-600 h-8 w-8 rounded-full flex items-center justify-center font-bold text-white text-sm">${index + 1}</div><div class="flex-grow min-w-0">${mainTextHTML}${mediaHTML}</div></div>`;
         }
 
         function getSolutionHTML(game) {
@@ -162,7 +225,7 @@
             const availableClues = getVisibleClues(game);
 
             if (mode === 'pre-solved') {
-                const contentHTML = `<div class="text-center space-y-4 p-4"><p>Este ya ha sido resuelto. Puedes intentar resolverlo paso a paso (o mirar la solución directamente, pero eso le quita la gracia).</p><div class="flex flex-col sm:flex-row justify-center gap-4"><button id="play-solved-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg">Jugar pista a pista</button><button id="show-solution-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Mostrar solución completa</button></div></div>`;
+                const contentHTML = `<div class="text-center space-y-4 p-4"><p>Este misterio ya ha sido resuelto.</p><div class="flex flex-col sm:flex-row justify-center gap-4"><button id="play-solved-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg">Jugar pista a pista</button><button id="show-solution-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Mostrar solución completa</button></div></div>`;
                 dom.modalContent.innerHTML = contentHTML;
                 document.getElementById('play-solved-btn').addEventListener('click', () => renderModalContent(game, 'step-by-step', 0));
                 document.getElementById('show-solution-btn').addEventListener('click', () => renderModalContent(game, 'full'));
@@ -175,19 +238,30 @@
                 } else {
                     ctaHTML = `<div class="text-center mt-6"><button id="reveal-solution-btn" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg">Mostrar Solución</button></div>`;
                 }
-                dom.modalContent.innerHTML = `<div id="pdf-content" class="space-y-4">${cluesHTML}</div>${ctaHTML}`;
+                dom.modalContent.innerHTML = `<div id="html-content" class="space-y-4">${cluesHTML}</div>${ctaHTML}`;
 
                 if (document.getElementById('next-clue-btn')) { document.getElementById('next-clue-btn').addEventListener('click', () => renderModalContent(game, 'step-by-step', clueIndex + 1)); }
                 if (document.getElementById('reveal-solution-btn')) { document.getElementById('reveal-solution-btn').addEventListener('click', () => renderModalContent(game, 'full')); }
             } else { // 'full' mode
                 const allCluesHTML = availableClues.map((clue, i) => renderClue(clue, i)).join('');
                 const solutionHTML = game.isSolved ? getSolutionHTML(game) : '';
-                const ctaHTML = `<div class="mt-8 text-center flex flex-col sm:flex-row justify-center gap-4">${game.googleFormLink && !game.isSolved ? `<a href="${game.googleFormLink}" target="_blank" rel="noopener noreferrer" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg">¡Adivina aquí!</a>` : ''}<button id="download-pdf-btn" class="inline-flex items-center justify-center gap-2 bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>Descargar PDF</button></div>`;
-                dom.modalContent.innerHTML = `<div id="pdf-content">${allCluesHTML}${solutionHTML}</div>${ctaHTML}`;
-                if (document.getElementById('download-pdf-btn')) { document.getElementById('download-pdf-btn').addEventListener('click', () => downloadGameAsPDF(game)); }
+                const shareButtonHTML = `<button id="share-game-btn" data-game-id="${game.id}" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/></svg>Compartir</button>`;
+                const ctaHTML = `<div class="mt-8 text-center flex flex-col sm:flex-row justify-center gap-4 flex-wrap">${game.googleFormLink && !game.isSolved ? `<a href="${game.googleFormLink}" target="_blank" rel="noopener noreferrer" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg">¡Adivina aquí!</a>` : ''}<button id="download-html-btn" class="inline-flex items-center justify-center gap-2 bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>Descargar Pistas</button>${shareButtonHTML}</div>`;
+                dom.modalContent.innerHTML = `<div id="html-content" class="space-y-4">${allCluesHTML}${solutionHTML}</div>${ctaHTML}`;
+                
+                if (document.getElementById('download-html-btn')) { document.getElementById('download-html-btn').addEventListener('click', () => downloadGameAsHTML(game)); }
+                if (document.getElementById('share-game-btn')) {
+                    document.getElementById('share-game-btn').addEventListener('click', (e) => {
+                        const gameId = e.currentTarget.dataset.gameId;
+                        const shareUrl = `${window.location.origin}${window.location.pathname}#mystery=${gameId}`;
+                        copyToClipboard(shareUrl);
+                    });
+                }
             }
         }
         
+        // --- LÓGICA PRINCIPAL ---
+
         function openModalWithGame(game) {
             if (game.isSolved) { renderModalContent(game, 'pre-solved'); } 
             else { renderModalContent(game, 'full'); }
@@ -196,63 +270,174 @@
         
         function closeModal() { dom.modal.classList.remove('active'); dom.modalTitle.textContent = ''; dom.modalContent.innerHTML = ''; }
 
-        function downloadGameAsPDF(game) {
-            const element = document.createElement('div');
-            const showSolution = game.isSolved;
-            
+        function downloadGameAsHTML(game) {
             const visibleClues = getVisibleClues(game);
-            const renderPdfClue = (clue, index) => {
-                let mainTextHTML = ''; let mediaHTML = '';
-                if (clue.type === 'text') { mainTextHTML = `<p>${clue.content || ''}</p>`; } 
-                else if (clue.text) { mainTextHTML = `<p>${clue.text}</p>`; }
-                if (clue.type !== 'text' && clue.content) {
-                    let url = clue.content; if (!/^https?:\/\//i.test(url)) { url = 'https://' + url; }
-                    mediaHTML = `<p style="font-size: 0.8rem; color: #4f46e5;"><em>[Recurso externo: ${url}]</em></p>`;
+            
+            const cluesHTML = visibleClues.map((clue, index) => {
+                let content = ``;
+                if (clue.type === 'text') {
+                    content = `<p>${clue.content}</p>`;
+                } else {
+                    content = `<p>${clue.text || 'Contenido multimedia'}</p><p><a href="${clue.content}" target="_blank">Ver recurso</a></p>`;
                 }
-                return `<div style="margin-bottom: 1rem; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem;"><h3 style="font-size: 1.25rem; font-weight: 700; color: #1f2937; margin-bottom: 0.5rem;">Pista ${index + 1}</h3><div style="font-size: 1rem; line-height: 1.6;">${mainTextHTML}${mediaHTML}</div></div>`;
-            };
-            const allCluesHTML = visibleClues.map((clue, i) => renderPdfClue(clue, i)).join('');
-            
-            let solutionHTML = '';
-            if (showSolution) {
-                const explanationHTML = game.explanation ? `<p style="line-height: 1.6;">${game.explanation.replace(/\n/g, '<br>')}</p>` : '<p>No se proporcionó una explicación.</p>';
-                solutionHTML = `<div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #4f46e5;"><h2 style="font-size: 1.875rem; font-weight: 800; color: #16a34a;">Solución Final</h2><div style="margin-top: 1rem; padding: 1.5rem; background-color: #f0fdf4; border-radius: 0.5rem; text-align: center;"><p style="font-size: 2.25rem; font-weight: 800; color: #15803d; word-wrap: break-word;">${game.solution || 'N/A'}</p>${game.winner ? `<p style="margin-top: 0.5rem; color: #b45309;">¡Adivinado por <strong>${game.winner}</strong>!</p>` : ''}</div><div style="margin-top: 1.5rem;"><h4 style="font-size: 1.5rem; font-weight: 700;">Explicación</h4>${explanationHTML}</div></div>`;
+                return `
+                    <div class="clue">
+                        <h3>Pista ${index + 1}</h3>
+                        ${content}
+                    </div>
+                `;
+            }).join('');
+
+            const htmlTemplate = `
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Pistas de: ${game.title}</title>
+                    <style>
+                        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; background: #f0f2f5; color: #1c1e21; margin: 0; padding: 20px; }
+                        .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                        h1, h3 { color: #333; }
+                        .clue { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+                        a { color: #007bff; text-decoration: none; }
+                        a:hover { text-decoration: underline; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <h1>Pistas para: ${game.title}</h1>
+                        <p><em>${game.notes || ''}</em></p>
+                        <hr>
+                        ${cluesHTML}
+                    </div>
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob([htmlTemplate], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `pistas_${game.title.replace(/ /g, '_')}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function renderGames() {
+            dom.enCursoContainer.innerHTML = '';
+            dom.archivoGrid.innerHTML = '';
+
+            const searchText = normalizeText(dom.searchText.value);
+            const selectedDates = datePicker.selectedDates;
+            const activeTypeFilter = dom.typeFilterContainer.querySelector('.filter-btn.active').dataset.type;
+
+            const titleMatches = [];
+            const descriptionMatches = [];
+            const otherMatches = [];
+
+            let enCursoCount = 0;
+            let archivoCount = 0;
+
+            allGames.forEach(game => {
+                if (!game || !game.title) return;
+
+                const card = renderSummaryCard(game);
+                if (game.isSolved) {
+                    const gameTitle = normalizeText(game.title);
+                    const gameNotes = normalizeText(game.notes);
+                    
+                    const textMatch = !searchText || gameTitle.includes(searchText) || gameNotes.includes(searchText);
+                    const typeMatch = activeTypeFilter === 'Todos' || (game.type && game.type === activeTypeFilter);
+                    
+                    let dateMatch = true;
+                    if (selectedDates.length === 2) {
+                        const gameStartDate = new Date(game.startDate);
+                        gameStartDate.setHours(0,0,0,0);
+                        dateMatch = gameStartDate >= selectedDates[0] && gameStartDate <= selectedDates[1];
+                    }
+
+                    if (textMatch && dateMatch && typeMatch) {
+                        if (searchText && gameTitle.includes(searchText)) {
+                            titleMatches.push(card);
+                        } else if (searchText && gameNotes.includes(searchText)) {
+                            descriptionMatches.push(card);
+                        } else {
+                            otherMatches.push(card);
+                        }
+                        archivoCount++;
+                    }
+                } else {
+                    dom.enCursoContainer.appendChild(card);
+                    enCursoCount++;
+                }
+            });
+
+            [...titleMatches, ...descriptionMatches, ...otherMatches].forEach(card => {
+                dom.archivoGrid.appendChild(card);
+            });
+
+            if (enCursoCount === 0) dom.enCursoContainer.innerHTML = '<p class="text-center text-gray-400 col-span-full">Aún no hay misterios en curso. ¡Vuelve pronto!</p>';
+            if (archivoCount === 0) {
+                if (searchText || selectedDates.length > 0 || activeTypeFilter !== 'Todos') {
+                    dom.archivoGrid.innerHTML = '<p class="text-center text-gray-400 col-span-full">No se encontraron misterios que coincidan con tu búsqueda.</p>';
+                } else {
+                    dom.archivoGrid.innerHTML = '<p class="text-center text-gray-400 col-span-full">Aún no hay misterios resueltos.</p>';
+                }
             }
-            element.innerHTML = `<div style="padding: 2rem; font-family: 'Inter', sans-serif; color: #111827; background-color: #ffffff;"><h1 style="font-size: 2.5rem; font-weight: 800; text-align: center; margin-bottom: 0.5rem;">${game.title}</h1><p style="text-align: center; margin-bottom: 2rem; font-style: italic; color: #6b7280;">${game.notes || ''}</p><div style="margin-top: 1rem;">${allCluesHTML}</div>${solutionHTML}</div>`;
-            
-            const opt = { margin: 0, filename: `${game.title.replace(/ /g, '_')}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-            html2pdf().from(element).set(opt).save();
+        }
+
+        function handleUrlSharing() {
+            if (window.location.hash.startsWith('#mystery=')) {
+                const mysteryId = window.location.hash.substring(9);
+                if (mysteryId) {
+                    const gameToOpen = allGames.find(g => g.id === mysteryId);
+                    if (gameToOpen) {
+                        setTimeout(() => {
+                            openModalWithGame(gameToOpen);
+                            history.pushState("", document.title, window.location.pathname + window.location.search);
+                        }, 500);
+                    } else {
+                        console.warn(`Misterio con ID ${mysteryId} no encontrado.`);
+                    }
+                }
+            }
         }
 
         async function loadGames() {
             const loadingHTML = '<p class="text-center text-gray-400 col-span-full">Cargando misterios...</p>';
-            dom.enCursoContainer.innerHTML = loadingHTML; dom.archivoContainer.innerHTML = loadingHTML;
+            dom.enCursoContainer.innerHTML = loadingHTML; 
+            dom.archivoGrid.innerHTML = loadingHTML;
             try {
                 const response = await fetch(`${GAMES_INDEX_PATH}?v=${Date.now()}`);
                 if (!response.ok) throw new Error(`El archivo de índice no se encuentra en ${GAMES_INDEX_PATH}`);
                 const gameFiles = await response.json();
                 if (!Array.isArray(gameFiles)) throw new Error("El índice de juegos no es un array válido.");
+                
                 const gamePromises = gameFiles.map(async (file) => {
-                    try { const res = await fetch(`games/${file}?v=${Date.now()}`); if (!res.ok) throw new Error(`No se pudo cargar ${file}`); return await res.json(); } 
-                    catch (error) { console.error(`Error procesando el archivo de juego ${file}:`, error); return null; }
-                });
-                const games = (await Promise.all(gamePromises)).filter(Boolean);
-                dom.enCursoContainer.innerHTML = ''; dom.archivoContainer.innerHTML = '';
-                games.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
-                let enCursoCount = 0, archivoCount = 0;
-                games.forEach(game => {
-                    if (game && game.title) {
-                        const card = renderSummaryCard(game);
-                        if (game.isSolved) { dom.archivoContainer.appendChild(card); archivoCount++; } 
-                        else { dom.enCursoContainer.appendChild(card); enCursoCount++; }
+                    try { 
+                        const res = await fetch(`games/${file}?v=${Date.now()}`); 
+                        if (!res.ok) throw new Error(`No se pudo cargar ${file}`); 
+                        return await res.json(); 
+                    } catch (error) { 
+                        console.error(`Error procesando el archivo de juego ${file}:`, error); 
+                        return null; 
                     }
                 });
-                if (enCursoCount === 0) dom.enCursoContainer.innerHTML = '<p class="text-center text-gray-400 col-span-full">Aún no hay misterios en curso. ¡Vuelve pronto!</p>';
-                if (archivoCount === 0) dom.archivoContainer.innerHTML = '<p class="text-center text-gray-400 col-span-full">Aún no hay misterios resueltos.</p>';
+                
+                const games = (await Promise.all(gamePromises)).filter(Boolean);
+                allGames = games.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
+                
+                renderGames();
+                handleUrlSharing();
+
             } catch (error) {
                 console.error("Error al cargar el índice de juegos:", error);
                 const errorHTML = `<p class="text-center text-red-500 col-span-full">Error fatal al cargar los juegos. Revisa la consola (F12).</p>`;
-                dom.enCursoContainer.innerHTML = errorHTML; dom.archivoContainer.innerHTML = '';
+                dom.enCursoContainer.innerHTML = errorHTML; 
+                dom.archivoGrid.innerHTML = '';
             }
         }
         
@@ -268,25 +453,50 @@
                     });
                 });
             });
+
             dom.modalCloseBtn.addEventListener('click', closeModal);
             dom.modal.addEventListener('click', (e) => { if (e.target === dom.modal) closeModal(); });
             document.addEventListener('keydown', (e) => { if (e.key === "Escape" && dom.modal.classList.contains('active')) closeModal(); });
+            
+            dom.searchText.addEventListener('input', renderGames);
+            
+            dom.toggleDateFilterBtn.addEventListener('click', () => {
+                dom.dateFilterContainer.classList.toggle('hidden');
+            });
 
-            // Añadir el event listener para el botón "Misterio de Ejemplo"
+            dom.typeFilterContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('filter-btn')) {
+                    dom.typeFilterContainer.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    renderGames();
+                }
+            });
+
+            datePicker = flatpickr(dom.searchDate, {
+                mode: "range",
+                dateFormat: "d/m/Y",
+                locale: "es",
+                altInput: true,
+                altFormat: "j F, Y",
+                onClose: function(selectedDates) {
+                    renderGames();
+                },
+                onReady: function(selectedDates, dateStr, instance) {
+                    instance.calendarContainer.classList.add('dark');
+                }
+            });
+
             if (dom.exampleGameBtn) {
                 dom.exampleGameBtn.addEventListener('click', async () => {
                     try {
-                        const response = await fetch(`${EXAMPLE_GAME_PATH}?v=${Date.now()}`); // Usamos ?v=${Date.now()} para evitar la caché
-                        if (!response.ok) {
-                            throw new Error(`No se pudo cargar el misterio de ejemplo: ${response.statusText}`);
-                        }
+                        const response = await fetch(`${EXAMPLE_GAME_PATH}?v=${Date.now()}`);
+                        if (!response.ok) throw new Error(`No se pudo cargar el misterio de ejemplo: ${response.statusText}`);
                         const exampleGame = await response.json();
                         openModalWithGame(exampleGame);
                     } catch (error) {
                         console.error("Error al cargar el misterio de ejemplo:", error);
-                        // Aquí podrías añadir un mensaje al usuario en la UI si lo deseas
                         dom.modalTitle.textContent = "Error";
-                        dom.modalContent.innerHTML = `<p class="text-red-400 text-center">No se pudo cargar el misterio de ejemplo. Por favor, asegúrate de que el archivo 'ejemplo_resuelto.json' está en la carpeta y es accesible (prueba a recargar la página).</p>`;
+                        dom.modalContent.innerHTML = `<p class="text-red-400 text-center">No se pudo cargar el misterio de ejemplo. Por favor, asegúrate de que el archivo 'ejemplo_resuelto.json' existe en la carpeta 'games' y es accesible.</p>`;
                         dom.modal.classList.add('active');
                     }
                 });
@@ -294,6 +504,7 @@
 
             loadGames();
         }
+
         init();
     </script>
 </body>
