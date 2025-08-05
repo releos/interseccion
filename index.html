@@ -21,7 +21,19 @@
         .modal-content-scroll::-webkit-scrollbar { width: 8px; }
         .modal-content-scroll::-webkit-scrollbar-track { background: #1f2937; }
         .modal-content-scroll::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
-        #toast-notification.show { opacity: 1; transform: translateY(0); }
+        #toast-notification {
+            position: fixed;
+            bottom: -100px;
+            right: 20px;
+            background-color: #22c55e;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: bottom 0.5s ease-in-out;
+            z-index: 100;
+        }
+        #toast-notification.show { bottom: 20px; }
         .filter-btn { background-color: #374151; }
         .filter-btn.active { background-color: #4f46e5; }
         /* Estilos para el calendario Flatpickr en modo oscuro */
@@ -50,21 +62,24 @@
         <main>
             <div id="en-curso" class="tab-content grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[100px]"></div>
             
-            <div id="archivo" class="tab-content hidden min-h-[100px]">
-                <!-- Buscador para el archivo -->
-                <div class="mb-6 bg-gray-800/50 p-4 rounded-xl fade-in space-y-4">
+            <div id="archivo" class="tab-content hidden min-h-[100px] relative">
+                 <!-- Botón para mostrar/ocultar filtros -->
+                <div class="flex justify-end mb-4">
+                    <button id="toggle-filters-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-all flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/></svg>
+                        <span id="toggle-filters-text">Filtros</span>
+                    </button>
+                </div>
+                <!-- Contenedor de filtros (inicialmente oculto) -->
+                <div id="filters-container" class="hidden mb-6 bg-gray-800/50 p-4 rounded-xl fade-in space-y-4">
                     <div class="flex flex-wrap items-center gap-4">
                         <div class="relative flex-grow">
                             <input type="text" id="search-text" placeholder="Buscar en misterios resueltos..." class="w-full bg-gray-700 border-gray-600 rounded-lg p-3 pl-10 focus:ring-2 focus:ring-indigo-500 transition border">
                             <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
                         </div>
-                        <button id="toggle-date-filter-btn" class="flex-shrink-0 bg-gray-600 hover:bg-gray-500 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>
-                            <span>Filtrar por fecha</span>
-                        </button>
-                    </div>
-                    <div id="date-filter-container" class="hidden">
-                        <input type="text" id="search-date" placeholder="Selecciona un rango de fechas" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3">
+                        <div id="date-filter-container">
+                            <input type="text" id="search-date" placeholder="Filtrar por fecha de inicio" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3">
+                        </div>
                     </div>
                     <div id="type-filter-container" class="flex flex-wrap items-center gap-2">
                         <span class="text-sm font-medium text-gray-400 mr-2">Tipo:</span>
@@ -72,13 +87,15 @@
                         <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors" data-type="Semanal">Semanal</button>
                         <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors" data-type="Diario">Diario</button>
                         <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors" data-type="Relámpago">Relámpago</button>
+                        <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors" data-type="Especial">Especial</button>
+                        <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors" data-type="Tutorial">Tutorial</button>
                     </div>
                 </div>
                 <!-- Contenedor para los juegos resueltos -->
                 <div id="archivo-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
             </div>
 
-            <div id="sobre" class="tab-content hidden">
+            <div id="sobre" class="tab-content hidden relative pb-8">
                  <div class="space-y-8 fade-in">
                     <div class="bg-gray-800 rounded-xl shadow-lg p-8">
                         <h2 class="text-3xl font-bold text-indigo-400 mb-4">¿Qué es "La Intersección"?</h2>
@@ -91,8 +108,11 @@
                                 <li class="flex"><div class="flex-shrink-0 bg-indigo-600 rounded-full text-white font-bold w-8 h-8 flex items-center justify-center mr-4">1</div><div class="pt-1">Visita la pestaña <strong>Misterios en Curso</strong> o el <strong>Archivo</strong> para elegir un juego.</div></li>
                                 <li class="flex"><div class="flex-shrink-0 bg-indigo-600 rounded-full text-white font-bold w-8 h-8 flex items-center justify-center mr-4">2</div><div class="pt-1">Si está resuelto, puedes elegir entre ver la solución directamente o jugar pista a pista.</div></li>
                                 <li class="flex"><div class="flex-shrink-0 bg-indigo-600 rounded-full text-white font-bold w-8 h-8 flex items-center justify-center mr-4">3</div><div class="pt-1">Cuando creas tener la solución (en un juego en curso), ¡usa el formulario para enviarla!</div></li>
-                                <li class="flex"><div class="flex-shrink-0 bg-indigo-600 rounded-full text-white font-bold w-8 h-8 flex items-center justify-center mr-4">4</div><div class="pt-1">Puedes descargar un resumen de cada misterio en PDF en cualquier momento.</div></li>
+                                <li class="flex"><div class="flex-shrink-0 bg-indigo-600 rounded-full text-white font-bold w-8 h-8 flex items-center justify-center mr-4">4</div><div class="pt-1">Puedes descargar un resumen de cada misterio en cualquier momento.</div></li>
                             </ol>
+                             <div class="mt-8 text-center">
+                                <button id="instructions-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition-transform transform hover:scale-105">Instrucciones detalladas</button>
+                            </div>
                         </div>
                         <div class="md:col-span-2 bg-gray-800 rounded-xl shadow-lg p-8 flex flex-col">
                              <h3 class="text-2xl font-bold text-indigo-400 mb-6">Contacto y Opiniones</h3>
@@ -112,40 +132,51 @@
                              </div>
                         </div>
                     </div>
-                </div>
+                 </div>
+                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v7.3</div>
             </div>
         </main>
     </div>
 
     <!-- Modal Structure -->
-    <div id="game-modal" class="modal fixed inset-0 bg-black bg-opacity-80 items-center justify-center p-4 z-50"><div class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"><header class="flex-shrink-0 p-4 border-b border-gray-700 flex justify-between items-center"><h2 id="modal-title" class="text-2xl font-bold text-white"></h2><button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl leading-none">&times;</button></header><div id="modal-content" class="p-6 overflow-y-auto modal-content-scroll"></div></div></div>
-    
-    <!-- Toast Notification for Share -->
-    <div id="toast-notification" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg transition-opacity duration-300 opacity-0 transform translate-y-2 z-[60]">
-        ¡Enlace copiado al portapapeles!
+    <div id="game-modal" class="modal fixed inset-0 bg-black bg-opacity-80 items-center justify-center p-4 z-50">
+        <div class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <header class="flex-shrink-0 p-4 border-b border-gray-700 flex justify-between items-center">
+                <h2 id="modal-title" class="text-2xl font-bold text-white"></h2>
+                <button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
+            </header>
+            <div id="modal-content" class="p-6 overflow-y-auto modal-content-scroll"></div>
+            <footer id="modal-footer" class="flex-shrink-0 p-4 border-t border-gray-700"></footer>
+        </div>
     </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast-notification"></div>
 
     <script>
         const dom = {
             tabs: document.querySelectorAll('.tab-button'), tabContents: document.querySelectorAll('.tab-content'), enCursoContainer: document.getElementById('en-curso'), archivoContainer: document.getElementById('archivo'), archivoGrid: document.getElementById('archivo-grid'),
-            modal: document.getElementById('game-modal'), modalTitle: document.getElementById('modal-title'), modalContent: document.getElementById('modal-content'), modalCloseBtn: document.getElementById('modal-close-btn'),
+            modal: document.getElementById('game-modal'), modalTitle: document.getElementById('modal-title'), modalContent: document.getElementById('modal-content'), modalFooter: document.getElementById('modal-footer'), modalCloseBtn: document.getElementById('modal-close-btn'),
             exampleGameBtn: document.getElementById('example-game-btn'),
             searchText: document.getElementById('search-text'),
-            toggleDateFilterBtn: document.getElementById('toggle-date-filter-btn'),
-            dateFilterContainer: document.getElementById('date-filter-container'),
             searchDate: document.getElementById('search-date'),
             typeFilterContainer: document.getElementById('type-filter-container'),
+            toggleFiltersBtn: document.getElementById('toggle-filters-btn'),
+            filtersContainer: document.getElementById('filters-container'),
+            instructionsBtn: document.getElementById('instructions-btn'),
         };
 
         const GAMES_INDEX_PATH = 'games/index.json';
         const EXAMPLE_GAME_PATH = 'games/ejemplo_resuelto.json'; 
         let allGames = [];
         let datePicker;
+        let currentGameData = null;
 
         // --- FUNCIONES DE UTILIDAD ---
 
         function getVisibleClues(game) {
-            if (!game.clues || game.isSolved) return game.clues || [];
+            if (!game || !game.clues) return [];
+            if (game.isSolved) return game.clues;
             const now = new Date();
             return game.clues.filter(clue => clue.publishDate && new Date(clue.publishDate) <= now);
         }
@@ -155,9 +186,10 @@
             return text.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         }
 
-        function showToast(message) {
+        function showToast(message, isError = false) {
             const toast = document.getElementById('toast-notification');
             toast.textContent = message;
+            toast.style.backgroundColor = isError ? '#ef4444' : '#22c55e';
             toast.classList.add('show');
             setTimeout(() => {
                 toast.classList.remove('show');
@@ -167,52 +199,99 @@
         function copyToClipboard(text) {
             const textArea = document.createElement("textarea");
             textArea.value = text;
-            textArea.style.position = "fixed";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
+            textArea.style.position = "fixed"; document.body.appendChild(textArea);
+            textArea.focus(); textArea.select();
             try {
                 document.execCommand('copy');
                 showToast('¡Enlace copiado al portapapeles!');
             } catch (err) {
+                showToast('Error al copiar el enlace', true);
                 console.error('No se pudo copiar el enlace', err);
             }
             document.body.removeChild(textArea);
         }
 
+        function getOrdinal(n) {
+            const ordinals = ["Primera", "Segunda", "Tercera", "Cuarta", "Quinta", "Sexta", "Séptima", "Octava", "Novena", "Décima"];
+            if (n > 0 && n <= ordinals.length) return ordinals[n - 1];
+            return `${n}ª`;
+        }
+
+        function getTypeData(type) {
+            const typeMap = {
+                'Semanal':   { label: 'Semanal',   color: 'bg-blue-600' },
+                'Diario':    { label: 'Diario',    color: 'bg-yellow-500' },
+                'Relámpago': { label: 'Relámpago', color: 'bg-orange-500' },
+                'Especial':  { label: 'Especial',  color: 'bg-purple-600' },
+                'Tutorial':  { label: 'Tutorial',  color: 'bg-teal-600' },
+                'default':   { label: type,        color: 'bg-gray-500' }
+            };
+            return typeMap[type] || typeMap['default'];
+        }
+
+        function getClueTypeTag(type) {
+            const typeMap = {
+                text: { label: 'Texto', color: 'bg-sky-600' },
+                image: { label: 'Imagen', color: 'bg-purple-600' },
+                audio: { label: 'Audio', color: 'bg-pink-600' },
+                video: { label: 'Vídeo', color: 'bg-red-600' },
+                link: { label: 'Enlace', color: 'bg-orange-600' }
+            };
+            const config = typeMap[type] || { label: type, color: 'bg-gray-600' };
+            return `<span class="text-xs font-semibold px-2 py-1 ${config.color} text-white rounded-full">${config.label}</span>`;
+        }
+
         // --- FUNCIONES DE RENDERIZADO ---
 
         function renderSummaryCard(game) {
+            const typeData = getTypeData(game.type);
             const statusPill = game.isSolved ? `<span class="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full">Resuelto</span>` : `<span class="bg-yellow-500 text-gray-900 text-xs font-semibold px-2 py-1 rounded-full">En curso</span>`;
             const startDate = game.startDate ? new Date(game.startDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
             const endDate = game.endDate ? new Date(game.endDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
             const dateText = game.isSolved ? `Del ${startDate.replace(/ de/g, '')} al ${endDate.replace(/ de/g, '')}` : `Iniciado: ${startDate.replace(/ de/g, '')}`;
             const descriptionHTML = game.notes ? `<p class="text-sm text-gray-400 mt-2 italic">${game.notes}</p>` : '';
+            const typeBadge = `<span class="text-xs font-bold px-3 py-1 ${typeData.color} text-white rounded-full">${typeData.label}</span>`;
+
             const card = document.createElement('div');
             card.className = 'bg-gray-800/80 hover:bg-gray-800 transition-colors cursor-pointer rounded-xl shadow-lg p-5 flex flex-col justify-between fade-in';
-            card.innerHTML = `<div><div class="flex justify-between items-start mb-2"><h3 class="text-xl font-bold text-white pr-2">${game.title || 'Misterio sin título'}</h3>${statusPill}</div><p class="text-xs font-semibold uppercase tracking-wider text-indigo-400">${game.type || 'Misterio'}</p>${descriptionHTML}<p class="text-sm text-gray-500 mt-3">Pistas reveladas: ${getVisibleClues(game).length}/${game.clues.length}</p></div><div class="mt-4 border-t border-gray-700 pt-3 text-right"><p class="text-xs text-gray-500">${dateText}</p></div>`;
+            card.innerHTML = `
+                <div>
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-bold text-white pr-2">${game.title || 'Misterio sin título'}</h3>
+                        ${statusPill}
+                    </div>
+                    <div class="flex items-center gap-2 mb-2">
+                        ${typeBadge}
+                    </div>
+                    ${descriptionHTML}
+                    <p class="text-sm text-gray-500 mt-3">Pistas reveladas: ${getVisibleClues(game).length}/${game.clues.length}</p>
+                </div>
+                <div class="mt-4 border-t border-gray-700 pt-3 text-right">
+                    <p class="text-xs text-gray-500">${dateText}</p>
+                </div>`;
             card.addEventListener('click', () => openModalWithGame(game));
             return card;
         }
 
         function renderClue(clue, index) {
             let mainTextHTML = '', mediaHTML = '';
-            const textContent = clue.type === 'text' ? clue.content : clue.text;
+            const textContent = clue.type === 'text' ? clue.content : (clue.text || '');
             if (textContent) {
-                mainTextHTML = `<div class="prose prose-invert max-w-none prose-p:text-gray-300 prose-p:my-0">${textContent}</div>`;
+                mainTextHTML = `<div class="prose prose-invert max-w-none prose-p:text-gray-300 prose-p:my-0">${textContent.replace(/\n/g, '<br>')}</div>`;
             }
 
             if (clue.type !== 'text' && clue.content) {
                 let url = clue.content;
                 if (!/^https?:\/\//i.test(url)) { url = 'https://' + url; }
+                
                 switch (clue.type) {
-                    case 'image': mediaHTML = `<img src="${url}" alt="Pista de imagen" class="mt-4 rounded-lg w-full h-auto object-contain">`; break;
+                    case 'image': mediaHTML = `<img src="${url}" alt="Pista de imagen" class="mt-4 rounded-lg w-full h-auto object-contain max-h-96">`; break;
                     case 'audio': mediaHTML = `<audio controls src="${url}" class="mt-4 w-full"></audio>`; break;
-                    case 'video': mediaHTML = `<video controls muted playsinline src="${url}" class="mt-4 rounded-lg w-full" onerror="this.outerHTML='<div class=\\'text-red-400 text-sm p-2 bg-red-900/50 rounded-lg\\'>Error al cargar el vídeo.</div>'"></video>`; break;
+                    case 'video': mediaHTML = `<div class="relative mt-4" style="padding-bottom: 56.25%"><iframe src="${url}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen class="absolute top-0 left-0 w-full h-full rounded-lg"></iframe></div>`; break;
                     case 'link': mediaHTML = `<a href="${url}" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/></svg><span>Abrir Enlace</span></a>`; break;
                 }
             }
-            return `<div class="flex items-start gap-4 p-4 bg-gray-700/50 rounded-lg"><div class="flex-shrink-0 bg-indigo-600 h-8 w-8 rounded-full flex items-center justify-center font-bold text-white text-sm">${index + 1}</div><div class="flex-grow min-w-0">${mainTextHTML}${mediaHTML}</div></div>`;
+            return `<div class="flex items-start gap-4 p-4 bg-gray-900/50 rounded-lg"><div class="flex-shrink-0 bg-indigo-600 h-8 w-8 rounded-full flex items-center justify-center font-bold text-white text-sm">${index + 1}</div><div class="flex-grow min-w-0">${mainTextHTML}${mediaHTML}</div></div>`;
         }
 
         function getSolutionHTML(game) {
@@ -220,112 +299,159 @@
             return `<div class="mt-6 border-t-2 border-green-500 pt-6 space-y-4"><h3 class="text-2xl font-bold text-green-400">Solución Final</h3><div class="bg-green-900/50 border border-green-500 rounded-lg p-6 text-center"><p class="text-4xl font-extrabold text-white break-words">${game.solution || 'N/A'}</p>${game.winner ? `<p class="text-lg text-yellow-400 mt-2">¡Adivinado por <strong>${game.winner}</strong>!</p>` : ''}</div><div class="prose prose-invert max-w-none prose-p:text-gray-300 prose-headings:text-white prose-headings:text-xl"><h4>Explicación</h4>${explanationHTML}</div></div>`;
         }
         
-        function renderModalContent(game, mode = 'full', clueIndex = -1) {
-            dom.modalTitle.textContent = game.title || 'Misterio';
-            const availableClues = getVisibleClues(game);
+        function renderModal(game, view = 'summary', options = {}) {
+            currentGameData = game;
+            dom.modalTitle.textContent = game ? (game.title || 'Misterio') : (options.title || 'Información');
+            let contentHTML = '';
+            let footerHTML = '';
+            const availableClues = game ? getVisibleClues(game) : [];
 
-            if (mode === 'pre-solved') {
-                const contentHTML = `<div class="text-center space-y-4 p-4"><p>Este misterio ya ha sido resuelto.</p><div class="flex flex-col sm:flex-row justify-center gap-4"><button id="play-solved-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg">Jugar pista a pista</button><button id="show-solution-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Mostrar solución completa</button></div></div>`;
-                dom.modalContent.innerHTML = contentHTML;
-                document.getElementById('play-solved-btn').addEventListener('click', () => renderModalContent(game, 'step-by-step', 0));
-                document.getElementById('show-solution-btn').addEventListener('click', () => renderModalContent(game, 'full'));
-            } else if (mode === 'step-by-step') {
-                const cluesToShow = availableClues.slice(0, clueIndex + 1);
-                const cluesHTML = cluesToShow.map((clue, i) => renderClue(clue, i)).join('');
-                let ctaHTML = '';
-                if (clueIndex < availableClues.length - 1) {
-                    ctaHTML = `<div class="text-center mt-6"><button id="next-clue-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg">Mostrar siguiente pista</button></div>`;
-                } else {
-                    ctaHTML = `<div class="text-center mt-6"><button id="reveal-solution-btn" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg">Mostrar Solución</button></div>`;
-                }
-                dom.modalContent.innerHTML = `<div id="html-content" class="space-y-4">${cluesHTML}</div>${ctaHTML}`;
+            switch(view) {
+                case 'summary':
+                    const cluesIndex = availableClues.length > 0 ? `
+                        <div class="mt-6">
+                            <h4 class="text-xl font-bold text-indigo-400">Índice de Pistas</h4>
+                            <ul class="space-y-2 mt-3 text-gray-300">
+                                ${availableClues.map((clue, index) => `
+                                    <li>
+                                        <a href="#" class="view-clue-btn flex justify-between items-center w-full hover:bg-gray-700/50 p-3 rounded-lg transition-colors" data-clue-index="${index}">
+                                            <span class="font-semibold">${getOrdinal(index + 1)} pista</span>
+                                            ${getClueTypeTag(clue.type)}
+                                        </a>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    ` : '<p class="text-gray-500 mt-4">Aún no hay pistas disponibles.</p>';
 
-                if (document.getElementById('next-clue-btn')) { document.getElementById('next-clue-btn').addEventListener('click', () => renderModalContent(game, 'step-by-step', clueIndex + 1)); }
-                if (document.getElementById('reveal-solution-btn')) { document.getElementById('reveal-solution-btn').addEventListener('click', () => renderModalContent(game, 'full')); }
-            } else { // 'full' mode
-                const allCluesHTML = availableClues.map((clue, i) => renderClue(clue, i)).join('');
-                const solutionHTML = game.isSolved ? getSolutionHTML(game) : '';
-                const shareButtonHTML = `<button id="share-game-btn" data-game-id="${game.id}" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/></svg>Compartir</button>`;
-                const ctaHTML = `<div class="mt-8 text-center flex flex-col sm:flex-row justify-center gap-4 flex-wrap">${game.googleFormLink && !game.isSolved ? `<a href="${game.googleFormLink}" target="_blank" rel="noopener noreferrer" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg">¡Adivina aquí!</a>` : ''}<button id="download-html-btn" class="inline-flex items-center justify-center gap-2 bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>Descargar Pistas</button>${shareButtonHTML}</div>`;
-                dom.modalContent.innerHTML = `<div id="html-content" class="space-y-4">${allCluesHTML}${solutionHTML}</div>${ctaHTML}`;
+                    contentHTML = `
+                        <div class="space-y-4">
+                            ${game.showMystery && game.mystery ? `<div class="bg-gray-700/50 p-4 rounded-lg"><p class="text-sm text-gray-400"><strong>Lo que buscamos es:</strong> ${game.mystery}</p></div>` : ''}
+                            <div class="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
+                                <p class="text-gray-300">${game.notes || 'Descripción del misterio...'}</p>
+                            </div>
+                            ${cluesIndex}
+                        </div>`;
+                    
+                    footerHTML = `
+                        <div class="flex flex-wrap justify-center gap-4">
+                            <button class="share-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" data-game-id="${game.id}">Compartir Misterio</button>
+                            <button class="view-all-clues-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">Mostrar Pistas y Resolver</button>
+                        </div>`;
+                    break;
+
+                case 'all-clues':
+                    const allCluesHTML = availableClues.map((clue, i) => renderClue(clue, i)).join('');
+                    const solutionHTML = game.isSolved ? getSolutionHTML(game) : '';
+                    contentHTML = `<div class="space-y-4">${allCluesHTML}${solutionHTML}</div>`;
+
+                    footerHTML = `
+                        <div class="flex flex-wrap justify-center gap-4">
+                            <button class="back-to-summary-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Volver Atrás</button>
+                            <button class="download-html-btn bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">Descargar HTML</button>
+                            <button class="share-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" data-game-id="${game.id}">Compartir</button>
+                            ${game.googleFormLink && !game.isSolved ? `<a href="${game.googleFormLink}" target="_blank" rel="noopener noreferrer" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">¡Adivina aquí!</a>` : ''}
+                        </div>`;
+                    break;
                 
-                if (document.getElementById('download-html-btn')) { document.getElementById('download-html-btn').addEventListener('click', () => downloadGameAsHTML(game)); }
-                if (document.getElementById('share-game-btn')) {
-                    document.getElementById('share-game-btn').addEventListener('click', (e) => {
-                        const gameId = e.currentTarget.dataset.gameId;
-                        const shareUrl = `${window.location.origin}${window.location.pathname}#mystery=${gameId}`;
-                        copyToClipboard(shareUrl);
-                    });
-                }
+                case 'single-clue':
+                    const clueIndex = options.clueIndex;
+                    if (clueIndex >= 0 && clueIndex < availableClues.length) {
+                        const clue = availableClues[clueIndex];
+                        contentHTML = renderClue(clue, clueIndex);
+                        footerHTML = `
+                        <div class="flex flex-wrap justify-center gap-4">
+                            <button class="back-to-summary-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Volver al Índice</button>
+                            <button class="download-clue-btn bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg" data-clue-index="${clueIndex}">Descargar Pista</button>
+                            <button class="share-clue-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" data-game-id="${game.id}" data-clue-index="${clueIndex}">Compartir Pista</button>
+                        </div>`;
+                    } else {
+                        contentHTML = `<p class="text-red-400">Error: Pista no encontrada.</p>`;
+                        footerHTML = `<button class="back-to-summary-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Volver al Índice</button>`;
+                    }
+                    break;
+                
+                 case 'pre-solved':
+                    contentHTML = `<div class="text-center space-y-4 p-4"><p>Este misterio ya ha sido resuelto.</p><div class="flex flex-col sm:flex-row justify-center gap-4"><button id="play-solved-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg">Ver Pistas</button><button id="show-solution-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Ver Solución Completa</button></div></div>`;
+                    footerHTML = '';
+                    break;
+                
+                case 'info':
+                    contentHTML = options.content;
+                    footerHTML = `<div class="text-center"><button class="close-modal-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Cerrar</button></div>`;
+                    break;
             }
-        }
-        
-        // --- LÓGICA PRINCIPAL ---
 
-        function openModalWithGame(game) {
-            if (game.isSolved) { renderModalContent(game, 'pre-solved'); } 
-            else { renderModalContent(game, 'full'); }
+            dom.modalContent.innerHTML = contentHTML;
+            dom.modalFooter.innerHTML = footerHTML;
             dom.modal.classList.add('active');
         }
         
-        function closeModal() { dom.modal.classList.remove('active'); dom.modalTitle.textContent = ''; dom.modalContent.innerHTML = ''; }
+        // --- LÓGICA DE DESCARGA Y MANEJO DE EVENTOS ---
 
         function downloadGameAsHTML(game) {
             const visibleClues = getVisibleClues(game);
-            
-            const cluesHTML = visibleClues.map((clue, index) => {
-                let content = ``;
-                if (clue.type === 'text') {
-                    content = `<p>${clue.content}</p>`;
-                } else {
-                    content = `<p>${clue.text || 'Contenido multimedia'}</p><p><a href="${clue.content}" target="_blank">Ver recurso</a></p>`;
-                }
-                return `
-                    <div class="clue">
-                        <h3>Pista ${index + 1}</h3>
-                        ${content}
-                    </div>
-                `;
-            }).join('');
+            const cluesHTML = visibleClues.map((clue, index) => renderClue(clue, index)).join('');
+            const solutionHTML = game.isSolved ? getSolutionHTML(game) : '';
 
             const htmlTemplate = `
-                <!DOCTYPE html>
-                <html lang="es">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Pistas de: ${game.title}</title>
-                    <style>
-                        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; background: #f0f2f5; color: #1c1e21; margin: 0; padding: 20px; }
-                        .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-                        h1, h3 { color: #333; }
-                        .clue { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-                        a { color: #007bff; text-decoration: none; }
-                        a:hover { text-decoration: underline; }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <h1>Pistas para: ${game.title}</h1>
-                        <p><em>${game.notes || ''}</em></p>
-                        <hr>
-                        ${cluesHTML}
-                    </div>
-                </body>
-                </html>
-            `;
+                <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Misterio: ${game.title}</title>
+                <script src="https://cdn.tailwindcss.com"><\/script>
+                <style>body { background-color: #111827; color: #e5e7eb; font-family: 'Inter', sans-serif; }</style></head>
+                <body class="p-8"><div class="max-w-2xl mx-auto bg-gray-800 rounded-lg p-8 space-y-4">
+                <h1 class="text-3xl font-bold text-white">${game.title}</h1>
+                <p class="text-gray-400">${game.notes || ''}</p><hr class="border-gray-600">
+                ${cluesHTML}${solutionHTML}</div></body></html>`;
 
             const blob = new Blob([htmlTemplate], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `pistas_${game.title.replace(/ /g, '_')}.html`;
-            document.body.appendChild(a);
+            a.download = `misterio_${game.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
             a.click();
-            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function downloadSingleClueAsHTML(game, clueIndex) {
+            const clue = getVisibleClues(game)[clueIndex];
+            if (!clue) return;
+
+            const clueHTML = renderClue(clue, clueIndex);
+            const htmlTemplate = `
+                <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Pista ${clueIndex + 1} de: ${game.title}</title>
+                <script src="https://cdn.tailwindcss.com"><\/script>
+                <style>body { background-color: #111827; color: #e5e7eb; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }</style></head>
+                <body><div class="max-w-2xl w-full mx-auto bg-gray-800 rounded-2xl p-8 space-y-4 shadow-2xl">
+                <h1 class="text-2xl font-bold text-indigo-400">Misterio: ${game.title}</h1>
+                <hr class="border-gray-600">
+                ${clueHTML}</div></body></html>`;
+            
+            const blob = new Blob([htmlTemplate], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `pista_${clueIndex + 1}_${game.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
+            a.click();
             URL.revokeObjectURL(url);
         }
 
+        function openModalWithGame(game, view = null, options = {}) {
+            let initialView = view;
+            if (!initialView) {
+                initialView = game.isSolved ? 'pre-solved' : 'summary';
+            }
+            renderModal(game, initialView, options);
+        }
+        
+        function closeModal() { 
+            dom.modal.classList.remove('active'); 
+            dom.modalTitle.textContent = ''; 
+            dom.modalContent.innerHTML = ''; 
+            dom.modalFooter.innerHTML = '';
+            currentGameData = null;
+            history.pushState("", document.title, window.location.pathname + window.location.search);
+        }
+        
         function renderGames() {
             dom.enCursoContainer.innerHTML = '';
             dom.archivoGrid.innerHTML = '';
@@ -334,74 +460,91 @@
             const selectedDates = datePicker.selectedDates;
             const activeTypeFilter = dom.typeFilterContainer.querySelector('.filter-btn.active').dataset.type;
 
-            const titleMatches = [];
-            const descriptionMatches = [];
-            const otherMatches = [];
+            console.log('--- Inicia renderGames ---');
+            console.log('Texto de búsqueda:', searchText);
+            console.log('Fechas seleccionadas:', selectedDates);
+            console.log('Filtro de tipo activo:', activeTypeFilter);
 
-            let enCursoCount = 0;
-            let archivoCount = 0;
+            // Filtra los misterios en curso (no resueltos)
+            const enCursoGames = allGames.filter(game => game && !game.isSolved);
+            console.log('Juegos en curso (no resueltos):', enCursoGames.length);
+            
+            // Inicia con todos los misterios resueltos
+            let filteredArchivoGames = allGames.filter(game => game && game.isSolved);
+            console.log('Juegos resueltos (base):', filteredArchivoGames.length);
 
-            allGames.forEach(game => {
-                if (!game || !game.title) return;
-
-                const card = renderSummaryCard(game);
-                if (game.isSolved) {
+            // Aplica el filtro de texto si hay texto de búsqueda
+            if (searchText) {
+                const prevCount = filteredArchivoGames.length;
+                filteredArchivoGames = filteredArchivoGames.filter(game => {
                     const gameTitle = normalizeText(game.title);
                     const gameNotes = normalizeText(game.notes);
-                    
-                    const textMatch = !searchText || gameTitle.includes(searchText) || gameNotes.includes(searchText);
-                    const typeMatch = activeTypeFilter === 'Todos' || (game.type && game.type === activeTypeFilter);
-                    
-                    let dateMatch = true;
-                    if (selectedDates.length === 2) {
-                        const gameStartDate = new Date(game.startDate);
-                        gameStartDate.setHours(0,0,0,0);
-                        dateMatch = gameStartDate >= selectedDates[0] && gameStartDate <= selectedDates[1];
-                    }
-
-                    if (textMatch && dateMatch && typeMatch) {
-                        if (searchText && gameTitle.includes(searchText)) {
-                            titleMatches.push(card);
-                        } else if (searchText && gameNotes.includes(searchText)) {
-                            descriptionMatches.push(card);
-                        } else {
-                            otherMatches.push(card);
-                        }
-                        archivoCount++;
-                    }
-                } else {
-                    dom.enCursoContainer.appendChild(card);
-                    enCursoCount++;
-                }
-            });
-
-            [...titleMatches, ...descriptionMatches, ...otherMatches].forEach(card => {
-                dom.archivoGrid.appendChild(card);
-            });
-
-            if (enCursoCount === 0) dom.enCursoContainer.innerHTML = '<p class="text-center text-gray-400 col-span-full">Aún no hay misterios en curso. ¡Vuelve pronto!</p>';
-            if (archivoCount === 0) {
-                if (searchText || selectedDates.length > 0 || activeTypeFilter !== 'Todos') {
-                    dom.archivoGrid.innerHTML = '<p class="text-center text-gray-400 col-span-full">No se encontraron misterios que coincidan con tu búsqueda.</p>';
-                } else {
-                    dom.archivoGrid.innerHTML = '<p class="text-center text-gray-400 col-span-full">Aún no hay misterios resueltos.</p>';
-                }
+                    return gameTitle.includes(searchText) || gameNotes.includes(searchText);
+                });
+                console.log(`Juegos resueltos después de filtro de texto ("${searchText}"): ${filteredArchivoGames.length} (antes: ${prevCount})`);
             }
+
+            // Aplica el filtro de fecha si se ha seleccionado un rango
+            if (selectedDates && selectedDates.length === 2) {
+                const prevCount = filteredArchivoGames.length;
+                const from = new Date(selectedDates[0]);
+                from.setHours(0,0,0,0);
+                const to = new Date(selectedDates[1]);
+                to.setHours(23,59,59,999);
+                filteredArchivoGames = filteredArchivoGames.filter(game => {
+                    const gameStartDate = new Date(game.startDate);
+                    gameStartDate.setHours(0,0,0,0);
+                    return gameStartDate >= from && gameStartDate <= to;
+                });
+                console.log(`Juegos resueltos después de filtro de fecha (${selectedDates[0].toLocaleDateString()} - ${selectedDates[1].toLocaleDateString()}): ${filteredArchivoGames.length} (antes: ${prevCount})`);
+            }
+
+            // Aplica el filtro por tipo, a menos que "Todos" esté seleccionado.
+            // Si "Todos" está seleccionado, no se aplica ningún filtro de tipo,
+            // permitiendo que los filtros de texto y fecha sigan funcionando.
+            if (activeTypeFilter !== 'Todos') {
+                const prevCount = filteredArchivoGames.length;
+                filteredArchivoGames = filteredArchivoGames.filter(game => game.type && game.type === activeTypeFilter);
+                console.log(`Juegos resueltos después de filtro de tipo ("${activeTypeFilter}"): ${filteredArchivoGames.length} (antes: ${prevCount})`);
+            }
+            console.log('Juegos resueltos finales a renderizar:', filteredArchivoGames.length);
+
+            // Renderiza los misterios en curso
+            if (enCursoGames.length > 0) {
+                enCursoGames.forEach(game => dom.enCursoContainer.appendChild(renderSummaryCard(game)));
+            } else {
+                dom.enCursoContainer.innerHTML = '<p class="text-center text-gray-400 col-span-full">Aún no hay misterios en curso. ¡Vuelve pronto!</p>';
+            }
+            
+            // Renderiza los misterios del archivo (resueltos)
+            if (filteredArchivoGames.length > 0) {
+                filteredArchivoGames.forEach(game => dom.archivoGrid.appendChild(renderSummaryCard(game)));
+            } else {
+                // Determina si hay algún filtro activo (texto, fecha o tipo diferente de "Todos")
+                const filterActive = searchText || (selectedDates && selectedDates.length > 0) || activeTypeFilter !== 'Todos';
+                dom.archivoGrid.innerHTML = `<p class="text-center text-gray-400 col-span-full">${filterActive ? 'No se encontraron misterios que coincidan con tu búsqueda.' : 'Aún no hay misterios resueltos.'}</p>`;
+            }
+            console.log('--- Fin renderGames ---');
         }
 
         function handleUrlSharing() {
-            if (window.location.hash.startsWith('#mystery=')) {
-                const mysteryId = window.location.hash.substring(9);
-                if (mysteryId) {
-                    const gameToOpen = allGames.find(g => g.id === mysteryId);
-                    if (gameToOpen) {
-                        setTimeout(() => {
-                            openModalWithGame(gameToOpen);
-                            history.pushState("", document.title, window.location.pathname + window.location.search);
-                        }, 500);
-                    } else {
-                        console.warn(`Misterio con ID ${mysteryId} no encontrado.`);
-                    }
+            const hash = window.location.hash;
+            if (!hash.startsWith('#mystery=')) return;
+
+            const params = new URLSearchParams(hash.substring(1));
+            const mysteryId = params.get('mystery');
+            const clueIndex = params.get('clue');
+
+            if (mysteryId) {
+                const gameToOpen = allGames.find(g => g.id === mysteryId);
+                if (gameToOpen) {
+                    setTimeout(() => {
+                        const view = clueIndex !== null ? 'single-clue' : null;
+                        const options = clueIndex !== null ? { clueIndex: parseInt(clueIndex, 10) } : {};
+                        openModalWithGame(gameToOpen, view, options);
+                    }, 500);
+                } else {
+                    showToast(`Misterio con ID ${mysteryId} no encontrado.`, true);
                 }
             }
         }
@@ -421,14 +564,12 @@
                         const res = await fetch(`games/${file}?v=${Date.now()}`); 
                         if (!res.ok) throw new Error(`No se pudo cargar ${file}`); 
                         return await res.json(); 
-                    } catch (error) { 
-                        console.error(`Error procesando el archivo de juego ${file}:`, error); 
-                        return null; 
-                    }
+                    } catch (error) { console.error(`Error procesando ${file}:`, error); return null; }
                 });
                 
                 const games = (await Promise.all(gamePromises)).filter(Boolean);
                 allGames = games.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
+                console.log('Todos los juegos cargados (incluyendo resueltos y en curso):', allGames.length);
                 
                 renderGames();
                 handleUrlSharing();
@@ -441,16 +582,13 @@
             }
         }
         
-        function init() {
+        function initEventListeners() {
             dom.tabs.forEach(tab => {
                 tab.addEventListener('click', (event) => {
                     const targetId = event.currentTarget.dataset.tab;
                     dom.tabs.forEach(t => t.classList.remove('active'));
                     event.currentTarget.classList.add('active');
-                    dom.tabContents.forEach(contentPanel => {
-                        if (contentPanel.id === targetId) { contentPanel.classList.remove('hidden'); } 
-                        else { contentPanel.classList.add('hidden'); }
-                    });
+                    dom.tabContents.forEach(content => content.id === targetId ? content.classList.remove('hidden') : content.classList.add('hidden'));
                 });
             });
 
@@ -458,12 +596,12 @@
             dom.modal.addEventListener('click', (e) => { if (e.target === dom.modal) closeModal(); });
             document.addEventListener('keydown', (e) => { if (e.key === "Escape" && dom.modal.classList.contains('active')) closeModal(); });
             
-            dom.searchText.addEventListener('input', renderGames);
-            
-            dom.toggleDateFilterBtn.addEventListener('click', () => {
-                dom.dateFilterContainer.classList.toggle('hidden');
+            dom.toggleFiltersBtn.addEventListener('click', () => {
+                dom.filtersContainer.classList.toggle('hidden');
+                const isHidden = dom.filtersContainer.classList.contains('hidden');
+                dom.toggleFiltersBtn.querySelector('span').textContent = isHidden ? 'Filtros' : 'Ocultar Filtros';
             });
-
+            dom.searchText.addEventListener('input', renderGames);
             dom.typeFilterContainer.addEventListener('click', (e) => {
                 if (e.target.classList.contains('filter-btn')) {
                     dom.typeFilterContainer.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -472,35 +610,62 @@
                 }
             });
 
-            datePicker = flatpickr(dom.searchDate, {
-                mode: "range",
-                dateFormat: "d/m/Y",
-                locale: "es",
-                altInput: true,
-                altFormat: "j F, Y",
-                onClose: function(selectedDates) {
-                    renderGames();
-                },
-                onReady: function(selectedDates, dateStr, instance) {
-                    instance.calendarContainer.classList.add('dark');
+            dom.modal.addEventListener('click', (e) => {
+                const target = e.target.closest('a, button');
+                if (!target) return;
+                
+                if (target.matches('.close-modal-btn')) {
+                    closeModal();
+                    return;
                 }
+                
+                if (target.matches('a[target="_blank"]')) {
+                    return;
+                }
+
+                e.preventDefault();
+
+                if (!currentGameData) return;
+
+                if (target.matches('.view-clue-btn')) renderModal(currentGameData, 'single-clue', { clueIndex: parseInt(target.dataset.clueIndex, 10) });
+                if (target.matches('#play-solved-btn') || target.matches('#show-solution-btn')) renderModal(currentGameData, 'all-clues');
+                if (target.matches('.view-all-clues-btn')) renderModal(currentGameData, 'all-clues');
+                if (target.matches('.back-to-summary-btn')) renderModal(currentGameData, 'summary');
+                if (target.matches('.download-html-btn')) downloadGameAsHTML(currentGameData);
+                if (target.matches('.download-clue-btn')) downloadSingleClueAsHTML(currentGameData, parseInt(target.dataset.clueIndex, 10));
+                
+                if (target.matches('.share-btn')) copyToClipboard(`${window.location.origin}${window.location.pathname}#mystery=${target.dataset.gameId}`);
+                if (target.matches('.share-clue-btn')) copyToClipboard(`${window.location.origin}${window.location.pathname}#mystery=${target.dataset.gameId}&clue=${target.dataset.clueIndex}`);
+            });
+
+            dom.instructionsBtn.addEventListener('click', () => {
+                const title = "Instrucciones del Juego";
+                const content = `<div class="prose prose-invert max-w-none text-left text-gray-300"><h4>Cómo Jugar</h4><ol class="list-decimal pl-5 space-y-2"><li>Navega por las pestañas <strong>Misterios en Curso</strong> o <strong>Archivo</strong> para encontrar un juego.</li><li>Haz clic en un misterio para ver su resumen. Encontrarás una descripción y un índice de las pistas disponibles.</li><li>Puedes ver las pistas una por una haciendo clic en el índice, o todas juntas pulsando <strong>Mostrar Pistas y Resolver</strong>.</li><li>Si un misterio está en curso, usa el botón <strong>¡Adivina aquí!</strong> para enviar tu solución a través del formulario.</li><li>Puedes compartir un enlace al misterio o a una pista específica usando los botones de compartir.</li><li>Para guardar una copia offline, usa el botón <strong>Descargar HTML</strong> para obtener un archivo con todas las pistas y la solución (si está disponible).</li></ol><h4 class="mt-4">Tipos de Misterio</h4><ul class="list-disc pl-5 space-y-2"><li><strong>Semanal:</strong> El formato clásico, con pistas que se revelan a lo largo de la semana.</li><li><strong>Diario/Relámpago:</strong> Misterios más cortos para resolver en menos tiempo.</li><li><strong>Especial:</strong> Eventos temáticos o con reglas diferentes.</li><li><strong>Tutorial:</strong> Misterios diseñados para enseñar a jugar.</li></ul></div>`;
+                renderModal(null, 'info', { title: title, content: content });
             });
 
             if (dom.exampleGameBtn) {
                 dom.exampleGameBtn.addEventListener('click', async () => {
                     try {
                         const response = await fetch(`${EXAMPLE_GAME_PATH}?v=${Date.now()}`);
-                        if (!response.ok) throw new Error(`No se pudo cargar el misterio de ejemplo: ${response.statusText}`);
+                        if (!response.ok) throw new Error(`No se pudo cargar el misterio de ejemplo.`);
                         const exampleGame = await response.json();
                         openModalWithGame(exampleGame);
                     } catch (error) {
-                        console.error("Error al cargar el misterio de ejemplo:", error);
-                        dom.modalTitle.textContent = "Error";
-                        dom.modalContent.innerHTML = `<p class="text-red-400 text-center">No se pudo cargar el misterio de ejemplo. Por favor, asegúrate de que el archivo 'ejemplo_resuelto.json' existe en la carpeta 'games' y es accesible.</p>`;
-                        dom.modal.classList.add('active');
+                        showToast(error.message, true);
                     }
                 });
             }
+        }
+
+        function init() {
+            initEventListeners();
+            
+            datePicker = flatpickr(dom.searchDate, {
+                mode: "range", dateFormat: "d/m/Y", locale: "es", altInput: true, altFormat: "j F, Y",
+                onClose: renderGames,
+                onReady: (_, __, instance) => instance.calendarContainer.classList.add('dark')
+            });
 
             loadGames();
         }
