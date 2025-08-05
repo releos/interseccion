@@ -51,7 +51,12 @@
   "isSolved": true,
   "solution": "No hay solución, es solo un ejemplo.",
   "winner": "Nadie",
-  "explanation": "",
+  "explanation": "Pues eso, que así se resuelve.",
   "id": "game-1751112643982",
-  "lastUpdated": "2025-06-28T21:44:57.331Z"
+  "lastUpdated": "2025-08-05T19:29:19.937Z",
+  "showMystery": true,
+  "winnerExplanation": "Y aquí va la respuesta de Nadie, que ha ganado esta vez.",
+  "type": "Tutorial",
+  "mystery": "entender el juego",
+  "bibliography": "https://calahorra.es/wp-content/uploads/20220504-pista-de-atletismo-1-1536x1042.jpeg"
 }
