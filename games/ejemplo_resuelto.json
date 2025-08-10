@@ -57,6 +57,7 @@
   "showMystery": true,
   "winnerExplanation": "Y aquí va la respuesta de Nadie, que ha ganado esta vez.",
   "type": "Tutorial",
+  "difficulty": "Fácil",
   "mystery": "entender el juego",
   "bibliography": "https://calahorra.es/wp-content/uploads/20220504-pista-de-atletismo-1-1536x1042.jpeg"
 }
