@@ -90,6 +90,13 @@
                         <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors" data-type="Especial">Especial</button>
                         <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors" data-type="Tutorial">Tutorial</button>
                     </div>
+                    <div id="difficulty-filter-container" class="flex flex-wrap items-center gap-2">
+                        <span class="text-sm font-medium text-gray-400 mr-2">Dificultad:</span>
+                        <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors active" data-difficulty="Todos">Todos</button>
+                        <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors" data-difficulty="Fácil">Fácil 😇</button>
+                        <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors" data-difficulty="Medio">Medio 🧐</button>
+                        <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors" data-difficulty="Difícil">Difícil 😈</button>
+                    </div>
                 </div>
                 <!-- Contenedor para los juegos resueltos -->
                 <div id="archivo-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
@@ -133,7 +140,7 @@
                         </div>
                     </div>
                  </div>
-                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v7.3</div>
+                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v7.5</div>
             </div>
         </main>
     </div>
@@ -141,9 +148,12 @@
     <!-- Modal Structure -->
     <div id="game-modal" class="modal fixed inset-0 bg-black bg-opacity-80 items-center justify-center p-4 z-50">
         <div class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
-            <header class="flex-shrink-0 p-4 border-b border-gray-700 flex justify-between items-center">
-                <h2 id="modal-title" class="text-2xl font-bold text-white"></h2>
-                <button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
+            <header class="flex-shrink-0 p-4 border-b border-gray-700 flex justify-between items-center gap-4">
+                <div class="flex-grow min-w-0">
+                    <h2 id="modal-title" class="text-2xl font-bold text-white truncate"></h2>
+                    <div id="modal-badges" class="flex items-center gap-2 mt-1"></div>
+                </div>
+                <button id="modal-close-btn" class="flex-shrink-0 text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
             </header>
             <div id="modal-content" class="p-6 overflow-y-auto modal-content-scroll"></div>
             <footer id="modal-footer" class="flex-shrink-0 p-4 border-t border-gray-700"></footer>
@@ -156,11 +166,12 @@
     <script>
         const dom = {
             tabs: document.querySelectorAll('.tab-button'), tabContents: document.querySelectorAll('.tab-content'), enCursoContainer: document.getElementById('en-curso'), archivoContainer: document.getElementById('archivo'), archivoGrid: document.getElementById('archivo-grid'),
-            modal: document.getElementById('game-modal'), modalTitle: document.getElementById('modal-title'), modalContent: document.getElementById('modal-content'), modalFooter: document.getElementById('modal-footer'), modalCloseBtn: document.getElementById('modal-close-btn'),
+            modal: document.getElementById('game-modal'), modalTitle: document.getElementById('modal-title'), modalContent: document.getElementById('modal-content'), modalFooter: document.getElementById('modal-footer'), modalCloseBtn: document.getElementById('modal-close-btn'), modalBadges: document.getElementById('modal-badges'),
             exampleGameBtn: document.getElementById('example-game-btn'),
             searchText: document.getElementById('search-text'),
             searchDate: document.getElementById('search-date'),
             typeFilterContainer: document.getElementById('type-filter-container'),
+            difficultyFilterContainer: document.getElementById('difficulty-filter-container'),
             toggleFiltersBtn: document.getElementById('toggle-filters-btn'),
             filtersContainer: document.getElementById('filters-container'),
             instructionsBtn: document.getElementById('instructions-btn'),
@@ -183,7 +194,6 @@
 
         function normalizeText(text) {
             if (!text) return '';
-            // Convertir a cadena, a minúsculas, normalizar y eliminar diacríticos
             return text.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
         }
 
@@ -219,18 +229,26 @@
         }
 
         function getTypeData(type) {
-            // Normalizar el tipo antes de buscarlo en el mapa
             const normalizedType = normalizeText(type);
-            console.log('getTypeData received type (normalized):', normalizedType); // Debugging line
             const typeMap = {
                 'semanal':   { label: 'Semanal',   color: 'bg-blue-600' },
                 'diario':    { label: 'Diario',    color: 'bg-yellow-500' },
                 'relampago': { label: 'Relámpago', color: 'bg-orange-500' },
                 'especial':  { label: 'Especial',  color: 'bg-purple-600' },
                 'tutorial':  { label: 'Tutorial',  color: 'bg-teal-600' },
-                'default':   { label: 'Desconocido', color: 'bg-gray-500' } // Fallback para undefined/null/no match
+                'default':   { label: type || 'Desconocido', color: 'bg-gray-500' }
             };
             return typeMap[normalizedType] || typeMap['default'];
+        }
+
+        function getDifficultyData(difficulty) {
+            const difficultyMap = {
+                'Fácil':   { label: 'Fácil',   emoji: '😇', bgColor: 'bg-gray-900', textColor: 'text-green-400' },
+                'Medio':   { label: 'Medio',   emoji: '🧐', bgColor: 'bg-gray-900', textColor: 'text-yellow-400' },
+                'Difícil': { label: 'Difícil', emoji: '😈', bgColor: 'bg-gray-900', textColor: 'text-red-400' },
+                'default': { label: difficulty || 'Normal',  emoji: '',   bgColor: 'bg-gray-900',   textColor: 'text-gray-400' }
+            };
+            return difficultyMap[difficulty] || difficultyMap['default'];
         }
 
         function getClueTypeTag(type) {
@@ -249,12 +267,14 @@
 
         function renderSummaryCard(game) {
             const typeData = getTypeData(game.type);
+            const difficultyData = getDifficultyData(game.difficulty);
             const statusPill = game.isSolved ? `<span class="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full">Resuelto</span>` : `<span class="bg-yellow-500 text-gray-900 text-xs font-semibold px-2 py-1 rounded-full">En curso</span>`;
             const startDate = game.startDate ? new Date(game.startDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
             const endDate = game.endDate ? new Date(game.endDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
             const dateText = game.isSolved ? `Del ${startDate.replace(/ de/g, '')} al ${endDate.replace(/ de/g, '')}` : `Iniciado: ${startDate.replace(/ de/g, '')}`;
             const descriptionHTML = game.notes ? `<p class="text-sm text-gray-400 mt-2 italic">${game.notes}</p>` : '';
             const typeBadge = `<span class="text-xs font-bold px-3 py-1 ${typeData.color} text-white rounded-full">${typeData.label}</span>`;
+            const difficultyBadge = `<span class="text-xs font-bold px-3 py-1 ${difficultyData.bgColor} ${difficultyData.textColor} rounded-full">${difficultyData.label} ${difficultyData.emoji}</span>`;
 
             const card = document.createElement('div');
             card.className = 'bg-gray-800/80 hover:bg-gray-800 transition-colors cursor-pointer rounded-xl shadow-lg p-5 flex flex-col justify-between fade-in';
@@ -264,8 +284,9 @@
                         <h3 class="text-xl font-bold text-white pr-2">${game.title || 'Misterio sin título'}</h3>
                         ${statusPill}
                     </div>
-                    <div class="flex items-center gap-2 mb-2">
+                    <div class="flex items-center flex-wrap gap-2 mb-2">
                         ${typeBadge}
+                        ${difficultyBadge}
                     </div>
                     ${descriptionHTML}
                     <p class="text-sm text-gray-500 mt-3">Pistas reveladas: ${getVisibleClues(game).length}/${game.clues.length}</p>
@@ -319,16 +340,22 @@
         function renderModal(game, view = 'summary', options = {}) {
             currentGameData = game;
             dom.modalTitle.textContent = game ? (game.title || 'Misterio') : (options.title || 'Información');
+            dom.modalBadges.innerHTML = '';
+            if (game) {
+                const typeData = getTypeData(game.type);
+                const difficultyData = getDifficultyData(game.difficulty);
+                dom.modalBadges.innerHTML = `
+                    <span class="text-xs font-bold px-3 py-1 ${typeData.color} text-white rounded-full">${typeData.label}</span>
+                    <span class="text-xs font-bold px-3 py-1 ${difficultyData.bgColor} ${difficultyData.textColor} rounded-full">${difficultyData.label} ${difficultyData.emoji}</span>
+                `;
+            }
+
             let contentHTML = '';
             let footerHTML = '';
             const availableClues = game ? getVisibleClues(game) : [];
 
             switch(view) {
                 case 'summary':
-                    console.log('Rendering summary for game:', game ? game.title : 'N/A'); // Debugging line
-                    console.log('game.showMystery:', game ? game.showMystery : 'N/A'); // Debugging line
-                    console.log('game.mystery:', game ? game.mystery : 'N/A'); // Debugging line
-
                     const cluesIndex = availableClues.length > 0 ? `
                         <div class="mt-6">
                             <h4 class="text-xl font-bold text-indigo-400">Índice de Pistas</h4>
@@ -480,74 +507,50 @@
             const searchText = normalizeText(dom.searchText.value);
             const selectedDates = datePicker.selectedDates;
             const activeTypeFilter = dom.typeFilterContainer.querySelector('.filter-btn.active').dataset.type;
+            const activeDifficultyFilter = dom.difficultyFilterContainer.querySelector('.filter-btn.active').dataset.difficulty;
 
-            console.log('--- Inicia renderGames ---');
-            console.log('Texto de búsqueda:', searchText);
-            console.log('Fechas seleccionadas:', selectedDates);
-            console.log('Filtro de tipo activo:', activeTypeFilter);
-
-            // Filtra los misterios en curso (no resueltos)
             const enCursoGames = allGames.filter(game => game && !game.isSolved);
-            console.log('Juegos en curso (no resueltos):', enCursoGames.length);
-            
-            // Inicia con todos los misterios resueltos
             let filteredArchivoGames = allGames.filter(game => game && game.isSolved);
-            console.log('Juegos resueltos (base):', filteredArchivoGames.length);
 
-            // Aplica el filtro de texto si hay texto de búsqueda
             if (searchText) {
-                const prevCount = filteredArchivoGames.length;
                 filteredArchivoGames = filteredArchivoGames.filter(game => {
                     const gameTitle = normalizeText(game.title);
                     const gameNotes = normalizeText(game.notes);
                     return gameTitle.includes(searchText) || gameNotes.includes(searchText);
                 });
-                console.log(`Juegos resueltos después de filtro de texto ("${searchText}"): ${filteredArchivoGames.length} (antes: ${prevCount})`);
             }
 
-            // Aplica el filtro de fecha si se ha seleccionado un rango
             if (selectedDates && selectedDates.length === 2) {
-                const prevCount = filteredArchivoGames.length;
-                const from = new Date(selectedDates[0]);
-                from.setHours(0,0,0,0);
-                const to = new Date(selectedDates[1]);
-                to.setHours(23,59,59,999);
+                const from = new Date(selectedDates[0]); from.setHours(0,0,0,0);
+                const to = new Date(selectedDates[1]); to.setHours(23,59,59,999);
                 filteredArchivoGames = filteredArchivoGames.filter(game => {
                     const gameStartDate = new Date(game.startDate);
                     gameStartDate.setHours(0,0,0,0);
                     return gameStartDate >= from && gameStartDate <= to;
                 });
-                console.log(`Juegos resueltos después de filtro de fecha (${selectedDates[0].toLocaleDateString()} - ${selectedDates[1].toLocaleDateString()}): ${filteredArchivoGames.length} (antes: ${prevCount})`);
             }
 
-            // Aplica el filtro por tipo, a menos que "Todos" esté seleccionado.
-            // Si "Todos" está seleccionado, no se aplica ningún filtro de tipo,
-            // permitiendo que los filtros de texto y fecha sigan funcionando.
             if (activeTypeFilter !== 'Todos') {
-                const prevCount = filteredArchivoGames.length;
-                // Normalizar el activeTypeFilter para la comparación
                 const normalizedActiveTypeFilter = normalizeText(activeTypeFilter);
                 filteredArchivoGames = filteredArchivoGames.filter(game => game.type && normalizeText(game.type) === normalizedActiveTypeFilter);
-                console.log(`Juegos resueltos después de filtro de tipo ("${activeTypeFilter}"): ${filteredArchivoGames.length} (antes: ${prevCount})`);
             }
-            console.log('Juegos resueltos finales a renderizar:', filteredArchivoGames.length);
+            
+            if (activeDifficultyFilter !== 'Todos') {
+                filteredArchivoGames = filteredArchivoGames.filter(game => game.difficulty === activeDifficultyFilter);
+            }
 
-            // Renderiza los misterios en curso
             if (enCursoGames.length > 0) {
                 enCursoGames.forEach(game => dom.enCursoContainer.appendChild(renderSummaryCard(game)));
             } else {
                 dom.enCursoContainer.innerHTML = '<p class="text-center text-gray-400 col-span-full">Aún no hay misterios en curso. ¡Vuelve pronto!</p>';
             }
             
-            // Renderiza los misterios del archivo (resueltos)
             if (filteredArchivoGames.length > 0) {
                 filteredArchivoGames.forEach(game => dom.archivoGrid.appendChild(renderSummaryCard(game)));
             } else {
-                // Determina si hay algún filtro activo (texto, fecha o tipo diferente de "Todos")
-                const filterActive = searchText || (selectedDates && selectedDates.length > 0) || activeTypeFilter !== 'Todos';
+                const filterActive = searchText || (selectedDates && selectedDates.length > 0) || activeTypeFilter !== 'Todos' || activeDifficultyFilter !== 'Todos';
                 dom.archivoGrid.innerHTML = `<p class="text-center text-gray-400 col-span-full">${filterActive ? 'No se encontraron misterios que coincidan con tu búsqueda.' : 'Aún no hay misterios resueltos.'}</p>`;
             }
-            console.log('--- Fin renderGames ---');
         }
 
         function handleUrlSharing() {
@@ -592,7 +595,6 @@
                 
                 const games = (await Promise.all(gamePromises)).filter(Boolean);
                 allGames = games.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
-                console.log('Todos los juegos cargados (incluyendo resueltos y en curso):', allGames.length);
                 
                 renderGames();
                 handleUrlSharing();
@@ -628,6 +630,14 @@
             dom.typeFilterContainer.addEventListener('click', (e) => {
                 if (e.target.classList.contains('filter-btn')) {
                     dom.typeFilterContainer.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    renderGames();
+                }
+            });
+            
+            dom.difficultyFilterContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('filter-btn')) {
+                    dom.difficultyFilterContainer.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
                     e.target.classList.add('active');
                     renderGames();
                 }
