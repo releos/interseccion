@@ -34,10 +34,16 @@
       "publishDate": "2025-08-09T16:00"
     },
     {
+      "type": "image",
+      "content": "https://m.media-amazon.com/images/I/71d8oQVF4xL._UF1000,1000_QL80_FMwebp_.jpg",
+      "text": null,
+      "publishDate": "2025-08-10T16:00"
+    },
+    {
       "type": "text",
       "content": "Más claro que el agua...",
       "text": null,
-      "publishDate": "2025-08-11T16:00"
+      "publishDate": "2025-08-10T16:00"
     }
   ],
   "isSolved": false,
