@@ -1,0 +1,45 @@
+{
+  "id": "6d072d44-bdfa-43ed-b924-909303e34c67",
+  "title": "Otro sencillito",
+  "type": "Relámpago",
+  "difficulty": "Fácil",
+  "mystery": "un objeto",
+  "showMystery": false,
+  "notes": "Venga, otro juego más.",
+  "startDate": "2025-08-11",
+  "googleFormLink": "https://forms.gle/nHcdjyeMTsppgsuR7",
+  "clues": [
+    {
+      "type": "link",
+      "content": "https://www.youtube.com/watch?v=_g_tuOS-iZ4",
+      "text": null,
+      "publishDate": "2025-08-11T22:30"
+    },
+    {
+      "type": "image",
+      "content": "https://multimedia.dideco.es/img/literatura/EAN_9788408182542-5.jpg",
+      "text": null,
+      "publishDate": "2025-08-11T22:30"
+    },
+    {
+      "type": "link",
+      "content": "https://www.youtube.com/watch?v=cO1crSpTbwE",
+      "text": null,
+      "publishDate": "2025-08-11T22:45"
+    },
+    {
+      "type": "link",
+      "content": "https://www.youtube.com/watch?v=NchIgi6cZ5U",
+      "text": null,
+      "publishDate": "2025-08-11T23:15"
+    }
+  ],
+  "isSolved": false,
+  "endDate": "",
+  "solution": "Una puerta.",
+  "winner": "",
+  "explanation": "1. Es una canción del grupo The Doors (Las Puertas).\n\n2. La puerta de los tres cerrojos lleva la palabra puerta en el nombre.\n\n3. Esta canción menciona la puerta varias veces (esta es un poco rebuscada, pero es que es muy fácil).\n\n4. Ana Belén y Víctor Manuel cantan también « La puerta de Alcalá ».",
+  "winnerExplanation": "",
+  "bibliography": "https://www.youtube.com/watch?v=_g_tuOS-iZ4\n\nhttps://www.dideco.es/libros/la-puerta-de-los-tres-cerrojos-9788408182542\nhttps://multimedia.dideco.es/img/literatura/EAN_9788408182542-5.jpg\n\nhttps://www.youtube.com/watch?v=NchIgi6cZ5U\n\nhttps://www.youtube.com/watch?v=cO1crSpTbwE",
+  "lastUpdated": "2025-08-11T20:33:45.438Z"
+}
