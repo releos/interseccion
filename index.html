@@ -140,7 +140,7 @@
                         </div>
                     </div>
                  </div>
-                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v7.5</div>
+                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v7.6</div>
             </div>
         </main>
     </div>
@@ -182,6 +182,7 @@
         let allGames = [];
         let datePicker;
         let currentGameData = null;
+        let revealedClueCount = 0; // State for step-by-step clue reveal
 
         // --- FUNCIONES DE UTILIDAD ---
 
@@ -420,10 +421,24 @@
                     break;
                 
                  case 'pre-solved':
-                    contentHTML = `<div class="text-center space-y-4 p-4"><p>Este misterio ya ha sido resuelto.</p><div class="flex flex-col sm:flex-row justify-center gap-4"><button id="play-solved-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg">Ver Pistas</button><button id="show-solution-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Ver Solución Completa</button></div></div>`;
+                    contentHTML = `<div class="text-center space-y-4 p-4"><p>Este misterio ya ha sido resuelto.</p><div class="flex flex-col sm:flex-row justify-center gap-4"><button id="play-solved-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg">Jugar</button><button id="show-solution-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Ver Solución Completa</button></div></div>`;
                     footerHTML = '';
                     break;
                 
+                case 'play-solved':
+                    const cluesToShow = availableClues.slice(0, revealedClueCount);
+                    const playingCluesHTML = cluesToShow.map((clue, i) => renderClue(clue, i)).join('');
+                    contentHTML = `<div class="space-y-4">${playingCluesHTML}</div>`;
+                    
+                    let playFooterHTML = '';
+                    if(revealedClueCount < availableClues.length) {
+                        playFooterHTML = `<button class="next-clue-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">Siguiente Pista (${revealedClueCount}/${availableClues.length})</button>`;
+                    } else {
+                        playFooterHTML = `<button class="reveal-solution-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">Ver Solución</button>`;
+                    }
+                    footerHTML = `<div class="flex flex-wrap justify-center gap-4">${playFooterHTML}</div>`;
+                    break;
+
                 case 'info':
                     contentHTML = options.content;
                     footerHTML = `<div class="text-center"><button class="close-modal-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Cerrar</button></div>`;
@@ -497,6 +512,7 @@
             dom.modalContent.innerHTML = ''; 
             dom.modalFooter.innerHTML = '';
             currentGameData = null;
+            revealedClueCount = 0; // Reset clue count on close
             history.pushState("", document.title, window.location.pathname + window.location.search);
         }
         
@@ -661,14 +677,35 @@
                 if (!currentGameData) return;
 
                 if (target.matches('.view-clue-btn')) renderModal(currentGameData, 'single-clue', { clueIndex: parseInt(target.dataset.clueIndex, 10) });
-                if (target.matches('#play-solved-btn') || target.matches('#show-solution-btn')) renderModal(currentGameData, 'all-clues');
-                if (target.matches('.view-all-clues-btn')) renderModal(currentGameData, 'all-clues');
+                if (target.matches('#show-solution-btn') || target.matches('.view-all-clues-btn')) renderModal(currentGameData, 'all-clues');
                 if (target.matches('.back-to-summary-btn')) renderModal(currentGameData, 'summary');
                 if (target.matches('.download-html-btn')) downloadGameAsHTML(currentGameData);
                 if (target.matches('.download-clue-btn')) downloadSingleClueAsHTML(currentGameData, parseInt(target.dataset.clueIndex, 10));
                 
                 if (target.matches('.share-btn')) copyToClipboard(`${window.location.origin}${window.location.pathname}#mystery=${target.dataset.gameId}`);
                 if (target.matches('.share-clue-btn')) copyToClipboard(`${window.location.origin}${window.location.pathname}#mystery=${target.dataset.gameId}&clue=${target.dataset.clueIndex}`);
+                
+                // New event handlers for solved game flow
+                if (target.matches('#play-solved-btn')) {
+                    revealedClueCount = 1;
+                    renderModal(currentGameData, 'play-solved');
+                }
+                if (target.matches('.next-clue-btn')) {
+                    revealedClueCount++;
+                    renderModal(currentGameData, 'play-solved');
+                }
+                if (target.matches('.reveal-solution-btn')) {
+                    const allCluesHTML = getVisibleClues(currentGameData).map((clue, i) => renderClue(clue, i)).join('');
+                    const solutionHTML = getSolutionHTML(currentGameData);
+                    dom.modalContent.innerHTML = `<div class="space-y-4">${allCluesHTML}${solutionHTML}</div>`;
+                    // Update footer to final state
+                    dom.modalFooter.innerHTML = `
+                        <div class="flex flex-wrap justify-center gap-4">
+                            <button class="back-to-summary-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Volver Atrás</button>
+                            <button class="download-html-btn bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">Descargar pistas</button>
+                            <button class="share-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" data-game-id="${currentGameData.id}">Compartir</button>
+                        </div>`;
+                }
             });
 
             dom.instructionsBtn.addEventListener('click', () => {
@@ -707,3 +744,4 @@
     </script>
 </body>
 </html>
+
