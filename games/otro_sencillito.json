@@ -1,7 +1,7 @@
 {
   "id": "6d072d44-bdfa-43ed-b924-909303e34c67",
   "title": "Otro sencillito",
-  "type": "Relámpago",
+  "type": "Diario",
   "difficulty": "Fácil",
   "mystery": "un objeto",
   "showMystery": false,
@@ -34,12 +34,12 @@
       "publishDate": "2025-08-14T12:30"
     }
   ],
-  "isSolved": false,
-  "endDate": "",
+  "isSolved": true,
+  "endDate": "2025-08-14",
   "solution": "Una puerta.",
-  "winner": "",
+  "winner": "Bea",
   "explanation": "1. Es una canción del grupo The Doors (Las Puertas).\n\n2. La puerta de los tres cerrojos lleva la palabra puerta en el nombre.\n\n3. Esta canción menciona la puerta varias veces (esta es un poco rebuscada, pero es que es muy fácil).\n\n4. Ana Belén y Víctor Manuel cantan también « La puerta de Alcalá ».",
-  "winnerExplanation": "",
+  "winnerExplanation": "La primera canción es del grupo \"The Doors\", que significa puerta. La segunda pista es el libro de la \"puerta\" de los tres cerrojos. La tercera pista es una canción de Ana Belén y Víctor Manuel, que también cantaban la canción titulada la \"puerta\" de Alcalá.\n",
   "bibliography": "https://www.youtube.com/watch?v=_g_tuOS-iZ4\n\nhttps://www.dideco.es/libros/la-puerta-de-los-tres-cerrojos-9788408182542\nhttps://multimedia.dideco.es/img/literatura/EAN_9788408182542-5.jpg\n\nhttps://www.youtube.com/watch?v=NchIgi6cZ5U\n\nhttps://www.youtube.com/watch?v=cO1crSpTbwE",
-  "lastUpdated": "2025-08-11T20:33:45.438Z"
+  "lastUpdated": "2025-08-24T19:32:18.150Z"
 }
