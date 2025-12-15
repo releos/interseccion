@@ -74,7 +74,7 @@
                 <div id="filters-container" class="hidden mb-6 bg-gray-800/50 p-4 rounded-xl fade-in space-y-4">
                     <div class="flex flex-wrap items-center gap-4">
                         <div class="relative flex-grow">
-                            <input type="text" id="search-text" placeholder="Buscar en misterios resueltos..." class="w-full bg-gray-700 border-gray-600 rounded-lg p-3 pl-10 focus:ring-2 focus:ring-indigo-500 transition border">
+                            <input type="text" id="search-text" placeholder="Buscar en soluciones, explicaciones, títulos..." class="w-full bg-gray-700 border-gray-600 rounded-lg p-3 pl-10 focus:ring-2 focus:ring-indigo-500 transition border">
                             <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
                         </div>
                         <div id="date-filter-container">
@@ -140,7 +140,7 @@
                         </div>
                     </div>
                  </div>
-                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v7.6</div>
+                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v7.7</div>
             </div>
         </main>
     </div>
@@ -532,7 +532,19 @@
                 filteredArchivoGames = filteredArchivoGames.filter(game => {
                     const gameTitle = normalizeText(game.title);
                     const gameNotes = normalizeText(game.notes);
-                    return gameTitle.includes(searchText) || gameNotes.includes(searchText);
+                    const gameSolution = normalizeText(game.solution);
+                    const gameExplanation = normalizeText(game.explanation);
+                    const gameMystery = normalizeText(game.mystery);
+                    const gameWinner = normalizeText(game.winner);
+                    const gameWinnerExplanation = normalizeText(game.winnerExplanation);
+                    
+                    return gameTitle.includes(searchText) || 
+                           gameNotes.includes(searchText) ||
+                           gameSolution.includes(searchText) ||
+                           gameExplanation.includes(searchText) ||
+                           gameMystery.includes(searchText) ||
+                           gameWinner.includes(searchText) ||
+                           gameWinnerExplanation.includes(searchText);
                 });
             }
 
@@ -744,4 +756,3 @@
     </script>
 </body>
 </html>
-
