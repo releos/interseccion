@@ -21,11 +21,6 @@
         .modal-content-scroll::-webkit-scrollbar { width: 8px; }
         .modal-content-scroll::-webkit-scrollbar-track { background: #1f2937; }
         .modal-content-scroll::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
-        
-        /* Spoiler blur effect */
-        .spoiler-blur { filter: blur(6px); user-select: none; pointer-events: none; transition: filter 0.5s ease; }
-        .spoiler-revealed { filter: blur(0); user-select: auto; pointer-events: auto; }
-
         #toast-notification {
             position: fixed;
             bottom: -100px;
@@ -41,8 +36,7 @@
         #toast-notification.show { bottom: 20px; }
         .filter-btn { background-color: #374151; }
         .filter-btn.active { background-color: #4f46e5; }
-        
-        /* Flatpickr dark mode overrides */
+        /* Estilos para el calendario Flatpickr en modo oscuro */
         .flatpickr-calendar.dark { background: #1f2937; border-color: #374151; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .flatpickr-calendar.dark .flatpickr-month, .flatpickr-calendar.dark .flatpickr-weekday, .flatpickr-calendar.dark .flatpickr-day { color: #d1d5db; }
         .flatpickr-calendar.dark .flatpickr-day.today { border-color: #4f46e5; }
@@ -50,29 +44,28 @@
         .flatpickr-calendar.dark .flatpickr-day:hover { background: #374151; }
         .flatpickr-calendar.dark .flatpickr-day.inRange { background: rgba(79, 70, 229, 0.2); box-shadow: none; border-color: transparent; }
         .flatpickr-calendar.dark .numInput, .flatpickr-calendar.dark .arrowUp, .flatpickr-calendar.dark .arrowDown { color: #d1d5db; }
+        
+        /* Estilo Spoiler */
+        .spoiler-content { filter: blur(8px); user-select: none; transition: filter 0.5s ease; }
+        .spoiler-content.revealed { filter: blur(0); user-select: auto; }
+        .spoiler-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 10; background: rgba(0,0,0,0.3); border-radius: 0.5rem; }
     </style>
 </head>
 <body class="text-gray-200">
-    <!-- Navegación Superior -->
-    <div class="fixed top-4 right-4 z-40">
-        <button id="my-id-btn" class="bg-indigo-900/80 hover:bg-indigo-800 backdrop-blur-sm text-indigo-200 font-semibold py-2 px-4 rounded-full shadow-lg border border-indigo-500/30 transition flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>
-            Mi ID
-        </button>
-    </div>
-
-    <div class="container mx-auto p-4 md:p-8 max-w-4xl pt-16">
-        <header class="text-center mb-8">
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <header class="text-center mb-8 relative">
             <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">La Intersección</h1>
             <p class="mt-2 text-lg text-gray-400">Un juego de misterios semanales.</p>
+            <!-- User ID Display -->
+            <div id="user-id-display" class="mt-4 md:absolute md:top-0 md:right-0 bg-gray-800 border border-gray-700 rounded-lg p-2 text-sm text-gray-300 cursor-pointer hover:bg-gray-700 transition" title="Haz clic para gestionar tu ID">
+                ID: <span id="current-user-id-short" class="font-mono text-indigo-400 font-bold">...</span>
+            </div>
         </header>
 
         <nav class="flex justify-center border-b border-gray-700 mb-8 overflow-x-auto">
             <button data-tab="en-curso" class="tab-button text-gray-300 hover:bg-gray-700/50 font-semibold py-3 px-6 transition active whitespace-nowrap">Misterios en Curso</button>
-            <button data-tab="archivo" class="tab-button text-gray-300 hover:bg-gray-700/50 font-semibold py-3 px-6 transition whitespace-nowrap">Archivo</button>
-            <button data-tab="podio" class="tab-button text-gray-300 hover:bg-gray-700/50 font-semibold py-3 px-6 transition whitespace-nowrap flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.5.5A.5.5 0 0 1 3 0h10a.5.5 0 0 1 .5.5c0 .538-.012 1.05-.034 1.536a3 3 0 1 1-1.133 5.89c-.79 1.865-1.878 2.777-2.833 3.011v2.173l1.425.356c.194.048.377.135.537.255L13.3 15.1a.5.5 0 0 1-.3.9H3a.5.5 0 0 1-.3-.9l1.838-1.379c.16-.12.343-.207.537-.255L6.5 13.11v-2.173c-.955-.234-2.043-1.146-2.833-3.012a3 3 0 1 1-1.132-5.89A33.076 33.076 0 0 1 2.5.5zm.099 2.54a2 2 0 0 0 .72 3.935c-.333-1.05-.588-2.346-.72-3.935zm10.083 3.935a2 2 0 0 0 .72-3.935c-.133 1.59-.388 2.885-.72 3.935zM3.504 1c.007.517.026 1.006.056 1.469.13 2.028.457 3.546.87 4.667C5.294 9.48 6.484 10 7 10a.5.5 0 0 1 0 1c-.618 0-1.62-.546-2.553-2.503-.128-.268-.246-.566-.352-.89v-.001C3.862 6.379 3.548 4.673 3.504 1zm7.992 9.003C10.596 9.455 9.612 10 9 10a.5.5 0 0 1 0-1c.516 0 1.706-.52 2.574-2.864.413-1.12.74-2.64.87-4.667.03-.463.049-.952.056-1.469-.044 3.673-.358 5.379-.593 6.611-.106.323-.224.62-.352.89z"/></svg> Podio
-            </button>
+            <button data-tab="archivo" class="tab-button text-gray-300 hover:bg-gray-700/50 font-semibold py-3 px-6 transition whitespace-nowrap">Archivo de Soluciones</button>
+            <button data-tab="podio" class="tab-button text-gray-300 hover:bg-gray-700/50 font-semibold py-3 px-6 transition whitespace-nowrap">Podio</button>
             <button data-tab="sobre" class="tab-button text-gray-300 hover:bg-gray-700/50 font-semibold py-3 px-6 transition whitespace-nowrap">Sobre el Proyecto</button>
         </nav>
 
@@ -81,25 +74,21 @@
             
             <div id="archivo" class="tab-content hidden min-h-[100px] relative">
                  <!-- Botón para mostrar/ocultar filtros -->
-                <div class="flex justify-between items-center mb-4">
-                     <button id="toggle-favorites-btn" class="bg-gray-800 hover:bg-yellow-900/30 text-yellow-500 font-semibold py-2 px-4 rounded-lg transition-all flex items-center gap-2 border border-yellow-500/30">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/></svg>
-                        <span id="toggle-favorites-text">Solo Favoritos</span>
-                    </button>
+                <div class="flex justify-end mb-4">
                     <button id="toggle-filters-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-all flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/></svg>
-                        <span>Filtros</span>
+                        <span id="toggle-filters-text">Filtros</span>
                     </button>
                 </div>
-                <!-- Contenedor de filtros -->
+                <!-- Contenedor de filtros (inicialmente oculto) -->
                 <div id="filters-container" class="hidden mb-6 bg-gray-800/50 p-4 rounded-xl fade-in space-y-4">
                     <div class="flex flex-wrap items-center gap-4">
                         <div class="relative flex-grow">
-                            <input type="text" id="search-text" placeholder="Buscar..." class="w-full bg-gray-700 border-gray-600 rounded-lg p-3 pl-10 focus:ring-2 focus:ring-indigo-500 transition border">
+                            <input type="text" id="search-text" placeholder="Buscar en soluciones, explicaciones, títulos..." class="w-full bg-gray-700 border-gray-600 rounded-lg p-3 pl-10 focus:ring-2 focus:ring-indigo-500 transition border">
                             <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
                         </div>
                         <div id="date-filter-container">
-                            <input type="text" id="search-date" placeholder="Filtrar por fecha" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3">
+                            <input type="text" id="search-date" placeholder="Filtrar por fecha de inicio" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3">
                         </div>
                     </div>
                     <div id="type-filter-container" class="flex flex-wrap items-center gap-2">
@@ -118,32 +107,42 @@
                         <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors" data-difficulty="Medio">Medio 🧐</button>
                         <button class="filter-btn text-sm font-semibold py-2 px-4 rounded-full transition-colors" data-difficulty="Difícil">Difícil 😈</button>
                     </div>
+                    <!-- Nuevo filtro de Favoritos -->
+                    <div class="flex items-center gap-2 mt-2">
+                         <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="favorites-filter" class="form-checkbox h-5 w-5 text-indigo-600 rounded bg-gray-700 border-gray-600 focus:ring-indigo-500">
+                            <span class="text-sm font-medium text-yellow-400">Mostrar solo Favoritos ⭐</span>
+                        </label>
+                    </div>
                 </div>
+                <!-- Contenedor para los juegos resueltos -->
                 <div id="archivo-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
             </div>
-
-            <div id="podio" class="tab-content hidden relative">
-                <div class="bg-gray-800 rounded-xl shadow-lg p-6 md:p-8 fade-in">
-                    <h2 class="text-3xl font-bold text-yellow-400 mb-6 flex items-center gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path d="M2.5.5A.5.5 0 0 1 3 0h10a.5.5 0 0 1 .5.5c0 .538-.012 1.05-.034 1.536a3 3 0 1 1-1.133 5.89c-.79 1.865-1.878 2.777-2.833 3.011v2.173l1.425.356c.194.048.377.135.537.255L13.3 15.1a.5.5 0 0 1-.3.9H3a.5.5 0 0 1-.3-.9l1.838-1.379c.16-.12.343-.207.537-.255L6.5 13.11v-2.173c-.955-.234-2.043-1.146-2.833-3.012a3 3 0 1 1-1.132-5.89A33.076 33.076 0 0 1 2.5.5z"/></svg>
-                        Podio de Sabios
+            
+            <!-- Nueva Pestaña Podio -->
+            <div id="podio" class="tab-content hidden min-h-[100px]">
+                <div class="bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-indigo-400 mb-4 flex items-center gap-2">
+                        🏆 Tabla de Clasificación
                     </h2>
-                    <p class="text-gray-400 mb-6">Los mejores investigadores de La Intersección. ¡Participa en los misterios en curso para sumar puntos!</p>
-                    <div id="leaderboard-container" class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="border-b border-gray-700 text-gray-400 uppercase text-xs">
-                                    <th class="py-3 px-4">#</th>
-                                    <th class="py-3 px-4 w-full">Nombre</th>
-                                    <th class="py-3 px-4 text-right">Puntos</th>
+                    <p class="text-gray-400 mb-6">Los mejores detectives de La Intersección. ¿Estás en la lista?</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-gray-300">
+                            <thead class="bg-gray-700/50 text-xs uppercase font-bold text-gray-400">
+                                <tr>
+                                    <th class="px-6 py-3">Posición</th>
+                                    <th class="px-6 py-3">Nombre</th>
+                                    <th class="px-6 py-3 text-right">Puntos</th>
+                                    <th class="px-6 py-3 text-center">Insignias</th>
                                 </tr>
                             </thead>
-                            <tbody id="leaderboard-body" class="text-gray-200">
+                            <tbody id="podium-table-body" class="divide-y divide-gray-700">
                                 <!-- Filas generadas por JS -->
                             </tbody>
                         </table>
-                        <p id="loading-leaderboard" class="text-center py-8 text-gray-500">Cargando clasificación...</p>
                     </div>
+                    <div id="podium-loading" class="text-center py-8 text-gray-500">Cargando clasificación...</div>
+                    <div id="podium-error" class="hidden text-center py-8 text-red-400">No se pudo cargar la clasificación.</div>
                 </div>
             </div>
 
@@ -159,11 +158,11 @@
                             <ol class="space-y-5">
                                 <li class="flex"><div class="flex-shrink-0 bg-indigo-600 rounded-full text-white font-bold w-8 h-8 flex items-center justify-center mr-4">1</div><div class="pt-1">Visita la pestaña <strong>Misterios en Curso</strong> o el <strong>Archivo</strong> para elegir un juego.</div></li>
                                 <li class="flex"><div class="flex-shrink-0 bg-indigo-600 rounded-full text-white font-bold w-8 h-8 flex items-center justify-center mr-4">2</div><div class="pt-1">Si está resuelto, puedes elegir entre ver la solución directamente o jugar pista a pista.</div></li>
-                                <li class="flex"><div class="flex-shrink-0 bg-indigo-600 rounded-full text-white font-bold w-8 h-8 flex items-center justify-center mr-4">3</div><div class="pt-1">Cuando creas tener la solución, pulsa <strong>¡Adivina aquí!</strong>. Tu ID se copiará automáticamente para que lo pegues en el formulario.</div></li>
-                                <li class="flex"><div class="flex-shrink-0 bg-indigo-600 rounded-full text-white font-bold w-8 h-8 flex items-center justify-center mr-4">4</div><div class="pt-1">¡Suma puntos y escala posiciones en el <strong>Podio</strong>!</div></li>
+                                <li class="flex"><div class="flex-shrink-0 bg-indigo-600 rounded-full text-white font-bold w-8 h-8 flex items-center justify-center mr-4">3</div><div class="pt-1">Cuando creas tener la solución (en un juego en curso), ¡usa el formulario para enviarla! <strong>Tu ID se copiará automáticamente.</strong></div></li>
+                                <li class="flex"><div class="flex-shrink-0 bg-indigo-600 rounded-full text-white font-bold w-8 h-8 flex items-center justify-center mr-4">4</div><div class="pt-1">Puedes guardar tus misterios favoritos y consultar el <strong>Podio</strong> para ver tu clasificación.</div></li>
                             </ol>
                              <div class="mt-8 text-center">
-                                <button id="instructions-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition-transform transform hover:scale-105">Instrucciones detalladas</button>
+                                <button id="instructions-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition-transform transform hover:scale-105">Instrucciones detalladas y Registro</button>
                             </div>
                         </div>
                         <div class="md:col-span-2 bg-gray-800 rounded-xl shadow-lg p-8 flex flex-col">
@@ -185,12 +184,12 @@
                         </div>
                     </div>
                  </div>
-                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v8.0</div>
+                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v8.0 (ID + Podio)</div>
             </div>
         </main>
     </div>
 
-    <!-- Modal del Juego -->
+    <!-- Modal Structure -->
     <div id="game-modal" class="modal fixed inset-0 bg-black bg-opacity-80 items-center justify-center p-4 z-50">
         <div class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
             <header class="flex-shrink-0 p-4 border-b border-gray-700 flex justify-between items-center gap-4">
@@ -205,62 +204,70 @@
         </div>
     </div>
     
-    <!-- Modal de Identidad -->
-    <div id="id-modal" class="modal fixed inset-0 bg-black bg-opacity-80 items-center justify-center p-4 z-50">
-        <div class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg p-6 border border-gray-700">
-            <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="text-indigo-500" viewBox="0 0 16 16"><path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>
-                Tu Identidad de Jugador
-            </h2>
-            <div class="bg-indigo-900/30 border border-indigo-500/50 rounded-lg p-4 mb-6 text-center">
-                <p class="text-gray-400 text-sm mb-1">Tu ID Único es:</p>
-                <p id="user-id-display" class="text-2xl font-mono font-bold text-white tracking-wider select-all"></p>
+    <!-- User ID Management Modal -->
+    <div id="user-id-modal" class="modal fixed inset-0 bg-black bg-opacity-90 items-center justify-center p-4 z-50">
+        <div class="bg-gray-800 rounded-xl shadow-2xl p-6 md:p-8 max-w-lg w-full">
+            <h3 class="text-2xl font-extrabold text-indigo-400 mb-4">Gestión de Identidad</h3>
+            <p class="text-gray-300 mb-4">Este es tu identificador único para el juego y el podio. <strong>¡No lo pierdas!</strong></p>
+            
+            <div class="bg-gray-900 p-4 rounded-lg border border-gray-700 mb-6 flex items-center justify-between">
+                <code id="full-user-id" class="text-green-400 font-mono text-lg break-all">...</code>
+                <button id="copy-id-btn" class="ml-4 text-gray-400 hover:text-white" title="Copiar ID">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                </button>
             </div>
-            <div class="bg-yellow-900/30 border-l-4 border-yellow-500 p-4 mb-6">
-                <p class="text-sm text-yellow-200"><strong>¡Advertencia!</strong> Si limpias las cookies de tu navegador, perderás este ID y tu progreso. Guárdalo descargando el archivo a continuación.</p>
+
+            <div class="bg-red-900/30 border border-red-500/50 p-4 rounded-lg mb-6">
+                <p class="text-sm text-red-200"><strong>¡Advertencia!</strong> Si pierdes o borras este ID (limpiando cookies, por ejemplo), perderás el acceso a tu progreso y puntuaciones en el podio. Guárdalo en un lugar seguro.</p>
             </div>
-             <div class="bg-gray-700/50 p-4 rounded-lg mb-6">
-                <p class="text-sm text-gray-300 mb-2"><strong>Advertencia sobre Favoritos:</strong> Tus favoritos se guardan localmente. Si borras cookies, desaparecerán.</p>
-            </div>
-            <div class="flex flex-col gap-3">
-                <button id="download-id-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition text-center flex justify-center items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
-                    Descargar Copia de Seguridad
+
+            <div class="space-y-3">
+                <button id="download-id-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                    Descargar mi ID (Recomendado)
                 </button>
                 <div class="relative">
-                     <input type="file" id="upload-id-input" accept=".html" class="hidden">
-                     <button id="upload-id-btn" class="w-full bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold py-3 px-4 rounded-lg transition text-center border border-gray-600">
-                        Restaurar ID desde Archivo
-                     </button>
+                    <input type="file" id="upload-id-input" accept=".html" class="hidden">
+                    <button id="upload-id-btn" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                        Subir ID Guardado
+                    </button>
                 </div>
-                <button id="close-id-modal-btn" class="mt-2 text-gray-500 hover:text-white font-medium py-2">Cerrar</button>
             </div>
-        </div>
-    </div>
-
-     <!-- Modal Alerta Redirect -->
-    <div id="redirect-modal" class="modal fixed inset-0 bg-black bg-opacity-90 items-center justify-center p-4 z-[60]">
-        <div class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-6 border border-gray-600">
-            <h3 class="text-xl font-bold text-white mb-4">Enviando tu respuesta...</h3>
-            <p class="text-gray-300 mb-4">Vamos a redirigirte al formulario. Hemos copiado tu ID al portapapeles y también intentaremos rellenarlo automáticamente.</p>
-            <div class="bg-indigo-900/50 p-3 rounded mb-4">
-                 <p class="text-sm text-indigo-200">Tu ID: <span id="redirect-modal-id" class="font-mono font-bold"></span></p>
-            </div>
-            <p class="text-gray-400 text-sm mb-6"><strong>Importante:</strong> Asegúrate de escribir el nombre con el que quieres aparecer en el Podio en el campo correspondiente del formulario.</p>
-            <div class="flex justify-end gap-3">
-                <button id="cancel-redirect-btn" class="text-gray-400 hover:text-white px-4 py-2 font-semibold">Cancelar</button>
-                <button id="confirm-redirect-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition">Ir al Formulario</button>
+            <div class="mt-6 text-center">
+                <button id="close-user-id-modal" class="text-gray-400 hover:text-white underline text-sm">Cerrar y continuar jugando</button>
             </div>
         </div>
     </div>
     
     <!-- Toast Notification -->
     <div id="toast-notification"></div>
+    
+    <!-- Hidden Alert Modal for External Redirect -->
+    <div id="redirect-alert-modal" class="modal fixed inset-0 bg-black bg-opacity-90 items-center justify-center p-4 z-[60]">
+        <div class="bg-gray-800 rounded-xl shadow-2xl p-6 max-w-md w-full text-center border border-indigo-500">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 mb-4">
+                <svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Preparando envío...</h3>
+            <p class="text-gray-300 mb-4 text-left text-sm">
+                Se va a abrir el formulario. Hemos copiado tu ID <strong class="text-indigo-400" id="redirect-modal-id"></strong> y lo intentaremos rellenar automáticamente.
+            </p>
+            <p class="bg-yellow-900/50 border border-yellow-600/50 p-3 rounded text-yellow-200 text-sm mb-6 text-left">
+                <strong>Importante:</strong> Introduce el nombre con el que deseas aparecer en el <strong>Podio</strong> en el campo correspondiente del formulario.
+            </p>
+            <div class="flex gap-3 justify-center">
+                <button id="cancel-redirect-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition">Cancelar</button>
+                <button id="confirm-redirect-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition">Entendido, ir al formulario</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const dom = {
             tabs: document.querySelectorAll('.tab-button'), tabContents: document.querySelectorAll('.tab-content'), enCursoContainer: document.getElementById('en-curso'), archivoContainer: document.getElementById('archivo'), archivoGrid: document.getElementById('archivo-grid'),
             modal: document.getElementById('game-modal'), modalTitle: document.getElementById('modal-title'), modalContent: document.getElementById('modal-content'), modalFooter: document.getElementById('modal-footer'), modalCloseBtn: document.getElementById('modal-close-btn'), modalBadges: document.getElementById('modal-badges'),
+            exampleGameBtn: document.getElementById('example-game-btn'),
             searchText: document.getElementById('search-text'),
             searchDate: document.getElementById('search-date'),
             typeFilterContainer: document.getElementById('type-filter-container'),
@@ -268,186 +275,118 @@
             toggleFiltersBtn: document.getElementById('toggle-filters-btn'),
             filtersContainer: document.getElementById('filters-container'),
             instructionsBtn: document.getElementById('instructions-btn'),
-            
-            // Favorites
-            toggleFavoritesBtn: document.getElementById('toggle-favorites-btn'),
-            toggleFavoritesText: document.getElementById('toggle-favorites-text'),
-            
-            // Identity
-            myIdBtn: document.getElementById('my-id-btn'),
-            idModal: document.getElementById('id-modal'),
+            // User ID DOM
             userIdDisplay: document.getElementById('user-id-display'),
+            currentUserIdShort: document.getElementById('current-user-id-short'),
+            userIdModal: document.getElementById('user-id-modal'),
+            fullUserId: document.getElementById('full-user-id'),
+            copyIdBtn: document.getElementById('copy-id-btn'),
             downloadIdBtn: document.getElementById('download-id-btn'),
-            uploadIdInput: document.getElementById('upload-id-input'),
             uploadIdBtn: document.getElementById('upload-id-btn'),
-            closeIdModalBtn: document.getElementById('close-id-modal-btn'),
-
-            // Redirect
-            redirectModal: document.getElementById('redirect-modal'),
+            uploadIdInput: document.getElementById('upload-id-input'),
+            closeUserIdModal: document.getElementById('close-user-id-modal'),
+            // Redirect Modal DOM
+            redirectAlertModal: document.getElementById('redirect-alert-modal'),
             redirectModalId: document.getElementById('redirect-modal-id'),
-            confirmRedirectBtn: document.getElementById('confirm-redirect-btn'),
             cancelRedirectBtn: document.getElementById('cancel-redirect-btn'),
-            
+            confirmRedirectBtn: document.getElementById('confirm-redirect-btn'),
             // Podium
-            leaderboardBody: document.getElementById('leaderboard-body'),
-            loadingLeaderboard: document.getElementById('loading-leaderboard'),
+            podiumTableBody: document.getElementById('podium-table-body'),
+            podiumLoading: document.getElementById('podium-loading'),
+            podiumError: document.getElementById('podium-error'),
+            // Favorites
+            favoritesFilter: document.getElementById('favorites-filter'),
         };
 
         const GAMES_INDEX_PATH = 'games/index.json';
         const EXAMPLE_GAME_PATH = 'games/ejemplo_resuelto.json'; 
-        const LEADERBOARD_PATH = 'leaderboard.json';
-        
+        const LEADERBOARD_PATH = 'games/leaderboard.json';
         let allGames = [];
         let datePicker;
         let currentGameData = null;
         let revealedClueCount = 0;
-        let userId = null;
-        let favorites = [];
+        let userId = '';
         let pendingRedirectUrl = '';
-        let showFavoritesOnly = false;
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
-        // --- GESTIÓN DE IDENTIDAD (UUID) ---
-
-        function initIdentity() {
-            const storedId = localStorage.getItem('interseccion_user_id');
-            if (storedId) {
-                userId = storedId;
-            } else {
+        // --- GESTIÓN DE USUARIO (UUID) ---
+        function initUser() {
+            userId = localStorage.getItem('userId');
+            if (!userId) {
                 userId = crypto.randomUUID();
-                localStorage.setItem('interseccion_user_id', userId);
-                // Si es nuevo usuario, quizás mostrar modal (opcional, aquí solo botón)
-                // dom.idModal.classList.add('active'); 
+                localStorage.setItem('userId', userId);
+                dom.userIdModal.classList.add('active'); // Mostrar modal si es nuevo
             }
-            dom.userIdDisplay.textContent = userId;
+            updateUserDisplay();
         }
 
-        function downloadIdFile() {
+        function updateUserDisplay() {
+            dom.currentUserIdShort.textContent = userId.substring(0, 8) + '...';
+            dom.fullUserId.textContent = userId;
+        }
+
+        function downloadUserId() {
             const htmlContent = `
-<!DOCTYPE html>
-<html lang="es">
-<head><meta charset="UTF-8"><title>Copia de Seguridad ID - La Intersección</title></head>
-<body style="background:#111827;color:#fff;font-family:sans-serif;text-align:center;padding:50px;">
-    <h1>La Intersección</h1>
-    <p>Esta es tu llave de acceso.</p>
-    <div style="background:#374151;padding:20px;margin:20px auto;max-width:400px;border-radius:10px;">
-        <h2>Tu ID:</h2>
-        <code style="font-size:1.5em;color:#818cf8;">${userId}</code>
-    </div>
-    <p>Sube este archivo en la web para restaurar tu progreso.</p>
-    <!-- DATA_ID_DO_NOT_MODIFY: ${userId} -->
-    <div id="hidden-id-data" style="display:none;">${userId}</div>
-</body>
-</html>`;
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Mi ID - La Intersección</title><style>body{font-family:sans-serif;background:#111;color:#eee;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;padding:20px;text-align:center}.box{background:#222;padding:2rem;border-radius:10px;border:1px solid #444}code{background:#000;padding:5px 10px;color:#4ade80;display:block;margin:10px 0;font-size:1.2rem}h1{color:#6366f1}</style></head>
+<body><div class="box"><h1>Resguardo de Identidad</h1><p>Este archivo contiene tu ID para el juego La Intersección.</p><code>${userId}</code><p>Sube este archivo en la web si pierdes tu sesión.</p><div id="id-data" style="display:none">${userId}</div></div></body></html>`;
             const blob = new Blob([htmlContent], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `mi_id_interseccion.html`;
+            a.download = 'mi_id.html';
             a.click();
             URL.revokeObjectURL(url);
-            showToast('Archivo de ID descargado');
         }
 
-        function handleIdUpload(event) {
+        function handleUploadId(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = (e) => {
-                const text = e.target.result;
-                // Intentar extraer el ID del div oculto
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const extractedId = doc.getElementById('hidden-id-data')?.textContent;
-
-                if (extractedId && extractedId.length > 20) { // Validación simple de longitud UUID
-                    userId = extractedId.trim();
-                    localStorage.setItem('interseccion_user_id', userId);
-                    dom.userIdDisplay.textContent = userId;
-                    showToast('¡ID restaurado con éxito!');
-                    dom.idModal.classList.remove('active');
-                    loadPodium(); // Recargar podio para resaltar el nuevo ID
-                } else {
-                    showToast('Error: No se encontró un ID válido en el archivo.', true);
-                }
+                const content = e.target.result;
+                const match = content.match(/<div id="id-data" style="display:none">(.*?)<\/div>/);
+                if (match && match[1]) {
+                    const newId = match[1].trim();
+                    if (/^[0-9a-fA-F-]{36}$/.test(newId)) { // Basic UUID check
+                        userId = newId;
+                        localStorage.setItem('userId', userId);
+                        updateUserDisplay();
+                        showToast('ID cargado correctamente');
+                        dom.userIdModal.classList.remove('active');
+                    } else { showToast('El archivo no contiene un ID válido', true); }
+                } else { showToast('Formato de archivo incorrecto', true); }
             };
             reader.readAsText(file);
-            event.target.value = ''; // Reset input
         }
 
         // --- GESTIÓN DE FAVORITOS ---
-
-        function initFavorites() {
-            const storedFavs = localStorage.getItem('interseccion_favorites');
-            if (storedFavs) {
-                try { favorites = JSON.parse(storedFavs); } catch(e) { favorites = []; }
-            }
-        }
-
         function toggleFavorite(gameId) {
-            if (favorites.includes(gameId)) {
-                favorites = favorites.filter(id => id !== gameId);
-                showToast('Eliminado de favoritos');
-            } else {
+            const index = favorites.indexOf(gameId);
+            if (index === -1) {
                 favorites.push(gameId);
-                showToast('Añadido a favoritos');
+                showToast('Añadido a favoritos ⭐');
+            } else {
+                favorites.splice(index, 1);
+                showToast('Eliminado de favoritos');
             }
-            localStorage.setItem('interseccion_favorites', JSON.stringify(favorites));
-            renderGames(); // Re-renderizar lista
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            renderGames(); // Re-render to update UI
             if (currentGameData && currentGameData.id === gameId) {
-                 openModalWithGame(currentGameData, null); // Refrescar modal si está abierto
+                // Update star in modal if open
+                const starBtn = document.querySelector('.favorite-btn-modal');
+                if (starBtn) starBtn.innerHTML = getStarIcon(favorites.includes(gameId));
             }
         }
 
-        // --- PODIO ---
-
-        async function loadPodium() {
-            dom.loadingLeaderboard.classList.remove('hidden');
-            dom.leaderboardBody.innerHTML = '';
-            try {
-                const response = await fetch(`${LEADERBOARD_PATH}?v=${Date.now()}`);
-                if (!response.ok) throw new Error('No hay datos del podio aún.');
-                const data = await response.json();
-                
-                dom.loadingLeaderboard.classList.add('hidden');
-                
-                if (!Array.isArray(data) || data.length === 0) {
-                     dom.leaderboardBody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-gray-500">Aún no hay registros en el podio.</td></tr>';
-                     return;
-                }
-
-                data.sort((a, b) => b.points - a.points); // Asegurar orden
-
-                data.forEach((entry, index) => {
-                    const isCurrentUser = entry.id === userId;
-                    const row = document.createElement('tr');
-                    row.className = `border-b border-gray-700 hover:bg-gray-700/30 transition ${isCurrentUser ? 'bg-indigo-900/40 border-indigo-500' : ''}`;
-                    
-                    // Medallas para top 3
-                    let rankDisplay = `<span class="font-mono text-gray-400">#${index + 1}</span>`;
-                    if (index === 0) rankDisplay = '🥇';
-                    if (index === 1) rankDisplay = '🥈';
-                    if (index === 2) rankDisplay = '🥉';
-
-                    row.innerHTML = `
-                        <td class="py-3 px-4 text-lg">${rankDisplay}</td>
-                        <td class="py-3 px-4 font-medium ${isCurrentUser ? 'text-indigo-300 font-bold' : 'text-gray-300'}">
-                            ${entry.name} ${isCurrentUser ? '<span class="ml-2 text-xs bg-indigo-600 text-white px-2 py-0.5 rounded-full">Tú</span>' : ''}
-                        </td>
-                        <td class="py-3 px-4 text-right font-bold text-yellow-500">${entry.points}</td>
-                    `;
-                    dom.leaderboardBody.appendChild(row);
-                });
-
-            } catch (error) {
-                console.warn(error);
-                dom.loadingLeaderboard.textContent = "El Podio se está construyendo. Vuelve pronto.";
-            }
+        function getStarIcon(isFav, isModal = false) {
+            const size = isModal ? "w-8 h-8" : "w-6 h-6";
+            const fill = isFav ? "currentColor" : "none";
+            const color = isFav ? "text-yellow-400" : "text-gray-500 hover:text-yellow-400";
+            return `<svg xmlns="http://www.w3.org/2000/svg" class="${size} ${color} transition-colors" fill="${fill}" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>`;
         }
 
 
-        // --- FUNCIONES DE UTILIDAD EXISTENTES MODIFICADAS ---
-
+        // --- FUNCIONES DE UTILIDAD (EXTENDIDAS) ---
         function getVisibleClues(game) {
             if (!game || !game.clues) return [];
             if (game.isSolved) return game.clues;
@@ -465,501 +404,369 @@
             toast.textContent = message;
             toast.style.backgroundColor = isError ? '#ef4444' : '#22c55e';
             toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
-        function copyToClipboard(text) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed"; document.body.appendChild(textArea);
-            textArea.focus(); textArea.select();
-            try {
-                document.execCommand('copy');
-                // showToast('Copiado al portapapeles'); // Gestionado individualmente
-            } catch (err) {
-                showToast('Error al copiar', true);
-            }
-            document.body.removeChild(textArea);
+        function copyToClipboard(text, successMsg = '¡Copiado!') {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(successMsg);
+            }).catch(err => {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed"; document.body.appendChild(textArea);
+                textArea.focus(); textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast(successMsg);
+                } catch (e) { showToast('Error al copiar', true); }
+                document.body.removeChild(textArea);
+            });
         }
-
-        function getOrdinal(n) {
-            const ordinals = ["Primera", "Segunda", "Tercera", "Cuarta", "Quinta", "Sexta", "Séptima", "Octava", "Novena", "Décima"];
-            return (n > 0 && n <= ordinals.length) ? ordinals[n - 1] : `${n}ª`;
-        }
-
-        function getTypeData(type) {
-            const normalizedType = normalizeText(type);
-            const typeMap = {
-                'semanal':   { label: 'Semanal',   color: 'bg-blue-600' },
-                'diario':    { label: 'Diario',    color: 'bg-yellow-500' },
-                'relampago': { label: 'Relámpago', color: 'bg-orange-500' },
-                'especial':  { label: 'Especial',  color: 'bg-purple-600' },
-                'tutorial':  { label: 'Tutorial',  color: 'bg-teal-600' },
-                'default':   { label: type || 'Desconocido', color: 'bg-gray-500' }
-            };
-            return typeMap[normalizedType] || typeMap['default'];
-        }
-
-        function getDifficultyData(difficulty) {
-            const difficultyMap = {
-                'Fácil':   { label: 'Fácil',   emoji: '😇', bgColor: 'bg-gray-900', textColor: 'text-green-400' },
-                'Medio':   { label: 'Medio',   emoji: '🧐', bgColor: 'bg-gray-900', textColor: 'text-yellow-400' },
-                'Difícil': { label: 'Difícil', emoji: '😈', bgColor: 'bg-gray-900', textColor: 'text-red-400' },
-                'default': { label: difficulty || 'Normal',  emoji: '',   bgColor: 'bg-gray-900',   textColor: 'text-gray-400' }
-            };
-            return difficultyMap[difficulty] || difficultyMap['default'];
-        }
-
-        function getClueTypeTag(type) {
-             const typeMap = {
-                text: { label: 'Texto', color: 'bg-sky-600' },
-                image: { label: 'Imagen', color: 'bg-purple-600' },
-                audio: { label: 'Audio', color: 'bg-pink-600' },
-                video: { label: 'Vídeo', color: 'bg-red-600' },
-                link: { label: 'Enlace', color: 'bg-orange-600' }
-            };
-            const config = typeMap[type] || { label: type, color: 'bg-gray-600' };
-            return `<span class="text-xs font-semibold px-2 py-1 ${config.color} text-white rounded-full">${config.label}</span>`;
-        }
-
-        // --- RENDERIZADO MODIFICADO ---
-
+        
+        // --- FUNCIONES DE RENDERIZADO ---
         function renderSummaryCard(game) {
             const typeData = getTypeData(game.type);
             const difficultyData = getDifficultyData(game.difficulty);
             const statusPill = game.isSolved ? `<span class="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full">Resuelto</span>` : `<span class="bg-yellow-500 text-gray-900 text-xs font-semibold px-2 py-1 rounded-full">En curso</span>`;
+            const dateText = game.isSolved ? `Finalizado: ${new Date(game.endDate || game.startDate).toLocaleDateString()}` : `Inicio: ${new Date(game.startDate).toLocaleDateString()}`;
             const isFav = favorites.includes(game.id);
-            
+
             const card = document.createElement('div');
             card.className = 'bg-gray-800/80 hover:bg-gray-800 transition-colors cursor-pointer rounded-xl shadow-lg p-5 flex flex-col justify-between fade-in relative group';
-            
-            // Botón Favorito en la tarjeta
             card.innerHTML = `
-                <button class="fav-btn absolute top-4 right-4 text-gray-500 hover:text-yellow-400 transition z-10 p-1" data-id="${game.id}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" class="${isFav ? 'text-yellow-400' : ''}" viewBox="0 0 16 16">
-                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
-                    </svg>
-                </button>
+                <button class="absolute top-4 right-4 z-10 favorite-btn p-1" data-id="${game.id}">${getStarIcon(isFav)}</button>
                 <div>
                     <div class="flex justify-between items-start mb-3 pr-8">
-                        <h3 class="text-xl font-bold text-white">${game.title || 'Misterio'}</h3>
+                        <h3 class="text-xl font-bold text-white truncate">${game.title || 'Misterio sin título'}</h3>
                     </div>
                     <div class="flex items-center flex-wrap gap-2 mb-2">
                         ${statusPill}
                         <span class="text-xs font-bold px-3 py-1 ${typeData.color} text-white rounded-full">${typeData.label}</span>
                         <span class="text-xs font-bold px-3 py-1 ${difficultyData.bgColor} ${difficultyData.textColor} rounded-full">${difficultyData.label} ${difficultyData.emoji}</span>
                     </div>
-                    ${game.notes ? `<p class="text-sm text-gray-400 mt-2 italic line-clamp-2">${game.notes}</p>` : ''}
+                    ${game.notes ? `<p class="text-sm text-gray-400 mt-2 line-clamp-2">${game.notes}</p>` : ''}
                 </div>
-                <div class="mt-4 border-t border-gray-700 pt-3 flex justify-between items-end">
-                    <p class="text-xs text-gray-500">${game.startDate ? new Date(game.startDate).toLocaleDateString('es-ES') : ''}</p>
-                    <p class="text-sm text-indigo-400 font-medium">Pistas: ${getVisibleClues(game).length}/${game.clues.length}</p>
+                <div class="mt-4 border-t border-gray-700 pt-3 flex justify-between items-center">
+                    <p class="text-xs text-gray-500">${dateText}</p>
+                    <p class="text-xs text-gray-500">Pistas: ${getVisibleClues(game).length}/${game.clues.length}</p>
                 </div>`;
             
             card.addEventListener('click', (e) => {
-                if (!e.target.closest('.fav-btn')) openModalWithGame(game);
+                if (!e.target.closest('.favorite-btn')) openModalWithGame(game);
             });
-            
-            // Evento Fav
-            card.querySelector('.fav-btn').addEventListener('click', (e) => {
+            card.querySelector('.favorite-btn').addEventListener('click', (e) => {
                 e.stopPropagation();
                 toggleFavorite(game.id);
             });
-
             return card;
         }
 
+        // Helpers for Type/Difficulty (same as before)
+        function getTypeData(type) {
+            const map = { 'semanal':{label:'Semanal',color:'bg-blue-600'},'diario':{label:'Diario',color:'bg-yellow-500'},'relampago':{label:'Relámpago',color:'bg-orange-500'},'especial':{label:'Especial',color:'bg-purple-600'},'tutorial':{label:'Tutorial',color:'bg-teal-600'},'default':{label:type||'?',color:'bg-gray-500'} };
+            return map[normalizeText(type)] || map['default'];
+        }
+        function getDifficultyData(d) {
+             const map = {'Fácil':{label:'Fácil',emoji:'😇',bgColor:'bg-gray-900',textColor:'text-green-400'},'Medio':{label:'Medio',emoji:'🧐',bgColor:'bg-gray-900',textColor:'text-yellow-400'},'Difícil':{label:'Difícil',emoji:'😈',bgColor:'bg-gray-900',textColor:'text-red-400'},'default':{label:d||'Normal',emoji:'',bgColor:'bg-gray-900',textColor:'text-gray-400'}};
+             return map[d] || map['default'];
+        }
+        function getClueTypeTag(type) {
+            const map = {text:{label:'Texto',color:'bg-sky-600'},image:{label:'Imagen',color:'bg-purple-600'},audio:{label:'Audio',color:'bg-pink-600'},video:{label:'Vídeo',color:'bg-red-600'},link:{label:'Enlace',color:'bg-orange-600'}};
+            const c = map[type] || {label:type,color:'bg-gray-600'};
+            return `<span class="text-xs font-semibold px-2 py-1 ${c.color} text-white rounded-full">${c.label}</span>`;
+        }
+
         function renderClue(clue, index) {
-            let mainTextHTML = '', mediaHTML = '';
+            let contentHTML = '';
             const textContent = clue.type === 'text' ? clue.content : (clue.text || '');
-            if (textContent) {
-                mainTextHTML = `<div class="prose prose-invert max-w-none prose-p:text-gray-300 prose-p:my-0">${textContent.replace(/\n/g, '<br>')}</div>`;
-            }
-
-            if (clue.type !== 'text' && clue.content) {
-                let url = clue.content;
-                if (!/^https?:\/\//i.test(url)) { url = 'https://' + url; }
-                
-                switch (clue.type) {
-                    case 'image': mediaHTML = `<img src="${url}" alt="Pista de imagen" class="mt-4 rounded-lg w-full h-auto object-contain max-h-96">`; break;
-                    case 'audio': mediaHTML = `<audio controls src="${url}" class="mt-4 w-full"></audio>`; break;
-                    case 'video': mediaHTML = `<div class="relative mt-4" style="padding-bottom: 56.25%"><iframe src="${url}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen class="absolute top-0 left-0 w-full h-full rounded-lg"></iframe></div>`; break;
-                    case 'link': mediaHTML = `<a href="${url}" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/></svg><span>Abrir Enlace</span></a>`; break;
-                }
-            }
-            return `<div class="flex items-start gap-4 p-4 bg-gray-900/50 rounded-lg"><div class="flex-shrink-0 bg-indigo-600 h-8 w-8 rounded-full flex items-center justify-center font-bold text-white text-sm">${index + 1}</div><div class="flex-grow min-w-0">${mainTextHTML}${mediaHTML}</div></div>`;
-        }
-
-        // --- SISTEMA DE SPOILER ---
-        function getSolutionHTML(game, revealed = false) {
-            const explanationHTML = game.explanation ? `<p>${game.explanation.replace(/\n/g, '<br>')}</p>` : '<p>No se proporcionó una explicación.</p>';
-            const winnerExplanationHTML = game.winnerExplanation ? `<h4 class="text-xl font-semibold text-indigo-300 mt-8 mb-2">Explicación de ${game.winner || 'N/A'}</h4><div class="prose prose-invert max-w-none prose-p:text-gray-400">${game.winnerExplanation.replace(/\n/g, '<br>')}</div>` : '';
+            if (textContent) contentHTML += `<div class="prose prose-invert max-w-none text-gray-300 mb-4">${textContent.replace(/\n/g, '<br>')}</div>`;
             
-            // Spoiler Logic
-            const spoilerClass = revealed ? 'spoiler-revealed' : 'spoiler-blur';
-            const buttonHTML = revealed ? '' : `<div class="absolute inset-0 flex items-center justify-center z-10"><button id="reveal-spoiler-btn" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-full shadow-xl border border-gray-600 transition transform hover:scale-105">👁️ Revelar Solución</button></div>`;
-
-            return `<div class="mt-6 border-t-2 border-green-500 pt-6 space-y-4 relative">
-                        <h3 class="text-2xl font-bold text-green-400">Solución Final</h3>
-                        
-                        <div class="relative min-h-[150px]">
-                            ${buttonHTML}
-                            <div id="spoiler-content" class="${spoilerClass} bg-green-900/50 border border-green-500 rounded-lg p-6 text-center transition-all duration-500">
-                                <p class="text-4xl font-extrabold text-white break-words">${game.solution || 'N/A'}</p>
-                                ${game.winner ? `<p class="text-lg text-yellow-400 mt-2">¡Adivinado por <strong>${game.winner}</strong>!</p>` : ''}
-                                <div class="prose prose-invert max-w-none prose-p:text-gray-300 prose-headings:text-white mt-6 text-left">
-                                    <h4 class="text-2xl font-bold text-white mb-2">Explicación</h4>
-                                    ${explanationHTML}
-                                    ${winnerExplanationHTML}
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
+            if (clue.type !== 'text' && clue.content) {
+                let url = clue.content.startsWith('http') ? clue.content : 'https://' + clue.content;
+                if (clue.type === 'image') contentHTML += `<img src="${url}" class="rounded-lg max-h-96 w-auto mx-auto">`;
+                else if (clue.type === 'audio') contentHTML += `<audio controls src="${url}" class="w-full"></audio>`;
+                else if (clue.type === 'video') contentHTML += `<div class="relative pb-[56.25%]"><iframe src="${url}" class="absolute top-0 left-0 w-full h-full rounded-lg" allowfullscreen></iframe></div>`;
+                else if (clue.type === 'link') contentHTML += `<a href="${url}" target="_blank" class="inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Abrir Enlace</a>`;
+            }
+            return `<div class="bg-gray-900/50 p-4 rounded-lg flex gap-4"><div class="flex-shrink-0 w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center font-bold">${index + 1}</div><div class="flex-grow min-w-0">${contentHTML}</div></div>`;
         }
 
-        function renderModal(game, view = 'summary', options = {}) {
+        function getSolutionHTML(game, revealed = false) {
+            const blurClass = revealed ? 'revealed' : '';
+            const btnHTML = !revealed ? `<div class="spoiler-overlay"><button class="reveal-spoiler-btn bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg z-20">👁️ Revelar Solución</button></div>` : '';
+            
+            return `
+                <div class="mt-8 border-t-2 border-green-500 pt-6 relative">
+                    <h3 class="text-2xl font-bold text-green-400 mb-4">Solución Final</h3>
+                    <div class="relative bg-green-900/30 border border-green-500/50 rounded-xl p-6 text-center overflow-hidden">
+                        ${btnHTML}
+                        <div class="spoiler-content ${blurClass}">
+                            <p class="text-4xl font-extrabold text-white mb-2">${game.solution}</p>
+                            ${game.winner ? `<p class="text-yellow-400">¡Adivinado por <strong>${game.winner}</strong>!</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="prose prose-invert mt-6 spoiler-content ${blurClass}">
+                        <h4 class="text-white font-bold">Explicación</h4>
+                        <p>${(game.explanation || 'Sin explicación').replace(/\n/g, '<br>')}</p>
+                        ${game.winnerExplanation ? `<h4 class="text-indigo-300 font-bold mt-4">Explicación de ${game.winner}</h4><p>${game.winnerExplanation}</p>` : ''}
+                    </div>
+                </div>`;
+        }
+
+        function renderModal(game, view, options = {}) {
             currentGameData = game;
-            dom.modalTitle.textContent = game ? (game.title || 'Misterio') : (options.title || 'Información');
+            dom.modalTitle.textContent = game ? game.title : (options.title || '');
             dom.modalBadges.innerHTML = '';
             
             if (game) {
-                const typeData = getTypeData(game.type);
-                const difficultyData = getDifficultyData(game.difficulty);
                 const isFav = favorites.includes(game.id);
-                
                 dom.modalBadges.innerHTML = `
-                    <span class="text-xs font-bold px-3 py-1 ${typeData.color} text-white rounded-full">${typeData.label}</span>
-                    <span class="text-xs font-bold px-3 py-1 ${difficultyData.bgColor} ${difficultyData.textColor} rounded-full">${difficultyData.label} ${difficultyData.emoji}</span>
-                    <button class="modal-fav-btn ml-2 text-gray-400 hover:text-yellow-400 transition" data-id="${game.id}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" class="${isFav ? 'text-yellow-400' : ''}" viewBox="0 0 16 16"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/></svg>
-                    </button>
+                   <button class="favorite-btn-modal mr-2" onclick="toggleFavorite('${game.id}')">${getStarIcon(isFav, true)}</button>
+                   <span class="text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded">${game.type}</span>
                 `;
-                
-                // Add event listener for modal fav btn
-                setTimeout(() => {
-                    const favBtn = dom.modalBadges.querySelector('.modal-fav-btn');
-                    if(favBtn) favBtn.addEventListener('click', () => { toggleFavorite(game.id); });
-                }, 0);
             }
 
-            let contentHTML = '';
-            let footerHTML = '';
-            const availableClues = game ? getVisibleClues(game) : [];
+            let contentHTML = '', footerHTML = '';
+            const clues = game ? getVisibleClues(game) : [];
 
-            switch(view) {
-                case 'summary':
-                    const cluesIndex = availableClues.length > 0 ? `
-                        <div class="mt-6">
-                            <h4 class="text-xl font-bold text-indigo-400">Índice de Pistas</h4>
-                            <ul class="space-y-2 mt-3 text-gray-300">
-                                ${availableClues.map((clue, index) => `
-                                    <li>
-                                        <a href="#" class="view-clue-btn flex justify-between items-center w-full hover:bg-gray-700/50 p-3 rounded-lg transition-colors" data-clue-index="${index}">
-                                            <span class="font-semibold">${getOrdinal(index + 1)} pista</span>
-                                            ${getClueTypeTag(clue.type)}
-                                        </a>
-                                    </li>
-                                `).join('')}
-                            </ul>
-                        </div>
-                    ` : '<p class="text-gray-500 mt-4">Aún no hay pistas disponibles.</p>';
-
-                    contentHTML = `
-                        <div class="space-y-4">
-                            ${game.showMystery && game.mystery ? `<div class="bg-gray-700/50 p-4 rounded-lg"><p class="text-sm text-gray-400"><strong>Lo que buscamos es:</strong> ${game.mystery}</p></div>` : ''}
-                            <div class="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
-                                <p class="text-gray-300">${game.notes || 'Descripción del misterio...'}</p>
-                            </div>
-                            ${cluesIndex}
-                        </div>`;
-                    
-                    footerHTML = `
-                        <div class="flex flex-wrap justify-center gap-4">
-                            <button class="share-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" data-game-id="${game.id}">Compartir</button>
-                            <button class="view-all-clues-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">Mostrar Pistas y Resolver</button>
-                        </div>`;
-                    break;
-
-                case 'all-clues':
-                    const allCluesHTML = availableClues.map((clue, i) => renderClue(clue, i)).join('');
-                    const solutionHTML = game.isSolved ? getSolutionHTML(game, false) : ''; // Start blurred
-                    contentHTML = `<div class="space-y-4">${allCluesHTML}${solutionHTML}</div>`;
-
-                    footerHTML = `
-                        <div class="flex flex-wrap justify-center gap-4">
-                            <button class="back-to-summary-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Volver Atrás</button>
-                            <button class="download-html-btn bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">Descargar pistas</button>
-                            ${game.googleFormLink && !game.isSolved ? `<button class="guess-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform hover:scale-105 transition" data-link="${game.googleFormLink}" data-entry-id="${game.formEntryId || ''}">¡Adivina aquí!</button>` : ''}
-                        </div>`;
-                    break;
-                
-                case 'single-clue':
-                    const clueIndex = options.clueIndex;
-                    if (clueIndex >= 0 && clueIndex < availableClues.length) {
-                        const clue = availableClues[clueIndex];
-                        contentHTML = renderClue(clue, clueIndex);
-                        footerHTML = `
-                        <div class="flex flex-wrap justify-center gap-4">
-                            <button class="back-to-summary-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Volver al Índice</button>
-                            <button class="share-clue-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" data-game-id="${game.id}" data-clue-index="${clueIndex}">Compartir</button>
-                        </div>`;
-                    } else { contentHTML = `<p class="text-red-400">Error: Pista no encontrada.</p>`; footerHTML = `<button class="back-to-summary-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Volver al Índice</button>`; }
-                    break;
-                
-                 case 'pre-solved':
-                    contentHTML = `<div class="text-center space-y-4 p-4"><p>Este misterio ya ha sido resuelto.</p><div class="flex flex-col sm:flex-row justify-center gap-4"><button id="play-solved-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg">Jugar pista a pista</button><button id="show-solution-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Ver Solución Directamente</button></div></div>`;
-                    footerHTML = '';
-                    break;
-                
-                case 'play-solved':
-                    const cluesToShow = availableClues.slice(0, revealedClueCount);
-                    const playingCluesHTML = cluesToShow.map((clue, i) => renderClue(clue, i)).join('');
-                    contentHTML = `<div class="space-y-4">${playingCluesHTML}</div>`;
-                    
-                    let playFooterHTML = '';
-                    if(revealedClueCount < availableClues.length) {
-                        playFooterHTML = `<button class="next-clue-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">Siguiente Pista (${revealedClueCount}/${availableClues.length})</button>`;
-                    } else {
-                        playFooterHTML = `<button class="reveal-solution-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">Revelar Solución</button>`;
-                    }
-                    footerHTML = `<div class="flex flex-wrap justify-center gap-4">${playFooterHTML}</div>`;
-                    break;
-
-                case 'info':
-                    contentHTML = options.content;
-                    footerHTML = `<div class="text-center"><button class="close-modal-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Cerrar</button></div>`;
-                    break;
+            if (view === 'summary') {
+                contentHTML = `
+                    <div class="space-y-4">
+                        ${game.showMystery ? `<div class="bg-gray-700 p-3 rounded text-sm text-gray-300"><strong>Buscamos:</strong> ${game.mystery}</div>` : ''}
+                        <p class="text-gray-300 italic">${game.notes || ''}</p>
+                        <h4 class="text-indigo-400 font-bold mt-4">Índice de Pistas</h4>
+                        <ul class="space-y-2">
+                            ${clues.map((c, i) => `<li><button class="view-clue-btn w-full text-left p-3 rounded hover:bg-gray-700 flex justify-between" data-index="${i}"><span>Pista ${i+1}</span>${getClueTypeTag(c.type)}</button></li>`).join('')}
+                        </ul>
+                    </div>`;
+                footerHTML = `
+                    <div class="flex justify-center gap-3 flex-wrap">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded share-btn" data-id="${game.id}">Compartir</button>
+                        <button class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded view-all-btn">Mostrar Todo</button>
+                    </div>`;
+            } else if (view === 'single-clue') {
+                const i = options.clueIndex;
+                contentHTML = renderClue(clues[i], i);
+                footerHTML = `<button class="back-btn bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded">Volver</button>`;
+            } else if (view === 'all-clues') {
+                contentHTML = `<div class="space-y-4">${clues.map((c, i) => renderClue(c, i)).join('')}</div>`;
+                if (game.isSolved) contentHTML += getSolutionHTML(game, false); // Default hidden
+                footerHTML = `
+                    <div class="flex justify-center gap-3 flex-wrap">
+                        <button class="back-btn bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded">Volver</button>
+                        ${!game.isSolved && game.googleFormLink ? `<button class="guess-btn bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded font-bold shadow-lg transform hover:scale-105 transition" data-link="${game.googleFormLink}" data-entry="${game.formEntryId || ''}">¡Adivina aquí!</button>` : ''}
+                    </div>`;
+            } else if (view === 'play-solved') {
+                const currentClues = clues.slice(0, revealedClueCount);
+                contentHTML = `<div class="space-y-4">${currentClues.map((c, i) => renderClue(c, i)).join('')}</div>`;
+                if (revealedClueCount < clues.length) {
+                    footerHTML = `<button class="next-clue-btn bg-indigo-600 text-white py-2 px-4 rounded">Siguiente Pista (${revealedClueCount}/${clues.length})</button>`;
+                } else {
+                    footerHTML = `<button class="reveal-final-btn bg-green-600 text-white py-2 px-4 rounded">Ver Solución</button>`;
+                }
+            } else if (view === 'info') {
+                contentHTML = options.content;
+                contentHTML += `<div class="mt-8 border-t border-gray-700 pt-4"><h5 class="font-bold text-gray-400">Registro de Versión v8.0</h5><ul class="list-disc list-inside text-xs text-gray-500 mt-2"><li>Sistema de Identidad de Usuario persistente.</li><li>Podio global integrado.</li><li>Gestión de Favoritos (LocalStorage).</li><li>Protección contra spoilers en juegos resueltos.</li><li>Autorrelleno seguro de formularios.</li></ul><p class="text-xs text-yellow-600 mt-2">Nota: Los favoritos se guardan en tu navegador. Si limpias cookies, se perderán.</p></div>`;
+                footerHTML = `<button class="close-modal-btn bg-gray-600 text-white py-2 px-4 rounded">Cerrar</button>`;
+            } else if (view === 'pre-solved') {
+                contentHTML = `<div class="text-center p-6"><p class="text-lg text-gray-300 mb-6">Este misterio está resuelto. ¿Cómo quieres verlo?</p><div class="flex justify-center gap-4"><button id="play-mode-btn" class="bg-indigo-600 text-white py-3 px-6 rounded-lg font-bold">Jugar Pista a Pista</button><button id="view-sol-btn" class="bg-gray-600 text-white py-3 px-6 rounded-lg">Ver Solución Directa</button></div></div>`;
             }
 
             dom.modalContent.innerHTML = contentHTML;
             dom.modalFooter.innerHTML = footerHTML;
             dom.modal.classList.add('active');
         }
-        
+
         function openModalWithGame(game, view = null, options = {}) {
-            let initialView = view;
-            if (!initialView) {
-                initialView = game.isSolved ? 'pre-solved' : 'summary';
-            }
+            let initialView = view || (game.isSolved ? 'pre-solved' : 'summary');
             renderModal(game, initialView, options);
         }
-        
-        function closeModal() { 
-            dom.modal.classList.remove('active'); 
-            currentGameData = null;
-            revealedClueCount = 0; 
-            history.pushState("", document.title, window.location.pathname + window.location.search);
-        }
-        
-        function renderGames() {
-            dom.enCursoContainer.innerHTML = '';
-            dom.archivoGrid.innerHTML = '';
 
-            const searchText = normalizeText(dom.searchText.value);
-            const selectedDates = datePicker ? datePicker.selectedDates : [];
-            const activeTypeFilter = dom.typeFilterContainer.querySelector('.filter-btn.active').dataset.type;
-            const activeDifficultyFilter = dom.difficultyFilterContainer.querySelector('.filter-btn.active').dataset.difficulty;
-
-            const enCursoGames = allGames.filter(game => game && !game.isSolved);
-            let filteredArchivoGames = allGames.filter(game => game && game.isSolved);
-
-            // Filtro Favoritos
-            if (showFavoritesOnly) {
-                filteredArchivoGames = filteredArchivoGames.filter(game => favorites.includes(game.id));
-            }
-
-            if (searchText) {
-                filteredArchivoGames = filteredArchivoGames.filter(game => {
-                    const gameTitle = normalizeText(game.title);
-                    const gameNotes = normalizeText(game.notes);
-                    const gameSolution = normalizeText(game.solution);
-                    return gameTitle.includes(searchText) || gameNotes.includes(searchText) || gameSolution.includes(searchText);
-                });
-            }
-
-            if (selectedDates && selectedDates.length === 2) {
-                const from = new Date(selectedDates[0]); from.setHours(0,0,0,0);
-                const to = new Date(selectedDates[1]); to.setHours(23,59,59,999);
-                filteredArchivoGames = filteredArchivoGames.filter(game => {
-                    const gameStartDate = new Date(game.startDate);
-                    gameStartDate.setHours(0,0,0,0);
-                    return gameStartDate >= from && gameStartDate <= to;
-                });
-            }
-
-            if (activeTypeFilter !== 'Todos') {
-                const normalizedActiveTypeFilter = normalizeText(activeTypeFilter);
-                filteredArchivoGames = filteredArchivoGames.filter(game => game.type && normalizeText(game.type) === normalizedActiveTypeFilter);
-            }
+        // --- MANEJO DEL PODIO ---
+        async function loadPodium() {
+            dom.podiumLoading.classList.remove('hidden');
+            dom.podiumError.classList.add('hidden');
+            dom.podiumTableBody.innerHTML = '';
             
-            if (activeDifficultyFilter !== 'Todos') {
-                filteredArchivoGames = filteredArchivoGames.filter(game => game.difficulty === activeDifficultyFilter);
-            }
+            try {
+                // Fetch simulated/real json
+                const response = await fetch(`${LEADERBOARD_PATH}?v=${Date.now()}`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json(); // Expected: [{userId, name, points, badges:[]}]
+                
+                // Sort by points desc
+                data.sort((a, b) => b.points - a.points);
+                
+                dom.podiumLoading.classList.add('hidden');
+                
+                if (data.length === 0) {
+                    dom.podiumTableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Aún no hay datos en el podio.</td></tr>`;
+                    return;
+                }
 
-            if (enCursoGames.length > 0) {
-                enCursoGames.forEach(game => dom.enCursoContainer.appendChild(renderSummaryCard(game)));
-            } else {
-                dom.enCursoContainer.innerHTML = '<p class="text-center text-gray-400 col-span-full">Aún no hay misterios en curso. ¡Vuelve pronto!</p>';
-            }
-            
-            if (filteredArchivoGames.length > 0) {
-                filteredArchivoGames.forEach(game => dom.archivoGrid.appendChild(renderSummaryCard(game)));
-            } else {
-                dom.archivoGrid.innerHTML = `<p class="text-center text-gray-400 col-span-full">No se encontraron misterios.</p>`;
+                data.forEach((entry, index) => {
+                    const isMe = entry.userId === userId;
+                    const rowClass = isMe ? 'bg-indigo-900/40 border-l-4 border-indigo-500' : 'hover:bg-gray-800/50';
+                    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}º`;
+                    const badges = (entry.badges || []).map(b => `<span class="inline-block bg-gray-700 px-2 py-1 rounded text-xs mr-1">${b}</span>`).join('');
+                    
+                    const row = `
+                        <tr class="${rowClass} transition-colors">
+                            <td class="px-6 py-4 font-bold ${index < 3 ? 'text-yellow-400' : 'text-gray-400'}">${medal}</td>
+                            <td class="px-6 py-4 font-medium text-white">${entry.name} ${isMe ? '(Tú)' : ''}</td>
+                            <td class="px-6 py-4 text-right font-mono text-indigo-300">${entry.points} pts</td>
+                            <td class="px-6 py-4 text-center">${badges}</td>
+                        </tr>
+                    `;
+                    dom.podiumTableBody.insertAdjacentHTML('beforeend', row);
+                });
+            } catch (error) {
+                console.error("Podium Error:", error);
+                dom.podiumLoading.classList.add('hidden');
+                dom.podiumError.classList.remove('hidden');
             }
         }
-        
+
+        // --- INIT & EVENTS ---
         async function loadGames() {
             try {
                 const response = await fetch(`${GAMES_INDEX_PATH}?v=${Date.now()}`);
-                if (!response.ok) throw new Error(`Error índice`);
-                const gameFiles = await response.json();
-                
-                const gamePromises = gameFiles.map(async (file) => {
-                    try { const res = await fetch(`games/${file}?v=${Date.now()}`); return await res.json(); } 
-                    catch (error) { return null; }
-                });
-                
-                const games = (await Promise.all(gamePromises)).filter(Boolean);
-                allGames = games.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
+                if (!response.ok) throw new Error("Index not found");
+                const files = await response.json();
+                const promises = files.map(f => fetch(`games/${f}?v=${Date.now()}`).then(r => r.json()).catch(e => null));
+                const results = await Promise.all(promises);
+                allGames = results.filter(Boolean).sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
                 renderGames();
-            } catch (error) {
-                dom.enCursoContainer.innerHTML = `<p class="text-red-500">Error cargando juegos.</p>`;
+            } catch (e) {
+                dom.enCursoContainer.innerHTML = '<p class="text-red-500">Error cargando juegos.</p>';
             }
         }
-        
-        // --- EVENT LISTENER SETUP ---
+
+        function renderGames() {
+            dom.enCursoContainer.innerHTML = '';
+            dom.archivoGrid.innerHTML = '';
+            
+            const search = normalizeText(dom.searchText.value);
+            const typeFilter = document.querySelector('#type-filter-container .active').dataset.type;
+            const diffFilter = document.querySelector('#difficulty-filter-container .active').dataset.difficulty;
+            const onlyFavs = dom.favoritesFilter.checked;
+            
+            const matches = (g) => {
+                if (onlyFavs && !favorites.includes(g.id)) return false;
+                if (typeFilter !== 'Todos' && normalizeText(g.type) !== normalizeText(typeFilter)) return false;
+                if (diffFilter !== 'Todos' && g.difficulty !== diffFilter) return false;
+                if (search) {
+                   const content = normalizeText(`${g.title} ${g.notes} ${g.solution}`);
+                   if (!content.includes(search)) return false;
+                }
+                // Date filter logic here (simplified)
+                return true;
+            };
+
+            const active = allGames.filter(g => !g.isSolved && matches(g));
+            const archived = allGames.filter(g => g.isSolved && matches(g));
+
+            if(active.length) active.forEach(g => dom.enCursoContainer.appendChild(renderSummaryCard(g)));
+            else dom.enCursoContainer.innerHTML = '<p class="text-gray-500 col-span-2 text-center">No hay misterios activos.</p>';
+
+            if(archived.length) archived.forEach(g => dom.archivoGrid.appendChild(renderSummaryCard(g)));
+            else dom.archivoGrid.innerHTML = '<p class="text-gray-500 col-span-2 text-center">No hay misterios en el archivo que coincidan.</p>';
+        }
 
         function initEventListeners() {
-            // Identity
-            dom.myIdBtn.addEventListener('click', () => {
-                initIdentity();
-                dom.idModal.classList.add('active');
-            });
-            dom.closeIdModalBtn.addEventListener('click', () => dom.idModal.classList.remove('active'));
-            dom.downloadIdBtn.addEventListener('click', downloadIdFile);
-            dom.uploadIdBtn.addEventListener('click', () => dom.uploadIdInput.click());
-            dom.uploadIdInput.addEventListener('change', handleIdUpload);
+            // Tab switching
+            dom.tabs.forEach(t => t.addEventListener('click', (e) => {
+                dom.tabs.forEach(x => x.classList.remove('active'));
+                dom.tabContents.forEach(x => x.classList.add('hidden'));
+                e.currentTarget.classList.add('active');
+                const target = document.getElementById(e.currentTarget.dataset.tab);
+                target.classList.remove('hidden');
+                if(e.currentTarget.dataset.tab === 'podio') loadPodium();
+            }));
 
-            // Redirect Modal
-            dom.cancelRedirectBtn.addEventListener('click', () => dom.redirectModal.classList.remove('active'));
-            dom.confirmRedirectBtn.addEventListener('click', () => {
-                 dom.redirectModal.classList.remove('active');
-                 window.open(pendingRedirectUrl, '_blank');
-            });
-
-            // Tabs
-            dom.tabs.forEach(tab => {
-                tab.addEventListener('click', (event) => {
-                    const targetId = event.currentTarget.dataset.tab;
-                    dom.tabs.forEach(t => t.classList.remove('active'));
-                    event.currentTarget.classList.add('active');
-                    dom.tabContents.forEach(content => content.id === targetId ? content.classList.remove('hidden') : content.classList.add('hidden'));
-                    if (targetId === 'podio') loadPodium();
-                });
-            });
-
-            // Favorites Filter
-            dom.toggleFavoritesBtn.addEventListener('click', () => {
-                showFavoritesOnly = !showFavoritesOnly;
-                dom.toggleFavoritesBtn.classList.toggle('text-yellow-400', showFavoritesOnly);
-                dom.toggleFavoritesText.textContent = showFavoritesOnly ? "Ver Todos" : "Solo Favoritos";
-                renderGames();
-            });
-
-            // Standard Modal Events
-            dom.modalCloseBtn.addEventListener('click', closeModal);
-            dom.modal.addEventListener('click', (e) => { if (e.target === dom.modal) closeModal(); });
-            
-            // Filters
-            dom.toggleFiltersBtn.addEventListener('click', () => { dom.filtersContainer.classList.toggle('hidden'); });
-            dom.searchText.addEventListener('input', renderGames);
-            dom.typeFilterContainer.addEventListener('click', (e) => { if(e.target.matches('.filter-btn')) { dom.typeFilterContainer.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); e.target.classList.add('active'); renderGames(); }});
-            dom.difficultyFilterContainer.addEventListener('click', (e) => { if(e.target.matches('.filter-btn')) { dom.difficultyFilterContainer.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); e.target.classList.add('active'); renderGames(); }});
-
-            // Dynamic Modal Clicks
+            // Modal delegation
             dom.modal.addEventListener('click', (e) => {
-                const target = e.target.closest('button, a');
-                if (!target) return;
+                if (e.target === dom.modal) { dom.modal.classList.remove('active'); return; }
+                const btn = e.target.closest('button');
+                if (!btn) return;
                 
-                if (target.matches('.close-modal-btn')) { closeModal(); return; }
-                if (target.matches('.view-clue-btn')) renderModal(currentGameData, 'single-clue', { clueIndex: parseInt(target.dataset.clueIndex, 10) });
-                if (target.matches('#show-solution-btn') || target.matches('.view-all-clues-btn')) renderModal(currentGameData, 'all-clues');
-                if (target.matches('.back-to-summary-btn')) renderModal(currentGameData, 'summary');
-                if (target.matches('.share-btn')) copyToClipboard(`${window.location.origin}${window.location.pathname}#mystery=${target.dataset.gameId}`);
-                if (target.matches('.share-clue-btn')) copyToClipboard(`${window.location.origin}${window.location.pathname}#mystery=${target.dataset.gameId}&clue=${target.dataset.clueIndex}`);
+                if (btn.classList.contains('close-modal-btn')) dom.modal.classList.remove('active');
+                if (btn.classList.contains('view-clue-btn')) renderModal(currentGameData, 'single-clue', {clueIndex: btn.dataset.index});
+                if (btn.classList.contains('view-all-btn')) renderModal(currentGameData, 'all-clues');
+                if (btn.classList.contains('back-btn')) renderModal(currentGameData, 'summary');
+                if (btn.classList.contains('share-btn')) copyToClipboard(`${location.origin}${location.pathname}#mystery=${btn.dataset.id}`);
                 
-                // GUESS BTN LOGIC
-                if (target.matches('.guess-btn')) {
-                    e.preventDefault();
-                    initIdentity(); // Ensure we have ID
-                    copyToClipboard(userId);
-                    showToast('¡ID Copiado al portapapeles!');
-                    
-                    const baseUrl = target.dataset.link;
-                    const entryId = target.dataset.entryId;
-                    
-                    if (entryId && userId) {
-                        // Construct Google Form Pre-filled URL
-                        // Standard format: url?entry.123456=VALUE
-                        const separator = baseUrl.includes('?') ? '&' : '?';
-                        pendingRedirectUrl = `${baseUrl}${separator}${entryId}=${userId}`;
-                    } else {
-                        pendingRedirectUrl = baseUrl;
-                    }
-                    
-                    dom.redirectModalId.textContent = userId;
-                    dom.redirectModal.classList.add('active');
-                }
+                // Play Solved Flow
+                if (btn.id === 'play-mode-btn') { revealedClueCount = 1; renderModal(currentGameData, 'play-solved'); }
+                if (btn.id === 'view-sol-btn') { renderModal(currentGameData, 'all-clues'); setTimeout(() => document.querySelector('.reveal-spoiler-btn')?.click(), 100); }
+                if (btn.classList.contains('next-clue-btn')) { revealedClueCount++; renderModal(currentGameData, 'play-solved'); }
+                if (btn.classList.contains('reveal-final-btn')) { renderModal(currentGameData, 'all-clues'); setTimeout(() => document.querySelector('.reveal-spoiler-btn')?.click(), 100); }
 
                 // Spoiler Reveal
-                if (target.matches('#reveal-spoiler-btn')) {
-                    const content = document.getElementById('spoiler-content');
-                    content.classList.remove('spoiler-blur');
-                    content.classList.add('spoiler-revealed');
-                    target.remove(); // Remove button
+                if (btn.classList.contains('reveal-spoiler-btn')) {
+                    btn.parentElement.style.display = 'none';
+                    document.querySelectorAll('.spoiler-content').forEach(el => el.classList.add('revealed'));
                 }
 
-                if (target.matches('.reveal-solution-btn')) {
-                    const allCluesHTML = getVisibleClues(currentGameData).map((clue, i) => renderClue(clue, i)).join('');
-                    const solutionHTML = getSolutionHTML(currentGameData, false);
-                    dom.modalContent.innerHTML = `<div class="space-y-4">${allCluesHTML}${solutionHTML}</div>`;
-                    // Switch to standard all-clues footer but solved
-                    dom.modalFooter.innerHTML = `
-                        <div class="flex flex-wrap justify-center gap-4">
-                            <button class="back-to-summary-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Volver Atrás</button>
-                            <button class="share-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" data-game-id="${currentGameData.id}">Compartir</button>
-                        </div>`;
+                // GUESS FLOW (Secure)
+                if (btn.classList.contains('guess-btn')) {
+                    const link = btn.dataset.link;
+                    const entryId = btn.dataset.entry;
+                    
+                    // 1. Copy ID
+                    copyToClipboard(userId, '¡ID Copiado! Pegando en formulario...');
+                    
+                    // 2. Prepare URL
+                    let finalUrl = link;
+                    if (entryId && userId) {
+                        const separator = link.includes('?') ? '&' : '?';
+                        finalUrl = `${link}${separator}${entryId}=${userId}`;
+                    }
+                    
+                    // 3. Show Alert Modal
+                    pendingRedirectUrl = finalUrl;
+                    dom.redirectModalId.textContent = userId;
+                    dom.redirectAlertModal.classList.add('active');
                 }
-                
-                // Play Solved Logic
-                if (target.matches('#play-solved-btn')) { revealedClueCount = 1; renderModal(currentGameData, 'play-solved'); }
-                if (target.matches('.next-clue-btn')) { revealedClueCount++; renderModal(currentGameData, 'play-solved'); }
             });
 
-            dom.instructionsBtn.addEventListener('click', () => {
-                const content = `<div class="prose prose-invert max-w-none text-left text-gray-300"><h4>Novedades v8.0</h4><ul class="list-disc pl-5 mb-4"><li><strong>Identidad Única:</strong> Tu progreso se vincula a tu ID. ¡Guárdalo!</li><li><strong>Favoritos:</strong> Marca los misterios que más te gusten.</li><li><strong>Podio:</strong> Compite contra otros intersectres.</li></ul><h4>Cómo Jugar</h4><ol class="list-decimal pl-5 space-y-2"><li>Navega por las pestañas <strong>Misterios en Curso</strong> o <strong>Archivo</strong> para encontrar un juego.</li><li>Haz clic en un misterio para ver su resumen. Encontrarás una descripción y un índice de las pistas disponibles.</li><li>Puedes ver las pistas una por una haciendo clic en el índice, o todas juntas pulsando <strong>Mostrar Pistas y Resolver</strong>.</li><li>Pulsa <strong>¡Adivina aquí!</strong>: Tu ID se copiará y se rellenará automáticamente en el formulario.</li><li>¡Asegúrate de usar siempre el mismo nombre en el formulario para subir en el Podio!</li><li>Puedes compartir un enlace al misterio o a una pista específica usando los botones de compartir.</li><li>Para guardar una copia offline, usa el botón <strong>Descargar HTML</strong> para obtener un archivo con todas las pistas y la solución (si está disponible).</li></ol><h4 class="mt-4">Tipos de Misterio</h4><ul class="list-disc pl-5 space-y-2"><li><strong>Semanal:</strong> El formato clásico, con pistas que se revelan a lo largo de la semana.</li><li><strong>Diario/Relámpago:</strong> Misterios más cortos para resolver en menos tiempo.</li><li><strong>Especial:</strong> Eventos temáticos o con reglas diferentes.</li><li><strong>Tutorial:</strong> Misterios diseñados para enseñar a jugar.</li></ul></div>`;
-                renderModal(null, 'info', { title: "Instrucciones & Novedades", content: content });
+            // Redirect Modal
+            dom.cancelRedirectBtn.addEventListener('click', () => dom.redirectAlertModal.classList.remove('active'));
+            dom.confirmRedirectBtn.addEventListener('click', () => {
+                dom.redirectAlertModal.classList.remove('active');
+                window.open(pendingRedirectUrl, '_blank');
             });
-        }
 
-        function init() {
-            initIdentity();
-            initFavorites();
-            initEventListeners();
+            // User ID Modal
+            dom.userIdDisplay.addEventListener('click', () => dom.userIdModal.classList.add('active'));
+            dom.closeUserIdModal.addEventListener('click', () => dom.userIdModal.classList.remove('active'));
+            dom.copyIdBtn.addEventListener('click', () => copyToClipboard(userId));
+            dom.downloadIdBtn.addEventListener('click', downloadUserId);
+            dom.uploadIdBtn.addEventListener('click', () => dom.uploadIdInput.click());
+            dom.uploadIdInput.addEventListener('change', handleUploadId);
+
+            // Filters
+            dom.searchText.addEventListener('input', renderGames);
+            dom.favoritesFilter.addEventListener('change', renderGames);
+            document.querySelectorAll('.filter-btn').forEach(b => b.addEventListener('click', (e) => {
+                e.target.parentElement.querySelectorAll('.filter-btn').forEach(x => x.classList.remove('active'));
+                e.target.classList.add('active');
+                renderGames();
+            }));
+            dom.toggleFiltersBtn.addEventListener('click', () => dom.filtersContainer.classList.toggle('hidden'));
             
-            datePicker = flatpickr(dom.searchDate, {
-                mode: "range", dateFormat: "d/m/Y", locale: "es", altInput: true, altFormat: "j F, Y",
-                onClose: renderGames,
-                onReady: (_, __, instance) => instance.calendarContainer.classList.add('dark')
+            // Instructions
+            dom.instructionsBtn.addEventListener('click', () => {
+                const html = `<div class="prose prose-invert text-gray-300"><h4>Cómo Jugar</h4><ol><li>Elige un misterio.</li><li>Lee las pistas.</li><li>Envía la solución usando el botón "Adivina aquí". <strong>Tu ID es vital.</strong></li></ol></div>`;
+                renderModal(null, 'info', {title: 'Instrucciones', content: html});
             });
-
-            loadGames();
         }
 
-        init();
+        // --- START ---
+        initUser();
+        initEventListeners();
+        loadGames();
+
     </script>
 </body>
 </html>
