@@ -1,5 +1,26 @@
 [
   {
+    "id": "97e7917c-202d-4400-b1ed-531d23a74fa0",
+    "name": "Pata",
+    "points": 150,
+    "history": [
+      {
+        "gameId": "53a62bf7-a9cd-44ff-b922-e4d6a7c90dff",
+        "points": 27,
+        "date": "2025-12-16T23:29:25.918Z"
+      },
+      {
+        "gameId": "aa392da0-17d0-4412-8d19-6d1dd07b9a1f",
+        "points": 23,
+        "date": "2025-12-16T23:31:19.542Z"
+      }
+    ],
+    "solvedGames": [
+      "53a62bf7-a9cd-44ff-b922-e4d6a7c90dff",
+      "aa392da0-17d0-4412-8d19-6d1dd07b9a1f"
+    ]
+  },
+  {
     "userId": "97e7917c-202d-4400-b1ed-531d23a74fa0",
     "name": "Pata",
     "points": 100,
