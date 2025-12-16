@@ -54,6 +54,11 @@
         /* Perfil Dropdown */
         details > summary { list-style: none; cursor: pointer; }
         details > summary::-webkit-details-marker { display: none; }
+        
+        /* Medallas */
+        .medal-1 { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); } /* Oro */
+        .medal-2 { color: #9ca3af; text-shadow: 0 0 10px rgba(156, 163, 175, 0.5); } /* Plata */
+        .medal-3 { color: #b45309; text-shadow: 0 0 10px rgba(180, 83, 9, 0.5); } /* Bronce */
     </style>
 </head>
 <body class="text-gray-200">
@@ -126,15 +131,16 @@
             <!-- Nueva Pestaña Podio -->
             <div id="podio" class="tab-content hidden fade-in">
                 <div class="bg-gray-800 rounded-xl shadow-lg p-6 md:p-8">
-                    <h2 class="text-3xl font-bold text-indigo-400 mb-6 text-center">Tabla de Clasificación</h2>
+                    <h2 class="text-3xl font-bold text-indigo-400 mb-6 text-center">Clasificación General</h2>
+                    <p class="text-center text-gray-400 mb-6 text-sm">Puntos sumados de todos los misterios resueltos</p>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="text-gray-400 border-b border-gray-700">
                                     <th class="p-4">#</th>
                                     <th class="p-4">Nombre</th>
-                                    <th class="p-4 text-right">Puntos</th>
-                                    <th class="p-4 text-center">Juegos</th>
+                                    <th class="p-4 text-right">Puntos Totales</th>
+                                    <th class="p-4 text-center">Misterios</th>
                                 </tr>
                             </thead>
                             <tbody id="podium-body" class="text-gray-200">
@@ -142,7 +148,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <div id="podium-loading" class="text-center text-gray-500 mt-4">Cargando clasificación...</div>
+                    <div id="podium-loading" class="text-center text-gray-500 mt-4">Calculando clasificación...</div>
                 </div>
             </div>
 
@@ -152,7 +158,6 @@
                         <h2 class="text-3xl font-bold text-indigo-400 mb-4">¿Qué es "La Intersección"?</h2>
                         <p class="text-gray-300 leading-relaxed">Este es un pequeño proyecto de entretenimiento inspirado en el famoso concurso "Saber y Ganar". El objetivo es adivinar "la intersección" —que puede ser una persona, un lugar, una película, una canción o cualquier cosa imaginable— a partir de pequeñas pistas que se irán revelando semanalmente. Es un reto a la paciencia, la deducción y la cultura general.</p>
                     </div>
-                    <!-- ... contenido "sobre" existente ... -->
                      <div class="grid md:grid-cols-5 gap-8">
                         <div class="md:col-span-3 bg-gray-800 rounded-xl shadow-lg p-8">
                             <h3 class="text-2xl font-bold text-indigo-400 mb-6">¿Cómo se juega?</h3>
@@ -166,7 +171,6 @@
                                 <button id="instructions-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition-transform transform hover:scale-105">Instrucciones detalladas</button>
                             </div>
                         </div>
-                        <!-- ... contacto y opiniones ... -->
                          <div class="md:col-span-2 bg-gray-800 rounded-xl shadow-lg p-8 flex flex-col">
                              <h3 class="text-2xl font-bold text-indigo-400 mb-6">Contacto y Opiniones</h3>
                              <div class="space-y-4 flex-grow flex flex-col justify-center">
@@ -281,7 +285,7 @@
 
         const GAMES_INDEX_PATH = 'games/index.json';
         const EXAMPLE_GAME_PATH = 'games/ejemplo_resuelto.json'; 
-        const LEADERBOARD_PATH = 'podio/leaderboard.json';
+        const PODIOS_FOLDER = 'podios/'; // Carpeta donde se guardan los json individuales
         
         let allGames = [];
         let leaderboardData = [];
@@ -295,14 +299,12 @@
         let userId = localStorage.getItem('mystery_game_userid');
 
         function initUserIdentity() {
-            // Check for ID restoration from URL (Download ID link)
             const params = new URLSearchParams(window.location.search);
             if(params.has('restore_id')) {
                 const restoredId = params.get('restore_id');
                 if(restoredId && /^[0-9a-fA-F-]{36}$/.test(restoredId)) {
                     userId = restoredId;
                     localStorage.setItem('mystery_game_userid', userId);
-                    // Clean URL
                     const newUrl = window.location.pathname;
                     window.history.replaceState({}, document.title, newUrl);
                     setTimeout(() => showToast('ID de Jugador Restaurado'), 1000);
@@ -312,7 +314,6 @@
             if (!userId) {
                 userId = crypto.randomUUID();
                 localStorage.setItem('mystery_game_userid', userId);
-                // Mostrar modal de ID nuevo
                 setTimeout(() => openIdModal(), 1000);
             }
             console.log("User ID:", userId);
@@ -324,32 +325,8 @@
         }
 
         function downloadMyId() {
-            // Get current base URL without params or hash
             const baseUrl = window.location.href.split('?')[0].split('#')[0];
-            
-            const htmlContent = `
-                <!DOCTYPE html><html><head><title>Mi ID - La Intersección</title>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <style>
-                    body { background:#111827; color:#f3f4f6; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
-                    .card { background: #1f2937; padding: 2rem; border-radius: 1rem; border: 1px solid #374151; max-width: 90%; }
-                    .code { background:#111; padding:1rem; margin:1.5rem 0; font-family:monospace; font-size:1.2rem; border:1px solid #4f46e5; color: #818cf8; word-break: break-all; border-radius: 0.5rem; }
-                    .btn { background: #4f46e5; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 0.5rem; font-weight: bold; display: inline-block; }
-                    .btn:hover { background: #4338ca; }
-                </style>
-                </head><body>
-                <div class="card">
-                    <h1>Tu Llave de Acceso</h1>
-                    <p>Este es tu ID para el juego "La Intersección".</p>
-                    <div class="code">${userId}</div>
-                    <p>Si no se redirige automáticamente, pulsa el botón.</p>
-                    <a href="${baseUrl}?restore_id=${userId}" id="login-link" class="btn">Entrar al Juego</a>
-                </div>
-                <script>
-                    const targetUrl = "${baseUrl}?restore_id=${userId}";
-                    setTimeout(() => { window.location.href = targetUrl; }, 1000);
-                <\/script>
-                </body></html>`;
+            const htmlContent = `<!DOCTYPE html><html><head><title>Mi ID - La Intersección</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{background:#111827;color:#f3f4f6;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center}.card{background:#1f2937;padding:2rem;border-radius:1rem;border:1px solid #374151;max-width:90%}.code{background:#111;padding:1rem;margin:1.5rem 0;font-family:monospace;font-size:1.2rem;border:1px solid #4f46e5;color:#818cf8;word-break:break-all;border-radius:0.5rem}.btn{background:#4f46e5;color:white;padding:0.75rem 1.5rem;text-decoration:none;border-radius:0.5rem;font-weight:bold;display:inline-block}.btn:hover{background:#4338ca}</style></head><body><div class="card"><h1>Tu Llave de Acceso</h1><p>Este es tu ID para el juego "La Intersección".</p><div class="code">${userId}</div><p>Si no se redirige automáticamente, pulsa el botón.</p><a href="${baseUrl}?restore_id=${userId}" id="login-link" class="btn">Entrar al Juego</a></div><script>const targetUrl="${baseUrl}?restore_id=${userId}";setTimeout(()=>{window.location.href=targetUrl;},1000);<\/script></body></html>`;
             
             const blob = new Blob([htmlContent], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
@@ -366,10 +343,8 @@
             const reader = new FileReader();
             reader.onload = (e) => {
                 const content = e.target.result;
-                // Try to find ID in the new format or old format
                 const matchNew = content.match(/restore_id=([a-f0-9-]{36})/);
                 const matchOld = content.match(/localStorage\.setItem\('mystery_game_userid', '([a-f0-9-]+)'\)/);
-                
                 let foundId = matchNew ? matchNew[1] : (matchOld ? matchOld[1] : null);
 
                 if (foundId) {
@@ -377,8 +352,7 @@
                     localStorage.setItem('mystery_game_userid', userId);
                     showToast('ID restaurado correctamente');
                     dom.idModal.classList.remove('active');
-                    dom.uploadIdInput.value = ''; // Reset input
-                    // Recargar podio para ver si cambia algo
+                    dom.uploadIdInput.value = '';
                     loadLeaderboard();
                 } else {
                     showToast('Archivo de ID no válido', true);
@@ -388,9 +362,7 @@
         }
 
         // --- GESTIÓN DE FAVORITOS ---
-        function getFavorites() {
-            return JSON.parse(localStorage.getItem('mystery_game_favorites') || '[]');
-        }
+        function getFavorites() { return JSON.parse(localStorage.getItem('mystery_game_favorites') || '[]'); }
 
         function toggleFavorite(gameId) {
             let favs = getFavorites();
@@ -402,9 +374,8 @@
                 showToast('Añadido a favoritos');
             }
             localStorage.setItem('mystery_game_favorites', JSON.stringify(favs));
-            renderGames(); // Re-renderizar para actualizar iconos y filtro
+            renderGames(); 
             if (currentGameData && currentGameData.id === gameId) {
-                // Actualizar el icono en el modal abierto si corresponde
                 const btn = document.getElementById('modal-fav-btn');
                 if (btn) btn.innerHTML = getStarIconSVG(favs.includes(gameId));
             }
@@ -425,19 +396,14 @@
             return game.clues.filter(clue => clue.publishDate && new Date(clue.publishDate) <= now);
         }
 
-        function normalizeText(text) {
-            if (!text) return '';
-            return text.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-        }
+        function normalizeText(text) { return text ? text.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : ''; }
 
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast-notification');
             toast.textContent = message;
             toast.style.backgroundColor = isError ? '#ef4444' : '#22c55e';
             toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
         function copyToClipboard(text, successMsg = '¡Copiado al portapapeles!') {
@@ -445,19 +411,13 @@
             textArea.value = text;
             textArea.style.position = "fixed"; document.body.appendChild(textArea);
             textArea.focus(); textArea.select();
-            try {
-                document.execCommand('copy');
-                showToast(successMsg);
-            } catch (err) {
-                showToast('Error al copiar', true);
-            }
+            try { document.execCommand('copy'); showToast(successMsg); } catch (err) { showToast('Error al copiar', true); }
             document.body.removeChild(textArea);
         }
 
         function getOrdinal(n) {
             const ordinals = ["Primera", "Segunda", "Tercera", "Cuarta", "Quinta", "Sexta", "Séptima", "Octava", "Novena", "Décima"];
-            if (n > 0 && n <= ordinals.length) return ordinals[n - 1];
-            return `${n}ª`;
+            return (n > 0 && n <= ordinals.length) ? ordinals[n - 1] : `${n}ª`;
         }
 
         function getTypeData(type) {
@@ -502,8 +462,6 @@
             const difficultyData = getDifficultyData(game.difficulty);
             const statusPill = game.isSolved ? `<span class="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full">Resuelto</span>` : `<span class="bg-yellow-500 text-gray-900 text-xs font-semibold px-2 py-1 rounded-full">En curso</span>`;
             const startDate = game.startDate ? new Date(game.startDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
-            const endDate = game.endDate ? new Date(game.endDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
-            const dateText = game.isSolved ? `Del ${startDate.replace(/ de/g, '')} al ${endDate.replace(/ de/g, '')}` : `Iniciado: ${startDate.replace(/ de/g, '')}`;
             const descriptionHTML = game.notes ? `<p class="text-sm text-gray-400 mt-2 italic">${game.notes}</p>` : '';
             const typeBadge = `<span class="text-xs font-bold px-3 py-1 ${typeData.color} text-white rounded-full">${typeData.label}</span>`;
             const difficultyBadge = `<span class="text-xs font-bold px-3 py-1 ${difficultyData.bgColor} ${difficultyData.textColor} rounded-full">${difficultyData.label} ${difficultyData.emoji}</span>`;
@@ -530,15 +488,12 @@
                     <p class="text-sm text-gray-500 mt-3">Pistas reveladas: ${getVisibleClues(game).length}/${game.clues.length}</p>
                 </div>
                 <div class="mt-4 border-t border-gray-700 pt-3 text-right">
-                    <p class="text-xs text-gray-500">${dateText}</p>
+                    <p class="text-xs text-gray-500">${game.isSolved ? 'Finalizado' : 'Iniciado'}: ${startDate}</p>
                 </div>`;
             
             card.addEventListener('click', (e) => {
-                if (e.target.closest('.fav-btn-wrapper')) {
-                    toggleFavorite(game.id);
-                } else {
-                    openModalWithGame(game);
-                }
+                if (e.target.closest('.fav-btn-wrapper')) { toggleFavorite(game.id); } 
+                else { openModalWithGame(game); }
             });
             return card;
         }
@@ -566,19 +521,13 @@
 
         function getSolutionHTML(game, isBlurred = false) {
             const explanationHTML = game.explanation ? `<p>${game.explanation.replace(/\n/g, '<br>')}</p>` : '<p>No se proporcionó una explicación.</p>';
-            
-            // Lógica para nombre de ganador clickeable
             let winnerHTML = '';
             if (game.winner) {
                 const winnerIdAttr = game.winnerId ? `data-winner-id="${game.winnerId}" class="winner-link cursor-pointer underline hover:text-yellow-300"` : '';
                 winnerHTML = `<p class="text-lg text-yellow-400 mt-2">¡Adivinado por <strong ${winnerIdAttr}>${game.winner}</strong>!</p>`;
             }
-            
             const winnerExplanationHTML = game.winnerExplanation ? `<h4 class="text-xl font-semibold text-indigo-300 mt-8 mb-2">Explicación de ${game.winner || 'N/A'}</h4><div class="prose prose-invert max-w-none prose-p:text-gray-400">${game.winnerExplanation.replace(/\n/g, '<br>')}</div>` : '';
-            
             const blurClass = isBlurred ? 'spoiler-blur' : '';
-            
-            // Añadimos IDs únicos para la manipulación DOM en descargas
             return `<div class="mt-6 border-t-2 border-green-500 pt-6 space-y-4 relative">
                         <h3 class="text-2xl font-bold text-green-400">Solución Final</h3>
                         <div class="bg-green-900/50 border border-green-500 rounded-lg p-6 text-center transition-all ${blurClass}" id="solution-container">
@@ -593,7 +542,17 @@
                     </div>`;
         }
         
-        function renderModal(game, view = 'summary', options = {}) {
+        // --- RENDERIZADO DEL MODAL ---
+        
+        async function fetchGamePodium(gameId) {
+            try {
+                const res = await fetch(`${PODIOS_FOLDER}${gameId}.json?v=${Date.now()}`);
+                if(!res.ok) throw new Error("No podium file");
+                return await res.json();
+            } catch(e) { return null; }
+        }
+
+        async function renderModal(game, view = 'summary', options = {}) {
             currentGameData = game;
             dom.modalTitle.textContent = game ? (game.title || 'Misterio') : (options.title || 'Información');
             dom.modalBadges.innerHTML = '';
@@ -607,11 +566,7 @@
                     <span class="text-xs font-bold px-3 py-1 ${difficultyData.bgColor} ${difficultyData.textColor} rounded-full">${difficultyData.label} ${difficultyData.emoji}</span>
                     <button id="modal-fav-btn" class="ml-2 hover:scale-110 transition-transform">${getStarIconSVG(isFav)}</button>
                 `;
-                
-                document.getElementById('modal-fav-btn').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    toggleFavorite(game.id);
-                });
+                document.getElementById('modal-fav-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(game.id); });
             }
 
             let contentHTML = '';
@@ -624,134 +579,129 @@
                         <div class="mt-6">
                             <h4 class="text-xl font-bold text-indigo-400">Índice de Pistas</h4>
                             <ul class="space-y-2 mt-3 text-gray-300">
-                                ${availableClues.map((clue, index) => `
-                                    <li>
-                                        <a href="#" class="view-clue-btn flex justify-between items-center w-full hover:bg-gray-700/50 p-3 rounded-lg transition-colors" data-clue-index="${index}">
-                                            <span class="font-semibold">${getOrdinal(index + 1)} pista</span>
-                                            ${getClueTypeTag(clue.type)}
-                                        </a>
-                                    </li>
-                                `).join('')}
+                                ${availableClues.map((clue, index) => `<li><a href="#" class="view-clue-btn flex justify-between items-center w-full hover:bg-gray-700/50 p-3 rounded-lg transition-colors" data-clue-index="${index}"><span class="font-semibold">${getOrdinal(index + 1)} pista</span>${getClueTypeTag(clue.type)}</a></li>`).join('')}
                             </ul>
-                        </div>
-                    ` : '<p class="text-gray-500 mt-4">Aún no hay pistas disponibles.</p>';
-
-                    contentHTML = `
-                        <div class="space-y-4">
-                            ${game.showMystery && game.mystery ? `<div class="bg-gray-700/50 p-4 rounded-lg"><p class="text-sm text-gray-400"><strong>Lo que buscamos es:</strong> ${game.mystery}</p></div>` : ''}
-                            <div class="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
-                                <p class="text-gray-300">${game.notes || 'Descripción del misterio...'}</p>
-                            </div>
-                            ${cluesIndex}
-                        </div>`;
-                    
-                    footerHTML = `
-                        <div class="flex flex-wrap justify-center gap-4">
-                            <button class="share-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" data-game-id="${game.id}">Compartir Misterio</button>
-                            <button class="view-all-clues-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">Mostrar Pistas y Resolver</button>
-                        </div>`;
+                        </div>` : '<p class="text-gray-500 mt-4">Aún no hay pistas disponibles.</p>';
+                    contentHTML = `<div class="space-y-4">${game.showMystery && game.mystery ? `<div class="bg-gray-700/50 p-4 rounded-lg"><p class="text-sm text-gray-400"><strong>Lo que buscamos es:</strong> ${game.mystery}</p></div>` : ''}<div class="bg-gray-900/50 p-4 rounded-lg border border-gray-700"><p class="text-gray-300">${game.notes || 'Descripción del misterio...'}</p></div>${cluesIndex}</div>`;
+                    footerHTML = `<div class="flex flex-wrap justify-center gap-4"><button class="share-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" data-game-id="${game.id}">Compartir</button><button class="view-all-clues-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">Mostrar Pistas y Resolver</button></div>`;
                     break;
 
                 case 'all-clues':
-                    const allCluesHTML = availableClues.map((clue, i) => renderClue(clue, i)).join('');
-                    const solutionHTML = game.isSolved ? getSolutionHTML(game) : '';
-                    contentHTML = `<div class="space-y-4">${allCluesHTML}${solutionHTML}</div>`;
-                    
-                    // Botón "Adivina aquí" inteligente
-                    let guessBtn = '';
-                    if (game.googleFormLink && !game.isSolved) {
-                         guessBtn = `<button class="guess-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">¡Adivina aquí!</button>`;
-                    }
-
-                    footerHTML = `
-                        <div class="flex flex-wrap justify-center gap-4">
-                            <button class="back-to-summary-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Volver Atrás</button>
-                            <button class="download-html-btn bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">Descargar pistas</button>
-                            <button class="share-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" data-game-id="${game.id}">Compartir</button>
-                            ${guessBtn}
-                        </div>`;
+                    contentHTML = `<div class="space-y-4">${availableClues.map((clue, i) => renderClue(clue, i)).join('')}${game.isSolved ? getSolutionHTML(game) : ''}</div>`;
+                    const guessBtn = (game.googleFormLink && !game.isSolved) ? `<button class="guess-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">¡Adivina aquí!</button>` : '';
+                    footerHTML = `<div class="flex flex-wrap justify-center gap-4"><button class="back-to-summary-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Volver</button><button class="download-html-btn bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">Descargar</button><button class="share-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" data-game-id="${game.id}">Compartir</button>${guessBtn}</div>`;
                     break;
                 
                 case 'single-clue':
                     const clueIndex = options.clueIndex;
-                    if (clueIndex >= 0 && clueIndex < availableClues.length) {
-                        const clue = availableClues[clueIndex];
+                    const clue = availableClues[clueIndex];
+                    if (clue) {
                         contentHTML = renderClue(clue, clueIndex);
-                        footerHTML = `
-                        <div class="flex flex-wrap justify-center gap-4">
-                            <button class="back-to-summary-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Volver al Índice</button>
-                            <button class="download-clue-btn bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg" data-clue-index="${clueIndex}">Descargar Pista</button>
-                            <button class="share-clue-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" data-game-id="${game.id}" data-clue-index="${clueIndex}">Compartir Pista</button>
-                        </div>`;
-                    } else {
-                        contentHTML = `<p class="text-red-400">Error: Pista no encontrada.</p>`;
-                        footerHTML = `<button class="back-to-summary-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Volver al Índice</button>`;
+                        footerHTML = `<div class="flex flex-wrap justify-center gap-4"><button class="back-to-summary-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Volver</button><button class="download-clue-btn bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg" data-clue-index="${clueIndex}">Descargar</button><button class="share-clue-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" data-game-id="${game.id}" data-clue-index="${clueIndex}">Compartir</button></div>`;
                     }
                     break;
                 
                  case 'pre-solved':
-                    contentHTML = `<div class="text-center space-y-4 p-4"><p>Este misterio ya ha sido resuelto.</p><div class="flex flex-col sm:flex-row justify-center gap-4"><button id="play-solved-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg">Jugar (Spoiler Oculto)</button><button id="show-solution-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Ver Solución Completa</button></div></div>`;
+                    contentHTML = `<div class="text-center space-y-4 p-4"><p>Este misterio ya ha sido resuelto.</p><div class="flex flex-col sm:flex-row justify-center gap-4"><button id="play-solved-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg">Jugar (Spoiler Oculto)</button><button id="show-solution-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Ver Solución Completa</button></div><div class="mt-4 border-t border-gray-700 pt-4"><button id="view-game-podium-btn" class="text-yellow-400 hover:text-yellow-300 font-bold underline">🏆 Ver Podio de este Juego</button></div></div>`;
                     footerHTML = '';
+                    break;
+
+                case 'game-podium':
+                    // Estado de carga inicial
+                    contentHTML = `<div class="text-center py-10"><p class="text-gray-400 animate-pulse">Cargando podio...</p></div>`;
+                    dom.modalFooter.innerHTML = `<button class="back-to-summary-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Volver</button>`;
+                    
+                    // Cargar datos asíncronamente
+                    fetchGamePodium(game.id).then(podiumJson => {
+                        if (!podiumJson || !podiumJson.entries || podiumJson.entries.length === 0) {
+                            document.getElementById('modal-content').innerHTML = `<div class="text-center py-10 text-gray-500"><p>No hay datos registrados para este podio.</p></div>`;
+                            return;
+                        }
+                        
+                        // Ordenar
+                        const sorted = podiumJson.entries.sort((a,b) => b.points - a.points);
+                        let tableHTML = `<table class="w-full text-left border-collapse mt-4"><thead><tr class="text-gray-400 border-b border-gray-700"><th class="p-2">#</th><th class="p-2">Nombre</th><th class="p-2 text-right">Pts</th></tr></thead><tbody>`;
+                        
+                        sorted.forEach((entry, idx) => {
+                            let rankDisplay = `${idx + 1}`;
+                            let rowClass = "border-b border-gray-700/50 hover:bg-gray-700/30";
+                            
+                            if (idx === 0) { rankDisplay = '🥇'; rowClass = "bg-yellow-900/20 border-l-2 border-yellow-500"; }
+                            else if (idx === 1) { rankDisplay = '🥈'; rowClass = "bg-gray-800 border-l-2 border-gray-400"; }
+                            else if (idx === 2) { rankDisplay = '🥉'; rowClass = "bg-orange-900/20 border-l-2 border-orange-700"; }
+                            
+                            // Resaltar usuario actual
+                            if (entry.id === userId) { rowClass += " bg-indigo-900/30 text-indigo-200 font-bold"; }
+
+                            tableHTML += `<tr class="${rowClass}"><td class="p-3 text-lg">${rankDisplay}</td><td class="p-3">${entry.name}</td><td class="p-3 text-right text-green-400 font-mono">${entry.points}</td></tr>`;
+                        });
+                        tableHTML += `</tbody></table>`;
+                        document.getElementById('modal-content').innerHTML = `<h3 class="text-xl font-bold text-center text-yellow-500 mb-2">Podio: ${game.title}</h3>${tableHTML}`;
+                    });
                     break;
                 
                 case 'play-solved':
-                    const cluesToShow = availableClues.slice(0, revealedClueCount);
-                    const playingCluesHTML = cluesToShow.map((clue, i) => renderClue(clue, i)).join('');
-                    contentHTML = `<div class="space-y-4">${playingCluesHTML}</div>`;
-                    
-                    let playFooterHTML = '';
-                    if(revealedClueCount < availableClues.length) {
-                        playFooterHTML = `<button class="next-clue-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">Siguiente Pista (${revealedClueCount}/${availableClues.length})</button>`;
-                    } else {
-                        playFooterHTML = `<button class="reveal-solution-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">Ver Solución</button>`;
-                    }
-                    footerHTML = `<div class="flex flex-wrap justify-center gap-4">${playFooterHTML}</div>`;
+                    contentHTML = `<div class="space-y-4">${availableClues.slice(0, revealedClueCount).map((clue, i) => renderClue(clue, i)).join('')}</div>`;
+                    const nextBtn = revealedClueCount < availableClues.length ? `<button class="next-clue-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">Siguiente Pista</button>` : `<button class="reveal-solution-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">Ver Solución</button>`;
+                    footerHTML = `<div class="flex flex-wrap justify-center gap-4">${nextBtn}</div>`;
                     break;
 
                 case 'info':
                     contentHTML = options.content;
-                    if(options.isProfile) {
-                        // Footer vacío o personalizado para perfil
-                         footerHTML = '';
-                    } else {
-                         contentHTML += `
-                         <div class="mt-6 pt-4 border-t border-gray-700 text-xs text-gray-500">
-                            <h5 class="font-bold mb-1">Registro de Versión v2.1</h5>
-                            <ul class="list-disc pl-4 space-y-1">
-                                <li>Sistema de Identidad de Usuario.</li>
-                                <li>Podio y Clasificación.</li>
-                                <li>Favoritos.</li>
-                                <li>Auto-redirección de ID.</li>
-                                <li>Descargas con spoiler.</li>
-                            </ul>
-                            <div class="mt-2 text-yellow-500/80">Nota: Tus favoritos se guardan localmente. Si borras cookies, se perderán.</div>
-                         </div>`;
-                         footerHTML = `<div class="text-center"><button class="close-modal-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Cerrar</button></div>`;
-                    }
+                    footerHTML = options.isProfile ? '' : `<div class="text-center"><button class="close-modal-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Cerrar</button></div>`;
                     break;
             }
 
-            dom.modalContent.innerHTML = contentHTML;
+            if(view !== 'game-podium') dom.modalContent.innerHTML = contentHTML; // game-podium actualiza async
             dom.modalFooter.innerHTML = footerHTML;
             dom.modal.classList.add('active');
         }
         
-        // --- LÓGICA DE PODIO Y PERFILES ---
+        // --- CÁLCULO INTELIGENTE DEL PODIO ---
         async function loadLeaderboard() {
              dom.podiumLoading.style.display = 'block';
              dom.podiumBody.innerHTML = '';
+             
              try {
-                // Simulamos carga si no hay archivo, o cargamos real
-                let data = [];
-                try {
-                    const res = await fetch(`${LEADERBOARD_PATH}?v=${Date.now()}`);
-                    if(res.ok) data = await res.json();
-                } catch(e) { console.warn("No leaderboard found, using empty"); }
+                // 1. Identificar juegos resueltos
+                const solvedGames = allGames.filter(g => g.isSolved);
                 
-                leaderboardData = data.sort((a,b) => b.points - a.points);
+                // 2. Fetch todos los podios en paralelo
+                const podiumPromises = solvedGames.map(game => 
+                    fetch(`${PODIOS_FOLDER}${game.id}.json?v=${Date.now()}`)
+                        .then(res => res.ok ? res.json() : null)
+                        .catch(() => null)
+                );
+                
+                const results = await Promise.all(podiumPromises);
+                
+                // 3. Agregar datos
+                const userMap = {}; // userId -> {name, points, solvedGames: []}
+                
+                results.forEach((podium, index) => {
+                    if (!podium || !podium.entries) return;
+                    const gameId = solvedGames[index].id;
+                    
+                    podium.entries.forEach(entry => {
+                        if (!userMap[entry.id]) {
+                            userMap[entry.id] = { id: entry.id, name: entry.name, points: 0, solvedGames: [] };
+                        }
+                        // Sumar puntos
+                        userMap[entry.id].points += (parseInt(entry.points) || 0);
+                        // Añadir juego al historial si no está
+                        if (!userMap[entry.id].solvedGames.includes(gameId)) {
+                            userMap[entry.id].solvedGames.push(gameId);
+                        }
+                    });
+                });
+                
+                // 4. Convertir a array y ordenar
+                leaderboardData = Object.values(userMap).sort((a,b) => b.points - a.points);
                 renderPodium();
+                
              } catch(err) {
-                 dom.podiumBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-400">Error cargando clasificación.</td></tr>`;
+                 console.error(err);
+                 dom.podiumBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-400">Error calculando podio.</td></tr>`;
              } finally {
                  dom.podiumLoading.style.display = 'none';
              }
@@ -760,7 +710,7 @@
         function renderPodium() {
             dom.podiumBody.innerHTML = '';
             if(leaderboardData.length === 0) {
-                 dom.podiumBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500">Aún no hay datos en el podio.</td></tr>`;
+                 dom.podiumBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500">Aún no hay datos.</td></tr>`;
                  return;
             }
 
@@ -768,16 +718,21 @@
                 const isMe = user.id === userId;
                 const rowClass = isMe ? 'bg-indigo-900/40 border-l-4 border-indigo-500' : 'hover:bg-gray-700/30 border-b border-gray-700/50';
                 
+                let rankDisplay = index + 1;
+                if (index === 0) rankDisplay = '🥇';
+                if (index === 1) rankDisplay = '🥈';
+                if (index === 2) rankDisplay = '🥉';
+
                 const tr = document.createElement('tr');
                 tr.className = `transition-colors cursor-pointer ${rowClass}`;
                 tr.innerHTML = `
-                    <td class="p-4 font-bold ${index < 3 ? 'text-yellow-400' : 'text-gray-500'}">${index + 1}</td>
+                    <td class="p-4 font-bold text-lg ${index < 3 ? 'text-yellow-400' : 'text-gray-500'}">${rankDisplay}</td>
                     <td class="p-4 font-medium text-white flex items-center gap-2">
                         ${user.name} 
                         ${isMe ? '<span class="text-xs bg-indigo-600 px-2 py-0.5 rounded text-white ml-2">Tú</span>' : ''}
                     </td>
                     <td class="p-4 text-right font-bold text-green-400">${user.points}</td>
-                    <td class="p-4 text-center text-gray-400">${user.solvedGames ? user.solvedGames.length : 0}</td>
+                    <td class="p-4 text-center text-gray-400">${user.solvedGames.length}</td>
                 `;
                 tr.addEventListener('click', () => openProfileModal(user));
                 dom.podiumBody.appendChild(tr);
@@ -785,474 +740,183 @@
         }
 
         function openProfileModal(userData) {
-            // Resolver lista de juegos
             let gamesListHTML = '<p class="text-gray-500 text-sm italic">Ningún juego registrado.</p>';
-            
-            if (userData.history && userData.history.length > 0) {
-                const listItems = userData.history.map(entry => {
-                    const game = allGames.find(g => g.id === entry.gameId);
-                    const gameTitle = game ? game.title : 'Juego Desconocido';
-                    return `
-                        <li class="flex justify-between items-center p-2 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer profile-game-link" data-game-id="${entry.gameId}">
-                            <span class="text-sm text-gray-200 truncate pr-2">${gameTitle}</span>
-                            <span class="text-xs font-bold text-green-400">+${entry.points} pts</span>
-                        </li>`;
+            if (userData.solvedGames && userData.solvedGames.length > 0) {
+                // Para mostrar los puntos de cada juego, necesitaríamos tener el dato desglosado.
+                // Como simplificación, mostramos solo la lista de títulos de juegos ganados.
+                const listItems = userData.solvedGames.map(gId => {
+                    const game = allGames.find(g => g.id === gId);
+                    return `<li class="p-2 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer profile-game-link flex justify-between" data-game-id="${gId}"><span class="text-gray-200 text-sm">${game ? game.title : 'Desconocido'}</span><span class="text-xs text-gray-500">Ver</span></li>`;
                 }).join('');
                 gamesListHTML = `<ul class="space-y-2 mt-2">${listItems}</ul>`;
             }
 
             const content = `
                 <div class="text-center mb-6">
-                    <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-white mb-3">
-                        ${userData.name.charAt(0).toUpperCase()}
-                    </div>
+                    <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-white mb-3">${userData.name.charAt(0).toUpperCase()}</div>
                     <h3 class="text-2xl font-bold text-white">${userData.name}</h3>
                     ${userData.id === userId ? '<p class="text-xs text-indigo-400 mt-1">Este eres tú</p>' : ''}
                 </div>
-                
                 <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-gray-900/50 p-4 rounded-xl text-center">
-                        <div class="text-sm text-gray-400">Puntos Totales</div>
-                        <div class="text-3xl font-bold text-green-400">${userData.points}</div>
-                    </div>
-                    <div class="bg-gray-900/50 p-4 rounded-xl text-center">
-                        <div class="text-sm text-gray-400">Juegos Resueltos</div>
-                        <div class="text-3xl font-bold text-blue-400">${userData.solvedGames ? userData.solvedGames.length : 0}</div>
-                    </div>
+                    <div class="bg-gray-900/50 p-4 rounded-xl text-center"><div class="text-sm text-gray-400">Puntos Totales</div><div class="text-3xl font-bold text-green-400">${userData.points}</div></div>
+                    <div class="bg-gray-900/50 p-4 rounded-xl text-center"><div class="text-sm text-gray-400">Juegos Resueltos</div><div class="text-3xl font-bold text-blue-400">${userData.solvedGames.length}</div></div>
                 </div>
-
                 <details class="bg-gray-900/30 rounded-xl overflow-hidden group">
-                    <summary class="flex justify-between items-center p-4 font-semibold text-gray-300 hover:bg-gray-800 transition">
-                        <span>Historial de Juegos</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-open:rotate-180 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                    </summary>
-                    <div class="p-4 border-t border-gray-700 max-h-60 overflow-y-auto">
-                        ${gamesListHTML}
-                    </div>
-                </details>
-                <div class="mt-6 text-center">
-                    <button class="close-modal-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg">Cerrar Perfil</button>
-                </div>
-            `;
+                    <summary class="flex justify-between items-center p-4 font-semibold text-gray-300 hover:bg-gray-800 transition"><span>Misterios Resueltos</span><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-open:rotate-180 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></summary>
+                    <div class="p-4 border-t border-gray-700 max-h-60 overflow-y-auto">${gamesListHTML}</div>
+                </details>`;
             
             renderModal(null, 'info', { title: 'Perfil de Jugador', content: content, isProfile: true });
-            
-            // Add listeners for game links inside profile
-            document.querySelectorAll('.profile-game-link').forEach(link => {
-                link.addEventListener('click', () => {
-                     const gameId = link.dataset.gameId;
-                     const game = allGames.find(g => g.id === gameId);
-                     if(game) {
-                         openModalWithGame(game);
-                     } else {
-                         showToast('No se encontró el juego', true);
-                     }
-                });
-            });
+            document.querySelectorAll('.profile-game-link').forEach(link => link.addEventListener('click', () => { const g = allGames.find(x => x.id === link.dataset.gameId); if(g) openModalWithGame(g); }));
         }
 
         // --- MANEJO DE EVENTOS ---
-        
         function downloadGameAsHTML(game) {
             const visibleClues = getVisibleClues(game);
             const cluesHTML = visibleClues.map((clue, index) => renderClue(clue, index)).join('');
-            
-            // Usamos la versión con blur si está resuelto
             const solutionHTML = game.isSolved ? getSolutionHTML(game, true) : '';
-
-            // Botón de revelación para el archivo descargado
-            const revealButtonScript = game.isSolved ? `
-                <div id="offline-reveal-btn" style="text-align:center; margin-top: -30px; position: relative; z-index: 20;">
-                    <button onclick="revealSpoiler()" style="background-color: #dc2626; color: white; font-weight: bold; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.1s;">👁️ Revelar Solución</button>
-                </div>
-                <script>
-                    function revealSpoiler() {
-                        const sol = document.getElementById('solution-container');
-                        const expl = document.getElementById('explanation-container');
-                        const btn = document.getElementById('offline-reveal-btn');
-                        if(sol) sol.classList.remove('spoiler-blur');
-                        if(expl) expl.classList.remove('spoiler-blur');
-                        if(btn) btn.style.display = 'none';
-                    }
-                <\/script>
-            ` : '';
-
-            const htmlTemplate = `
-                <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Misterio: ${game.title}</title>
-                <script src="https://cdn.tailwindcss.com"><\/script>
-                <style>
-                    body { background-color: #111827; color: #e5e7eb; font-family: 'Inter', sans-serif; }
-                    .spoiler-blur { filter: blur(15px); user-select: none; pointer-events: none; }
-                    .prose a { color: #60a5fa; text-decoration: underline; }
-                </style></head>
-                <body class="p-8"><div class="max-w-2xl mx-auto bg-gray-800 rounded-lg p-8 space-y-4 shadow-xl">
-                <h1 class="text-3xl font-bold text-white">${game.title}</h1>
-                <p class="text-gray-400">${game.notes || ''}</p><hr class="border-gray-600">
-                ${cluesHTML}
-                ${solutionHTML}
-                ${revealButtonScript}
-                </div></body></html>`;
-
+            const revealButtonScript = game.isSolved ? `<div id="offline-reveal-btn" style="text-align:center; margin-top: -30px; position: relative; z-index: 20;"><button onclick="revealSpoiler()" style="background-color: #dc2626; color: white; font-weight: bold; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.1s;">👁️ Revelar Solución</button></div><script>function revealSpoiler(){const s=document.getElementById('solution-container');const e=document.getElementById('explanation-container');const b=document.getElementById('offline-reveal-btn');if(s)s.classList.remove('spoiler-blur');if(e)e.classList.remove('spoiler-blur');if(b)b.style.display='none';}<\/script>` : '';
+            const htmlTemplate = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Misterio: ${game.title}</title><script src="https://cdn.tailwindcss.com"><\/script><style>body { background-color: #111827; color: #e5e7eb; font-family: 'Inter', sans-serif; } .spoiler-blur { filter: blur(15px); user-select: none; pointer-events: none; } .prose a { color: #60a5fa; text-decoration: underline; }</style></head><body class="p-8"><div class="max-w-2xl mx-auto bg-gray-800 rounded-lg p-8 space-y-4 shadow-xl"><h1 class="text-3xl font-bold text-white">${game.title}</h1><p class="text-gray-400">${game.notes || ''}</p><hr class="border-gray-600">${cluesHTML}${solutionHTML}${revealButtonScript}</div></body></html>`;
             const blob = new Blob([htmlTemplate], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `misterio_${game.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
-            a.click();
-            URL.revokeObjectURL(url);
+            const a = document.createElement('a'); a.href = url; a.download = `misterio_${game.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`; a.click(); URL.revokeObjectURL(url);
         }
         
         function downloadSingleClueAsHTML(game, clueIndex) {
-            const clue = getVisibleClues(game)[clueIndex];
-            if (!clue) return;
-
+            const clue = getVisibleClues(game)[clueIndex]; if (!clue) return;
             const clueHTML = renderClue(clue, clueIndex);
-            const htmlTemplate = `
-                <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Pista ${clueIndex + 1} de: ${game.title}</title>
-                <script src="https://cdn.tailwindcss.com"><\/script>
-                <style>body { background-color: #111827; color: #e5e7eb; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }</style></head>
-                <body><div class="max-w-2xl w-full mx-auto bg-gray-800 rounded-2xl p-8 space-y-4 shadow-2xl">
-                <h1 class="text-2xl font-bold text-indigo-400">Misterio: ${game.title}</h1>
-                <hr class="border-gray-600">
-                ${clueHTML}</div></body></html>`;
-            
+            const htmlTemplate = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Pista ${clueIndex + 1} de: ${game.title}</title><script src="https://cdn.tailwindcss.com"><\/script><style>body { background-color: #111827; color: #e5e7eb; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }</style></head><body><div class="max-w-2xl w-full mx-auto bg-gray-800 rounded-2xl p-8 space-y-4 shadow-2xl"><h1 class="text-2xl font-bold text-indigo-400">Misterio: ${game.title}</h1><hr class="border-gray-600">${clueHTML}</div></body></html>`;
             const blob = new Blob([htmlTemplate], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `pista_${clueIndex + 1}_${game.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
-            a.click();
-            URL.revokeObjectURL(url);
+            const a = document.createElement('a'); a.href = url; a.download = `pista_${clueIndex + 1}_${game.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`; a.click(); URL.revokeObjectURL(url);
         }
 
-        function openModalWithGame(game, view = null, options = {}) {
-            let initialView = view;
-            if (!initialView) {
-                initialView = game.isSolved ? 'pre-solved' : 'summary';
-            }
-            renderModal(game, initialView, options);
-        }
-        
-        function closeModal() { 
-            dom.modal.classList.remove('active'); 
-            dom.modalTitle.textContent = ''; 
-            dom.modalContent.innerHTML = ''; 
-            dom.modalFooter.innerHTML = '';
-            currentGameData = null;
-            revealedClueCount = 0; 
-            history.pushState("", document.title, window.location.pathname + window.location.search);
-        }
+        function openModalWithGame(game, view = null, options = {}) { renderModal(game, view || (game.isSolved ? 'pre-solved' : 'summary'), options); }
+        function closeModal() { dom.modal.classList.remove('active'); dom.modalTitle.textContent = ''; dom.modalContent.innerHTML = ''; dom.modalFooter.innerHTML = ''; currentGameData = null; revealedClueCount = 0; history.pushState("", document.title, window.location.pathname + window.location.search); }
         
         function renderGames() {
-            dom.enCursoContainer.innerHTML = '';
-            dom.archivoGrid.innerHTML = '';
-
+            dom.enCursoContainer.innerHTML = ''; dom.archivoGrid.innerHTML = '';
             const searchText = normalizeText(dom.searchText.value);
             const selectedDates = datePicker.selectedDates;
             const activeTypeFilter = dom.typeFilterContainer.querySelector('.filter-btn.active').dataset.type;
             const activeDifficultyFilter = dom.difficultyFilterContainer.querySelector('.filter-btn.active').dataset.difficulty;
-
             let enCursoGames = allGames.filter(game => game && !game.isSolved);
             let filteredArchivoGames = allGames.filter(game => game && game.isSolved);
 
-            // Filtro general de búsqueda
             const filterFn = (game) => {
-                 const gameTitle = normalizeText(game.title);
-                 const gameNotes = normalizeText(game.notes);
-                 const gameSolution = normalizeText(game.solution);
-                 const gameExplanation = normalizeText(game.explanation);
-                 const gameMystery = normalizeText(game.mystery);
-                 const gameWinner = normalizeText(game.winner);
-                 return gameTitle.includes(searchText) || 
-                        gameNotes.includes(searchText) ||
-                        gameSolution.includes(searchText) ||
-                        gameExplanation.includes(searchText) ||
-                        gameMystery.includes(searchText) ||
-                        gameWinner.includes(searchText);
+                 const t = normalizeText(game.title), n = normalizeText(game.notes), s = normalizeText(game.solution), e = normalizeText(game.explanation), m = normalizeText(game.mystery), w = normalizeText(game.winner);
+                 return t.includes(searchText) || n.includes(searchText) || s.includes(searchText) || e.includes(searchText) || m.includes(searchText) || w.includes(searchText);
             };
-
-            if (searchText) {
-                filteredArchivoGames = filteredArchivoGames.filter(filterFn);
-                enCursoGames = enCursoGames.filter(filterFn);
-            }
-
+            if (searchText) { filteredArchivoGames = filteredArchivoGames.filter(filterFn); enCursoGames = enCursoGames.filter(filterFn); }
             if (selectedDates && selectedDates.length === 2) {
-                const from = new Date(selectedDates[0]); from.setHours(0,0,0,0);
-                const to = new Date(selectedDates[1]); to.setHours(23,59,59,999);
-                const dateFilter = game => {
-                    const gameStartDate = new Date(game.startDate);
-                    gameStartDate.setHours(0,0,0,0);
-                    return gameStartDate >= from && gameStartDate <= to;
-                };
-                filteredArchivoGames = filteredArchivoGames.filter(dateFilter);
-                enCursoGames = enCursoGames.filter(dateFilter);
+                const from = new Date(selectedDates[0]); from.setHours(0,0,0,0); const to = new Date(selectedDates[1]); to.setHours(23,59,59,999);
+                const dateFilter = game => { const gD = new Date(game.startDate); gD.setHours(0,0,0,0); return gD >= from && gD <= to; };
+                filteredArchivoGames = filteredArchivoGames.filter(dateFilter); enCursoGames = enCursoGames.filter(dateFilter);
             }
+            if (activeTypeFilter !== 'Todos') { const tF = normalizeText(activeTypeFilter); const typeFilter = game => game.type && normalizeText(game.type) === tF; filteredArchivoGames = filteredArchivoGames.filter(typeFilter); enCursoGames = enCursoGames.filter(typeFilter); }
+            if (activeDifficultyFilter !== 'Todos') { const diffFilter = game => game.difficulty === activeDifficultyFilter; filteredArchivoGames = filteredArchivoGames.filter(diffFilter); enCursoGames = enCursoGames.filter(diffFilter); }
+            if (showFavoritesOnly) { const favs = getFavorites(); const favFilter = game => favs.includes(game.id); filteredArchivoGames = filteredArchivoGames.filter(favFilter); enCursoGames = enCursoGames.filter(favFilter); }
 
-            if (activeTypeFilter !== 'Todos') {
-                const normalizedActiveTypeFilter = normalizeText(activeTypeFilter);
-                const typeFilter = game => game.type && normalizeText(game.type) === normalizedActiveTypeFilter;
-                filteredArchivoGames = filteredArchivoGames.filter(typeFilter);
-                enCursoGames = enCursoGames.filter(typeFilter);
-            }
-            
-            if (activeDifficultyFilter !== 'Todos') {
-                const diffFilter = game => game.difficulty === activeDifficultyFilter;
-                filteredArchivoGames = filteredArchivoGames.filter(diffFilter);
-                enCursoGames = enCursoGames.filter(diffFilter);
-            }
-
-            // Filtro de Favoritos
-            if (showFavoritesOnly) {
-                const favs = getFavorites();
-                const favFilter = game => favs.includes(game.id);
-                filteredArchivoGames = filteredArchivoGames.filter(favFilter);
-                enCursoGames = enCursoGames.filter(favFilter);
-            }
-
-            if (enCursoGames.length > 0) {
-                enCursoGames.forEach(game => dom.enCursoContainer.appendChild(renderSummaryCard(game)));
-            } else {
-                dom.enCursoContainer.innerHTML = '<p class="text-center text-gray-400 col-span-full">No se encontraron misterios en curso.</p>';
-            }
-            
-            if (filteredArchivoGames.length > 0) {
-                filteredArchivoGames.forEach(game => dom.archivoGrid.appendChild(renderSummaryCard(game)));
-            } else {
-                dom.archivoGrid.innerHTML = `<p class="text-center text-gray-400 col-span-full">${showFavoritesOnly ? 'No tienes favoritos guardados.' : 'No se encontraron misterios resueltos.'}</p>`;
-            }
+            if (enCursoGames.length > 0) enCursoGames.forEach(game => dom.enCursoContainer.appendChild(renderSummaryCard(game))); else dom.enCursoContainer.innerHTML = '<p class="text-center text-gray-400 col-span-full">No se encontraron misterios en curso.</p>';
+            if (filteredArchivoGames.length > 0) filteredArchivoGames.forEach(game => dom.archivoGrid.appendChild(renderSummaryCard(game))); else dom.archivoGrid.innerHTML = `<p class="text-center text-gray-400 col-span-full">${showFavoritesOnly ? 'No tienes favoritos guardados.' : 'No se encontraron misterios resueltos.'}</p>`;
         }
 
         function handleUrlSharing() {
             const hash = window.location.hash;
             if (!hash.startsWith('#mystery=')) return;
-
             const params = new URLSearchParams(hash.substring(1));
             const mysteryId = params.get('mystery');
             const clueIndex = params.get('clue');
-
             if (mysteryId) {
                 const gameToOpen = allGames.find(g => g.id === mysteryId);
-                if (gameToOpen) {
-                    setTimeout(() => {
-                        const view = clueIndex !== null ? 'single-clue' : null;
-                        const options = clueIndex !== null ? { clueIndex: parseInt(clueIndex, 10) } : {};
-                        openModalWithGame(gameToOpen, view, options);
-                    }, 500);
-                } else {
-                    showToast(`Misterio con ID ${mysteryId} no encontrado.`, true);
-                }
+                if (gameToOpen) setTimeout(() => { openModalWithGame(gameToOpen, clueIndex !== null ? 'single-clue' : null, clueIndex !== null ? { clueIndex: parseInt(clueIndex, 10) } : {}); }, 500);
+                else showToast(`Misterio con ID ${mysteryId} no encontrado.`, true);
             }
         }
 
         async function loadGames() {
             const loadingHTML = '<p class="text-center text-gray-400 col-span-full">Cargando misterios...</p>';
-            dom.enCursoContainer.innerHTML = loadingHTML; 
-            dom.archivoGrid.innerHTML = loadingHTML;
+            dom.enCursoContainer.innerHTML = loadingHTML; dom.archivoGrid.innerHTML = loadingHTML;
             try {
                 const response = await fetch(`${GAMES_INDEX_PATH}?v=${Date.now()}`);
-                if (!response.ok) throw new Error(`El archivo de índice no se encuentra en ${GAMES_INDEX_PATH}`);
+                if (!response.ok) throw new Error(`Error índice`);
                 const gameFiles = await response.json();
-                if (!Array.isArray(gameFiles)) throw new Error("El índice de juegos no es un array válido.");
-                
-                const gamePromises = gameFiles.map(async (file) => {
-                    try { 
-                        const res = await fetch(`games/${file}?v=${Date.now()}`); 
-                        if (!res.ok) throw new Error(`No se pudo cargar ${file}`); 
-                        return await res.json(); 
-                    } catch (error) { console.error(`Error procesando ${file}:`, error); return null; }
-                });
-                
+                const gamePromises = gameFiles.map(async (file) => { try { const res = await fetch(`games/${file}?v=${Date.now()}`); if (!res.ok) throw new Error(); return await res.json(); } catch (error) { return null; } });
                 const games = (await Promise.all(gamePromises)).filter(Boolean);
                 allGames = games.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
-                
                 renderGames();
                 handleUrlSharing();
-                
-                // Cargar podio
                 loadLeaderboard();
-
             } catch (error) {
-                console.error("Error al cargar el índice de juegos:", error);
-                const errorHTML = `<p class="text-center text-red-500 col-span-full">Error fatal al cargar los juegos. Revisa la consola (F12).</p>`;
-                dom.enCursoContainer.innerHTML = errorHTML; 
-                dom.archivoGrid.innerHTML = '';
+                const errorHTML = `<p class="text-center text-red-500 col-span-full">Error de carga.</p>`;
+                dom.enCursoContainer.innerHTML = errorHTML; dom.archivoGrid.innerHTML = '';
             }
         }
         
         function initEventListeners() {
-            dom.tabs.forEach(tab => {
-                tab.addEventListener('click', (event) => {
-                    const targetId = event.currentTarget.dataset.tab;
-                    dom.tabs.forEach(t => t.classList.remove('active'));
-                    event.currentTarget.classList.add('active');
-                    dom.tabContents.forEach(content => content.id === targetId ? content.classList.remove('hidden') : content.classList.add('hidden'));
-                    
-                    // Si clicamos en podio, recargar
-                    if(targetId === 'podio') loadLeaderboard();
-                });
-            });
-            
-            // ID Modal Listeners
+            dom.tabs.forEach(tab => tab.addEventListener('click', (event) => {
+                const targetId = event.currentTarget.dataset.tab;
+                dom.tabs.forEach(t => t.classList.remove('active')); event.currentTarget.classList.add('active');
+                dom.tabContents.forEach(content => content.id === targetId ? content.classList.remove('hidden') : content.classList.add('hidden'));
+                if(targetId === 'podio') loadLeaderboard();
+            }));
             dom.myIdBtn.addEventListener('click', openIdModal);
             dom.closeIdModalBtn.addEventListener('click', () => dom.idModal.classList.remove('active'));
             dom.downloadIdBtn.addEventListener('click', downloadMyId);
             dom.uploadIdInput.addEventListener('change', handleIdUpload);
-            
-            // Redirect Modal Listeners
             dom.cancelRedirectBtn.addEventListener('click', () => dom.redirectModal.classList.remove('active'));
-            dom.confirmRedirectBtn.addEventListener('click', () => {
-                dom.redirectModal.classList.remove('active');
-                if(pendingRedirectUrl) window.open(pendingRedirectUrl, '_blank');
-            });
-
+            dom.confirmRedirectBtn.addEventListener('click', () => { dom.redirectModal.classList.remove('active'); if(pendingRedirectUrl) window.open(pendingRedirectUrl, '_blank'); });
             dom.modalCloseBtn.addEventListener('click', closeModal);
             dom.modal.addEventListener('click', (e) => { if (e.target === dom.modal) closeModal(); });
             document.addEventListener('keydown', (e) => { if (e.key === "Escape" && dom.modal.classList.contains('active')) closeModal(); });
-            
-            dom.toggleFiltersBtn.addEventListener('click', () => {
-                dom.filtersContainer.classList.toggle('hidden');
-                const isHidden = dom.filtersContainer.classList.contains('hidden');
-                dom.toggleFiltersBtn.querySelector('#toggle-filters-text').textContent = isHidden ? 'Filtros' : 'Ocultar';
-            });
-            
-            dom.toggleFavoritesBtn.addEventListener('click', () => {
-                showFavoritesOnly = !showFavoritesOnly;
-                dom.toggleFavoritesBtn.classList.toggle('bg-yellow-600/20');
-                dom.toggleFavoritesBtn.classList.toggle('text-yellow-400');
-                renderGames();
-            });
-
+            dom.toggleFiltersBtn.addEventListener('click', () => { dom.filtersContainer.classList.toggle('hidden'); dom.toggleFiltersBtn.querySelector('#toggle-filters-text').textContent = dom.filtersContainer.classList.contains('hidden') ? 'Filtros' : 'Ocultar'; });
+            dom.toggleFavoritesBtn.addEventListener('click', () => { showFavoritesOnly = !showFavoritesOnly; dom.toggleFavoritesBtn.classList.toggle('bg-yellow-600/20'); dom.toggleFavoritesBtn.classList.toggle('text-yellow-400'); renderGames(); });
             dom.searchText.addEventListener('input', renderGames);
-            
-            [dom.typeFilterContainer, dom.difficultyFilterContainer].forEach(container => {
-                container.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('filter-btn')) {
-                        container.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-                        e.target.classList.add('active');
-                        renderGames();
-                    }
-                });
-            });
+            [dom.typeFilterContainer, dom.difficultyFilterContainer].forEach(container => container.addEventListener('click', (e) => { if (e.target.classList.contains('filter-btn')) { container.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active')); e.target.classList.add('active'); renderGames(); } }));
 
             dom.modal.addEventListener('click', (e) => {
                 const target = e.target.closest('a, button, span');
                 if (!target) return;
-                
-                // Link de ganador (perfil)
-                if (target.matches('.winner-link')) {
-                    const wId = target.dataset.winnerId;
-                    const wName = target.textContent;
-                    // Buscar en leaderboard
-                    const user = leaderboardData.find(u => u.id === wId) || { name: wName, id: wId, points: 0, history: [] };
-                    openProfileModal(user);
-                    return;
-                }
-                
-                if (target.matches('.close-modal-btn')) {
-                    // Check if it's the profile close button inside game modal or generic
-                    if(document.querySelector('.profile-game-link')) {
-                         // Estamos en perfil, volver a atrás o cerrar?
-                         // La implementación actual reemplaza el contenido del modal, así que cerrar cierra todo.
-                         closeModal();
-                    } else {
-                        closeModal();
-                    }
-                    return;
-                }
-                
-                if (target.matches('a[target="_blank"]')) { return; }
-
+                if (target.matches('.winner-link')) { const user = leaderboardData.find(u => u.id === target.dataset.winnerId) || { name: target.textContent, id: target.dataset.winnerId, points: 0, solvedGames: [] }; openProfileModal(user); return; }
+                if (target.matches('.close-modal-btn')) { closeModal(); return; }
+                if (target.matches('a[target="_blank"]')) return;
                 e.preventDefault();
                 if (!currentGameData && !target.closest('.winner-link')) return; 
 
                 if (target.matches('.guess-btn')) {
-                    // Logic de seguridad de formulario
-                    copyToClipboard(userId, '¡ID Copiado!');
-                    dom.redirectIdPreview.textContent = userId;
-                    
-                    let targetUrl = currentGameData.googleFormLink;
-                    if(currentGameData.formEntryId) {
-                        const separator = targetUrl.includes('?') ? '&' : '?';
-                        targetUrl = `${targetUrl}${separator}${currentGameData.formEntryId}=${userId}`;
-                    }
-                    
-                    pendingRedirectUrl = targetUrl;
-                    dom.redirectModal.classList.add('active');
-                    return;
+                    copyToClipboard(userId, '¡ID Copiado!'); dom.redirectIdPreview.textContent = userId;
+                    let targetUrl = currentGameData.googleFormLink; if(currentGameData.formEntryId) { const separator = targetUrl.includes('?') ? '&' : '?'; targetUrl = `${targetUrl}${separator}${currentGameData.formEntryId}=${userId}`; }
+                    pendingRedirectUrl = targetUrl; dom.redirectModal.classList.add('active'); return;
                 }
-
+                if (target.matches('#view-game-podium-btn')) renderModal(currentGameData, 'game-podium');
                 if (target.matches('.view-clue-btn')) renderModal(currentGameData, 'single-clue', { clueIndex: parseInt(target.dataset.clueIndex, 10) });
                 if (target.matches('#show-solution-btn') || target.matches('.view-all-clues-btn')) renderModal(currentGameData, 'all-clues');
                 if (target.matches('.back-to-summary-btn')) renderModal(currentGameData, 'summary');
                 if (target.matches('.download-html-btn')) downloadGameAsHTML(currentGameData);
                 if (target.matches('.download-clue-btn')) downloadSingleClueAsHTML(currentGameData, parseInt(target.dataset.clueIndex, 10));
-                
                 if (target.matches('.share-btn')) copyToClipboard(`${window.location.origin}${window.location.pathname}#mystery=${target.dataset.gameId}`);
                 if (target.matches('.share-clue-btn')) copyToClipboard(`${window.location.origin}${window.location.pathname}#mystery=${target.dataset.gameId}&clue=${target.dataset.clueIndex}`);
-                
-                // Solved flow logic
-                if (target.matches('#play-solved-btn')) {
-                    revealedClueCount = 1;
-                    renderModal(currentGameData, 'play-solved');
-                }
-                if (target.matches('.next-clue-btn')) {
-                    revealedClueCount++;
-                    renderModal(currentGameData, 'play-solved');
-                }
+                if (target.matches('#play-solved-btn')) { revealedClueCount = 1; renderModal(currentGameData, 'play-solved'); }
+                if (target.matches('.next-clue-btn')) { revealedClueCount++; renderModal(currentGameData, 'play-solved'); }
                 if (target.matches('.reveal-solution-btn')) {
-                    // Reveal logic using spoiler effect
                     const allCluesHTML = getVisibleClues(currentGameData).map((clue, i) => renderClue(clue, i)).join('');
-                    const solutionHTML = getSolutionHTML(currentGameData, true); // blurred initially
+                    const solutionHTML = getSolutionHTML(currentGameData, true);
                     dom.modalContent.innerHTML = `<div class="space-y-4">${allCluesHTML}${solutionHTML}</div>`;
-                    
-                    // Add Reveal button dynamically
-                    const revealBtnContainer = document.createElement('div');
-                    revealBtnContainer.className = 'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20';
+                    const revealBtnContainer = document.createElement('div'); revealBtnContainer.className = 'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20';
                     revealBtnContainer.innerHTML = `<button class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow-xl" onclick="this.parentElement.style.display='none'; document.querySelectorAll('.spoiler-blur').forEach(el => el.classList.remove('spoiler-blur'))">👁️ Revelar Solución</button>`;
-                    
-                    setTimeout(() => {
-                         const solContainer = document.getElementById('solution-container');
-                         if(solContainer) solContainer.parentElement.appendChild(revealBtnContainer);
-                    }, 100);
-
-                    dom.modalFooter.innerHTML = `
-                        <div class="flex flex-wrap justify-center gap-4">
-                            <button class="back-to-summary-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Volver Atrás</button>
-                            <button class="download-html-btn bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">Descargar pistas</button>
-                        </div>`;
+                    setTimeout(() => { const solContainer = document.getElementById('solution-container'); if(solContainer) solContainer.parentElement.appendChild(revealBtnContainer); }, 100);
+                    dom.modalFooter.innerHTML = `<div class="flex flex-wrap justify-center gap-4"><button class="back-to-summary-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Volver Atrás</button><button class="download-html-btn bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">Descargar pistas</button></div>`;
                 }
             });
 
-            dom.instructionsBtn.addEventListener('click', () => {
-                const title = "Instrucciones del Juego";
-                const content = `<div class="prose prose-invert max-w-none text-left text-gray-300"><h4>Cómo Jugar</h4><ol class="list-decimal pl-5 space-y-2"><li>Navega por las pestañas <strong>Misterios en Curso</strong> o <strong>Archivo</strong> para encontrar un juego.</li><li>Haz clic en un misterio para ver su resumen. Encontrarás una descripción y un índice de las pistas disponibles.</li><li>Puedes ver las pistas una por una haciendo clic en el índice, o todas juntas pulsando <strong>Mostrar Pistas y Resolver</strong>.</li><li>Si un misterio está en curso, usa el botón <strong>¡Adivina aquí!</strong> para enviar tu solución a través del formulario.</li><li>Puedes compartir un enlace al misterio o a una pista específica usando los botones de compartir.</li><li>Para guardar una copia offline, usa el botón <strong>Descargar HTML</strong> para obtener un archivo con todas las pistas y la solución (si está disponible).</li></ol><h4 class="mt-4">Tipos de Misterio</h4><ul class="list-disc pl-5 space-y-2"><li><strong>Semanal:</strong> El formato clásico, con pistas que se revelan a lo largo de la semana.</li><li><strong>Diario/Relámpago:</strong> Misterios más cortos para resolver en menos tiempo.</li><li><strong>Especial:</strong> Eventos temáticos o con reglas diferentes.</li><li><strong>Tutorial:</strong> Misterios diseñados para enseñar a jugar.</li></ul></div>`;
-                renderModal(null, 'info', { title: title, content: content });
-            });
-
-            if (dom.exampleGameBtn) {
-                dom.exampleGameBtn.addEventListener('click', async () => {
-                    try {
-                        const response = await fetch(`${EXAMPLE_GAME_PATH}?v=${Date.now()}`);
-                        if (!response.ok) throw new Error(`No se pudo cargar el misterio de ejemplo.`);
-                        const exampleGame = await response.json();
-                        openModalWithGame(exampleGame);
-                    } catch (error) {
-                        showToast(error.message, true);
-                    }
-                });
-            }
+            dom.instructionsBtn.addEventListener('click', () => { renderModal(null, 'info', { title: "Instrucciones del Juego", content: `<div class="prose prose-invert max-w-none text-left text-gray-300"><h4>Cómo Jugar</h4><ol class="list-decimal pl-5 space-y-2"><li>Navega por las pestañas <strong>Misterios en Curso</strong> o <strong>Archivo</strong> para encontrar un juego.</li><li>Haz clic en un misterio para ver su resumen. Encontrarás una descripción y un índice de las pistas disponibles.</li><li>Puedes ver las pistas una por una haciendo clic en el índice, o todas juntas pulsando <strong>Mostrar Pistas y Resolver</strong>.</li><li>Si un misterio está en curso, usa el botón <strong>¡Adivina aquí!</strong> para enviar tu solución a través del formulario.</li><li>Puedes compartir un enlace al misterio o a una pista específica usando los botones de compartir.</li><li>Para guardar una copia offline, usa el botón <strong>Descargar HTML</strong> para obtener un archivo con todas las pistas y la solución (si está disponible).</li></ol><h4 class="mt-4">Tipos de Misterio</h4><ul class="list-disc pl-5 space-y-2"><li><strong>Semanal:</strong> El formato clásico, con pistas que se revelan a lo largo de la semana.</li><li><strong>Diario/Relámpago:</strong> Misterios más cortos para resolver en menos tiempo.</li><li><strong>Especial:</strong> Eventos temáticos o con reglas diferentes.</li><li><strong>Tutorial:</strong> Misterios diseñados para enseñar a jugar.</li></ul></div>` }); });
+            if (dom.exampleGameBtn) dom.exampleGameBtn.addEventListener('click', async () => { try { const response = await fetch(`${EXAMPLE_GAME_PATH}?v=${Date.now()}`); if (!response.ok) throw new Error(); const exampleGame = await response.json(); openModalWithGame(exampleGame); } catch (error) { showToast("Error cargando ejemplo", true); } });
         }
 
         function init() {
             initUserIdentity();
             initEventListeners();
-            
-            datePicker = flatpickr(dom.searchDate, {
-                mode: "range", dateFormat: "d/m/Y", locale: "es", altInput: true, altFormat: "j F, Y",
-                onClose: renderGames,
-                onReady: (_, __, instance) => instance.calendarContainer.classList.add('dark')
-            });
-
+            datePicker = flatpickr(dom.searchDate, { mode: "range", dateFormat: "d/m/Y", locale: "es", altInput: true, altFormat: "j F, Y", onClose: renderGames, onReady: (_, __, instance) => instance.calendarContainer.classList.add('dark') });
             loadGames();
         }
 
