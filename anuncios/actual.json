@@ -1,6 +1,9 @@
 {
-  "id": "creacion_anuncios_20251217",
-  "title": "¡Han llegado los anuncios!",
-  "content": "A partir de ahora, cada vez que haya algo importante que anunciar, aparecerá por aquí.",
-  "btnText": "¡Entendido!"
+  "id": "prueba2",
+  "title": "Botones",
+  "content": "A ver si se abren. Prueba a pulsar para abrir ese misterio.",
+  "btnText": "¡Entendido!",
+  "actionType": "game",
+  "actionTarget": "1fadb28b-c8e8-4cee-b774-478889a6cc94",
+  "actionLabel": "Semanal 4"
 }
