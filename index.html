@@ -54,11 +54,6 @@
         /* Perfil Dropdown */
         details > summary { list-style: none; cursor: pointer; }
         details > summary::-webkit-details-marker { display: none; }
-
-        /* Medallas */
-        .medal-1 { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); } /* Oro */
-        .medal-2 { color: #9ca3af; text-shadow: 0 0 10px rgba(156, 163, 175, 0.5); } /* Plata */
-        .medal-3 { color: #b45309; text-shadow: 0 0 10px rgba(180, 83, 9, 0.5); } /* Bronce */
     </style>
 </head>
 <body class="text-gray-200">
@@ -183,6 +178,10 @@
                                      <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-purple-600 via-pink-600 to-yellow-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.917 3.917 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zM8 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 1.442a2.558 2.558 0 1 0 0 5.116 2.558 2.558 0 0 0 0-5.116z"/></svg></div>
                                      <div><div class="font-bold text-white">Instagram</div><div class="text-sm text-gray-400 group-hover:text-gray-200 transition">Sigue el juego</div></div>
                                  </a>
+                                 <button id="recall-ad-btn" class="group flex items-center gap-4 bg-gray-700/50 hover:bg-gray-700 p-4 rounded-lg transition-all w-full text-left">
+                                    <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-indigo-600"><span class="text-2xl">📢</span></div>
+                                    <div><div class="font-bold text-white">Ver Último Anuncio</div><div class="text-sm text-gray-400 group-hover:text-gray-200 transition">Reabrir novedades</div></div>
+                                </button>
                                  <a href="https://forms.gle/CTqcoBsGsf2kX1WKA" target="_blank" rel="noopener noreferrer" class="group flex items-center gap-4 bg-gray-700/50 hover:bg-gray-700 p-4 rounded-lg transition-all">
                                      <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-blue-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="text-white" viewBox="0 0 16 16"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 0 1.5H4.5A1 1 0 0 0 3.5 3h10a1 1 0 0 0 1-1 .75.75 0 0 1 1.5 0v1A1.5 1.5 0 0 1 14.5 4h-13A1.5 1.5 0 0 1 0 2.5v-1A1.5 1.5 0 0 1 1.5 0H2z"/><path d="M16 5.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 5.5v-1A1.5 1.5 0 0 1 1.5 3H2a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1h.5a1.5 1.5 0 0 1 1.5 1.5v1zM1.5 9h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1zm0 2.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1z"/></svg></div>
                                      <div><div class="font-bold text-white">Dame tu opinión</div><div class="text-sm text-gray-400 group-hover:text-gray-200 transition">Formulario de feedback</div></div>
@@ -195,7 +194,7 @@
                         </div>
                     </div>
                  </div>
-                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v8.1</div>
+                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v8.2</div>
             </div>
         </main>
     </div>
@@ -265,7 +264,11 @@
                 </div>
                 <h3 id="ad-title" class="text-2xl font-bold text-white mb-4"></h3>
                 <div id="ad-content" class="text-gray-300 mb-8 text-left bg-gray-900/50 p-4 rounded-lg max-h-60 overflow-y-auto"></div>
-                <button id="ad-close-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg">Entendido</button>
+                <!-- Contenedor para botones del anuncio -->
+                <div id="ad-actions" class="flex flex-col gap-2">
+                    <!-- Botón Extra (Inyectado por JS) -->
+                    <button id="ad-close-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg">Entendido</button>
+                </div>
             </div>
         </div>
     </div>
@@ -331,7 +334,9 @@
             adModal: document.getElementById('ad-modal'),
             adTitle: document.getElementById('ad-title'),
             adContent: document.getElementById('ad-content'),
-            adCloseBtn: document.getElementById('ad-close-btn')
+            adActions: document.getElementById('ad-actions'),
+            adCloseBtn: document.getElementById('ad-close-btn'),
+            recallAdBtn: document.getElementById('recall-ad-btn')
         };
 
         const GAMES_INDEX_PATH = 'games/index.json';
@@ -453,18 +458,63 @@
         }
 
         // --- SISTEMA DE ANUNCIOS ---
-        async function checkAds() {
+        function processAdText(text) {
+            if(!text) return '';
+            // Reemplazar @{UUID|Nombre} por enlace a perfil
+            let processed = text.replace(/@\{([^|]+)\|([^}]+)\}/g, (match, id, name) => {
+                return `<span class="cursor-pointer text-indigo-400 hover:text-indigo-300 hover:underline font-bold" onclick="openProfileById('${id}')">@${name}</span>`;
+            });
+            // Reemplazar #{ID_Juego|Nombre} por enlace a juego
+            processed = processed.replace(/#\{([^|]+)\|([^}]+)\}/g, (match, id, name) => {
+                return `<span class="cursor-pointer text-yellow-400 hover:text-yellow-300 hover:underline font-bold" onclick="openGameById('${id}')">#${name}</span>`;
+            });
+            return processed;
+        }
+
+        async function checkAds(force = false) {
             try {
                 const res = await fetch(`${ADS_PATH}?v=${Date.now()}`);
-                if (!res.ok) return;
+                if (!res.ok) {
+                    if(force) showToast("No se pudo cargar el anuncio.", true);
+                    return;
+                }
                 const ad = await res.json();
 
                 const seenAdId = localStorage.getItem('mystery_game_last_ad');
-                if (seenAdId !== ad.id) {
-                    // Es un anuncio nuevo, mostrarlo
+
+                if (force || seenAdId !== ad.id) {
+                    // 1. Contenido básico
                     dom.adTitle.textContent = ad.title || 'Novedades';
-                    dom.adContent.innerHTML = ad.content || '';
+                    dom.adContent.innerHTML = processAdText(ad.content) || '';
                     dom.adCloseBtn.textContent = ad.btnText || 'Cerrar';
+
+                    // 2. Limpiar botones extra anteriores
+                    const oldExtras = dom.adActions.querySelectorAll('.extra-action-btn');
+                    oldExtras.forEach(btn => btn.remove());
+
+                    // 3. Renderizar botón extra si existe
+                    if (ad.actionType && ad.actionLabel && ad.actionValue) {
+                        const extraBtn = document.createElement('button');
+                        extraBtn.textContent = ad.actionLabel;
+                        // Estilos según tipo
+                        let colorClass = 'bg-gray-600 hover:bg-gray-500';
+                        if (ad.actionType === 'game') colorClass = 'bg-yellow-600 hover:bg-yellow-700 text-white';
+                        else if (ad.actionType === 'profile') colorClass = 'bg-purple-600 hover:bg-purple-700 text-white';
+                        else if (ad.actionType === 'link') colorClass = 'bg-green-600 hover:bg-green-700 text-white';
+
+                        extraBtn.className = `extra-action-btn w-full ${colorClass} font-bold py-3 px-4 rounded-lg transition shadow-lg mb-2`;
+
+                        // Lógica del click
+                        extraBtn.onclick = () => {
+                            dom.adModal.classList.remove('active'); // Cerrar modal primero
+                            if (ad.actionType === 'game') openGameById(ad.actionValue);
+                            else if (ad.actionType === 'profile') openProfileById(ad.actionValue);
+                            else if (ad.actionType === 'link') window.open(ad.actionValue.startsWith('http') ? ad.actionValue : `https://${ad.actionValue}`, '_blank');
+                        };
+
+                        // Insertar antes del botón cerrar
+                        dom.adActions.insertBefore(extraBtn, dom.adCloseBtn);
+                    }
 
                     dom.adCloseBtn.onclick = () => {
                         localStorage.setItem('mystery_game_last_ad', ad.id);
@@ -473,11 +523,34 @@
 
                     // Mostrar modal por encima de todo
                     dom.adModal.classList.add('active');
+                } else {
+                    if (force) showToast("No hay anuncios nuevos.", true);
                 }
             } catch (e) {
-                console.log('Sin anuncios nuevos');
+                console.log('Error o sin anuncios');
+                if(force) showToast("Error al cargar anuncios.", true);
             }
         }
+
+        // Helpers para enlaces en anuncios
+        window.openGameById = (id) => {
+            const game = allGames.find(g => g.id === id);
+            if(game) openModalWithGame(game);
+            else showToast(`Juego no encontrado (${id})`, true);
+        };
+
+        window.openProfileById = (id) => {
+            // Intentar encontrar en leaderboardData cargada
+            const user = leaderboardData.find(u => u.id === id);
+            if(user) {
+                openProfileModal(user);
+            } else {
+                // Si no está en leaderboard, quizás no ha jugado o leaderboard no cargó.
+                // Mostramos un perfil básico temporal o error.
+                openProfileModal({ id: id, name: 'Usuario Desconocido', points: 0, solvedGames: [] });
+                // showToast(`Usuario no encontrado en el podio (${id})`, true);
+            }
+        };
 
         // --- GESTIÓN DE FAVORITOS ---
         function getFavorites() { return JSON.parse(localStorage.getItem('mystery_game_favorites') || '[]'); }
@@ -886,6 +959,7 @@
                     <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-white mb-3">${userData.name.charAt(0).toUpperCase()}</div>
                     <h3 class="text-2xl font-bold text-white">${userData.name}</h3>
                     ${userData.id === userId ? '<p class="text-xs text-indigo-400 mt-1">Este eres tú</p>' : ''}
+                    <div class="text-xs text-gray-500 font-mono mt-1 select-all">${userData.id}</div>
                 </div>
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div class="bg-gray-900/50 p-4 rounded-xl text-center"><div class="text-sm text-gray-400">Puntos Totales</div><div class="text-3xl font-bold text-green-400">${userData.points}</div></div>
@@ -1001,6 +1075,9 @@
             dom.closeIdModalBtn.addEventListener('click', () => dom.idModal.classList.remove('active'));
             dom.downloadIdBtn.addEventListener('click', downloadMyId);
             dom.uploadIdInput.addEventListener('change', handleIdUpload);
+
+            // Botón para reabrir anuncios
+            dom.recallAdBtn.addEventListener('click', () => checkAds(true));
 
             dom.cancelRedirectBtn.addEventListener('click', () => dom.redirectModal.classList.remove('active'));
             dom.confirmRedirectBtn.addEventListener('click', () => { dom.redirectModal.classList.remove('active'); if(pendingRedirectUrl) window.open(pendingRedirectUrl, '_blank'); });
