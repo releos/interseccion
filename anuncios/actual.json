@@ -1,5 +1,5 @@
 {
-  "id": "20251218_actualizacion",
+  "id": "20251218_cambios",
   "title": "¡Nueva actualización!",
   "content": "¡Hola! Hay unas cuantas nuevas funciones:\n\n<li><b>Usuarios:</b> Al abrir el juego por primera vez, te dará un identificador y podrás descargarlo. Si abres ese archivo, se iniciará sesión con tu usuario automáticamente. ¡Guárdalo bien, pues es la única forma de poder seguir sumando puntos! Al adivinar, se te pedirá que digas tu identificador.\n<li> <strong>Puntos:</strong> A partir de ahora, se obtendrán puntos por cada respuesta correcta. Hay una clasificación general, y se pueden ver los puntos en el perfil del usuario. También hay una clasificación individual de cada juego (por ejemplo #{aa392da0-17d0-4412-8d19-6d1dd07b9a1f|este juego}.</li>\n<li><b>Favoritos:</b> Ahora puedes marcar juegos como favoritos para encontrarlos más fácilmente. <i>Ten en cuenta que los favoritos y el usuario se guardan en tu caché, así que se borrarán si lo vacías. Para el usuario, bastaría con volver a abrir el archivo que te descargaste o subirlo, pero los favoritos son irreversibles.</i></li>\n\n<li>Puedes consultar otra vez este mensaje en la pestaña de información.</li>",
   "btnText": "¡Genial!",
