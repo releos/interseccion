@@ -1439,11 +1439,12 @@
                 dom.scoringInfoBtn.addEventListener('click', () => {
                     renderModal(null, 'info', { title: 'Sistema de Puntuación', content: `
                         <div class="space-y-4 text-gray-300 text-left">
-                            <p><strong>Fórmula:</strong> Puntos = (Posición) + (Pistas Ahorradas) - (Demora)</p>
+                            <p><strong>Fórmula:</strong> Puntos = (Posición) * (Dificultad) + (Pistas Ahorradas) - (Demora)</p>
                             <ul class="list-disc pl-5 space-y-2">
                                 <li><strong>Posición:</strong> 1º(5pts), 2º(3pts), 3º(2pts), Resto(1pt).</li>
+                                <li><strong>Dificultad:</strong> Fácil(1), Medio(2), Difícil(3).</li>
                                 <li><strong>Ahorro:</strong> +2 puntos por cada pista que NO se había revelado cuando respondiste.</li>
-                                <li><strong>Demora:</strong> Si respondes tarde (después de salir la última pista), se resta 1 punto por cada "Unidad de Tiempo de Demora" (UTD) que pase.</li>
+                                <li><strong>Demora:</strong> Si respondes tarde (después de salir la última pista), se resta 1 punto por cada "Unidad de Tiempo de Demora" (UTD) adicional que pase (hay una UTD de cortesía).</li>
                                 <li><strong>Mínimo:</strong> Siempre ganas al menos 1 punto si aciertas.</li>
                             </ul>
                         </div>
