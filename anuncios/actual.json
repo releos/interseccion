@@ -1,9 +1,9 @@
 {
-  "id": "prueba2",
-  "title": "Botones",
-  "content": "A ver si se abren. Prueba a pulsar para abrir ese misterio.",
-  "btnText": "¡Entendido!",
-  "actionType": "game",
-  "actionTarget": "1fadb28b-c8e8-4cee-b774-478889a6cc94",
-  "actionLabel": "Semanal 4"
+  "id": "20251218_actualizacion",
+  "title": "¡Nueva actualización!",
+  "content": "¡Hola! Hay unas cuantas nuevas funciones:\n\n<li><b>Usuarios:</b> Al abrir el juego por primera vez, te dará un identificador y podrás descargarlo. Si abres ese archivo, se iniciará sesión con tu usuario automáticamente. ¡Guárdalo bien, pues es la única forma de poder seguir sumando puntos! Al adivinar, se te pedirá que digas tu identificador.\n<li> <strong>Puntos:</strong> A partir de ahora, se obtendrán puntos por cada respuesta correcta. Hay una clasificación general, y se pueden ver los puntos en el perfil del usuario. También hay una clasificación individual de cada juego (por ejemplo #{aa392da0-17d0-4412-8d19-6d1dd07b9a1f|este juego].</li>\n\n<li>Puedes consultar otra vez este mensaje en la pestaña de información.</li>",
+  "btnText": "¡Genial!",
+  "actionType": "",
+  "actionValue": "",
+  "actionLabel": ""
 }
