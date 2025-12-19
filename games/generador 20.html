@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Misterios v8.0 (Sistema UTD)</title>
+    <title>Generador de Misterios v9.0</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
@@ -47,6 +47,15 @@
                 <fieldset class="border border-gray-700 rounded-lg p-4">
                     <legend class="text-lg font-bold text-indigo-400 px-2">Datos Principales</legend>
                     <div class="space-y-4">
+                        <!-- NUEVO: ID y Botón Copiar -->
+                        <div class="bg-gray-900/50 p-3 rounded border border-gray-700 flex items-center justify-between gap-2">
+                            <div class="flex-grow">
+                                <span class="text-xs text-gray-500 uppercase font-bold">ID del Juego</span>
+                                <div id="display-game-id" class="text-sm font-mono text-yellow-500 truncate select-all">...</div>
+                            </div>
+                            <button id="copy-id-btn" class="bg-gray-700 hover:bg-gray-600 text-white text-xs font-bold py-2 px-3 rounded transition">Copiar ID</button>
+                        </div>
+
                         <div>
                             <label for="game-title" class="block text-sm font-medium text-gray-300 mb-1">Título del Misterio</label>
                             <input type="text" id="game-title" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="Ej: Objeto Misterioso">
@@ -105,6 +114,7 @@
 
                 <fieldset class="border border-gray-700 rounded-lg p-4">
                     <legend class="text-lg font-bold text-indigo-400 px-2">Pistas (Arrastra para reordenar)</legend>
+                    <p class="text-xs text-gray-500 mb-2 px-2">Nota: Al reordenar, las fechas se mantienen fijas en la posición.</p>
                     <div id="clues-list" class="space-y-3 mb-4 min-h-[50px]"></div>
                     <div class="bg-gray-900/50 rounded-lg p-4 space-y-3">
                         <h4 class="font-semibold text-white">Añadir nueva pista</h4>
@@ -142,7 +152,6 @@
                             </div>
                         </div>
 
-                        <!-- NUEVO CAMPO UTD -->
                         <div class="bg-indigo-900/20 border border-indigo-500/30 p-4 rounded-lg">
                             <label for="game-utd" class="block text-sm font-bold text-indigo-300 mb-1">Unidad de Tiempo de Demora (UTD)</label>
                             <div class="flex items-center gap-2">
@@ -174,6 +183,36 @@
                             <label for="winner-explanation" class="block text-sm font-medium text-gray-300 mb-1">Explicación del Ganador</label>
                             <textarea id="winner-explanation" rows="4" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="Detalles de cómo el ganador/a resolvió el misterio..."></textarea>
                         </div>
+                    </div>
+                </fieldset>
+                
+                <!-- NUEVO: Panel de Descarga de Previsualización -->
+                <fieldset class="border border-gray-700 rounded-lg p-4 bg-teal-900/10">
+                    <legend class="text-lg font-bold text-teal-400 px-2">Descargar Previsualización (HTML)</legend>
+                    <div class="space-y-4">
+                        <p class="text-sm text-gray-400">Genera un archivo HTML jugable para probar o archivar.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            <label class="bg-gray-700 p-3 rounded cursor-pointer hover:bg-gray-600 flex items-center gap-2">
+                                <input type="radio" name="dl-preview-mode" value="full" checked class="text-teal-500">
+                                <span class="text-sm">Todo (Con Solución)</span>
+                            </label>
+                            <label class="bg-gray-700 p-3 rounded cursor-pointer hover:bg-gray-600 flex items-center gap-2">
+                                <input type="radio" name="dl-preview-mode" value="no-solution" class="text-teal-500">
+                                <span class="text-sm">Sin Solución</span>
+                            </label>
+                            <label class="bg-gray-700 p-3 rounded cursor-pointer hover:bg-gray-600 flex items-center gap-2">
+                                <input type="radio" name="dl-preview-mode" value="partial" class="text-teal-500">
+                                <span class="text-sm">Solo unas pistas</span>
+                            </label>
+                        </div>
+                        <div id="dl-preview-count-wrapper" class="hidden">
+                            <label class="block text-xs font-bold text-gray-400 mb-1">Número de pistas a incluir:</label>
+                            <input type="number" id="dl-preview-count" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white" min="1" value="1">
+                        </div>
+                        <button id="download-preview-html-btn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            Descargar HTML
+                        </button>
                     </div>
                 </fieldset>
 
@@ -240,6 +279,8 @@
             formLinkInput: document.getElementById('google-form-link'),
             formEntryIdInput: document.getElementById('google-form-entry-id'),
             cluesList: document.getElementById('clues-list'),
+            displayGameId: document.getElementById('display-game-id'),
+            copyIdBtn: document.getElementById('copy-id-btn'),
             newClue: {
                 type: document.getElementById('new-clue-type'),
                 content: document.getElementById('new-clue-content'),
@@ -252,7 +293,7 @@
                 isSolvedToggle: document.getElementById('is-solved-toggle'),
                 endDateWrapper: document.getElementById('end-date-wrapper'),
                 endDate: document.getElementById('game-end-date'),
-                utdInput: document.getElementById('game-utd'), // Nuevo
+                utdInput: document.getElementById('game-utd'), 
                 solutionInput: document.getElementById('game-solution'),
                 winnerInput: document.getElementById('game-winner'),
                 winnerIdInput: document.getElementById('game-winner-id'),
@@ -264,6 +305,12 @@
                 downloadBtn: document.getElementById('download-bibliography-btn')
             },
             preview: { wrapper: document.getElementById('preview-wrapper') },
+            downloadPreview: {
+                modes: document.getElementsByName('dl-preview-mode'),
+                countWrapper: document.getElementById('dl-preview-count-wrapper'),
+                countInput: document.getElementById('dl-preview-count'),
+                btn: document.getElementById('download-preview-html-btn')
+            },
             exportBtn: document.getElementById('export-json-btn'),
             importInput: document.getElementById('import-file-input'),
             editClueModal: document.getElementById('edit-clue-modal'),
@@ -285,7 +332,7 @@
             title: '', type: 'Semanal', difficulty: 'Medio', mystery: '', showMystery: true, notes: '', startDate: '', googleFormLink: '', formEntryId: '',
             clues: [],
             isSolved: false, endDate: '', solution: '', winner: '', winnerId: '', explanation: '', winnerExplanation: '', bibliography: '',
-            utd: 1, // Default 1 hora
+            utd: 1, 
             lastUpdated: new Date().toISOString()
         };
 
@@ -307,7 +354,7 @@
             gameState.formEntryId = dom.formEntryIdInput.value;
             gameState.isSolved = dom.solution.isSolvedToggle.checked;
             gameState.endDate = dom.solution.endDate.value;
-            gameState.utd = parseFloat(dom.solution.utdInput.value) || 1; // Guardar UTD
+            gameState.utd = parseFloat(dom.solution.utdInput.value) || 1; 
             gameState.solution = dom.solution.solutionInput.value;
             gameState.winner = dom.solution.winnerInput.value;
             gameState.winnerId = dom.solution.winnerIdInput.value;
@@ -318,6 +365,7 @@
         }
 
         function updateUIFromState() {
+            dom.displayGameId.textContent = gameState.id || '...';
             dom.titleInput.value = gameState.title || '';
             dom.typeInput.value = gameState.type || 'Semanal';
             dom.difficultyInput.value = gameState.difficulty || 'Medio';
@@ -334,14 +382,13 @@
             dom.solution.explanationInput.value = gameState.explanation || '';
             dom.solution.winnerExplanationInput.value = gameState.winnerExplanation || '';
             dom.solution.endDate.value = gameState.endDate || '';
-            dom.solution.utdInput.value = gameState.utd || 1; // Cargar UTD
+            dom.solution.utdInput.value = gameState.utd || 1; 
             dom.bibliography.textarea.value = gameState.bibliography || '';
             dom.solution.endDateWrapper.classList.toggle('hidden', !gameState.isSolved);
             toggleDescriptionField(dom.newClue.textWrapper, dom.newClue.type.value);
             renderAll();
         }
 
-        // --- Render Functions (Same as before + UTD logic if needed for preview) ---
         function renderCluesList() {
             dom.cluesList.innerHTML = '';
             gameState.clues.forEach((clue, index) => {
@@ -354,9 +401,8 @@
         }
 
         function renderPreview() {
-            // Simplified for brevity, same logic as before to display content
-            let contentHTML = `... (Vista previa normal) ...`;
-            dom.preview.wrapper.innerHTML = `<div class="space-y-4"><div class="flex items-start justify-between flex-wrap gap-2"><h3 class="text-3xl font-extrabold text-white">${gameState.title || 'Título'}</h3></div><p class="text-gray-400">${gameState.notes || ''}</p><p class="text-xs text-indigo-400">UTD Configurada: ${gameState.utd} hora(s)</p><hr class="border-gray-700"><ul class="space-y-2 list-disc list-inside text-gray-300">${gameState.clues.map(c => `<li>${c.text || c.content} <span class="text-xs text-gray-500">(${c.publishDate})</span></li>`).join('')}</ul></div>`;
+            let contentHTML = `<div class="space-y-4"><div class="flex items-start justify-between flex-wrap gap-2"><h3 class="text-3xl font-extrabold text-white">${gameState.title || 'Título'}</h3></div><p class="text-gray-400">${gameState.notes || ''}</p><p class="text-xs text-indigo-400">UTD Configurada: ${gameState.utd} hora(s)</p><hr class="border-gray-700"><ul class="space-y-2 list-disc list-inside text-gray-300">${gameState.clues.map(c => `<li>${c.text || c.content} <span class="text-xs text-gray-500">(${c.publishDate})</span></li>`).join('')}</ul></div>`;
+            dom.preview.wrapper.innerHTML = contentHTML;
         }
 
         function renderAll() { renderCluesList(); renderPreview(); }
@@ -369,10 +415,79 @@
             toggleDescriptionField(dom.editClueTextWrapper, clue.type); dom.editClueModal.classList.add('active');
         }
 
+        // --- Funciones para generar HTML de descarga ---
+        function generateClueHTML(clue, index) {
+            let mainTextHTML = '', mediaHTML = '';
+            const textContent = clue.type === 'text' ? clue.content : (clue.text || '');
+            if (textContent) mainTextHTML = `<div class="prose prose-invert max-w-none prose-p:text-gray-300 prose-p:my-0">${textContent.replace(/\n/g, '<br>')}</div>`;
+
+            if (clue.type !== 'text' && clue.content) {
+                let url = clue.content;
+                if (!/^https?:\/\//i.test(url)) { url = 'https://' + url; }
+                switch (clue.type) {
+                    case 'image': mediaHTML = `<img src="${url}" alt="Pista" class="mt-4 rounded-lg w-full h-auto object-contain max-h-96">`; break;
+                    case 'audio': mediaHTML = `<audio controls src="${url}" class="mt-4 w-full"></audio>`; break;
+                    case 'video': mediaHTML = `<div class="relative mt-4" style="padding-bottom: 56.25%"><iframe src="${url}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen class="absolute top-0 left-0 w-full h-full rounded-lg"></iframe></div>`; break;
+                    case 'link': mediaHTML = `<a href="${url}" target="_blank" class="mt-4 inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-lg"><span>Abrir Enlace</span></a>`; break;
+                }
+            }
+            return `<div class="flex items-start gap-4 p-4 bg-gray-900/50 rounded-lg"><div class="flex-shrink-0 bg-indigo-600 h-8 w-8 rounded-full flex items-center justify-center font-bold text-white text-sm">${index + 1}</div><div class="flex-grow min-w-0">${mainTextHTML}${mediaHTML}</div></div>`;
+        }
+
+        function generateSolutionHTML(game) {
+            const explanationHTML = game.explanation ? `<p>${game.explanation.replace(/\n/g, '<br>')}</p>` : '<p>Sin explicación.</p>';
+            let winnerHTML = game.winner ? `<p class="text-lg text-yellow-400 mt-2">¡Adivinado por <strong>${game.winner}</strong>!</p>` : '';
+            return `<div class="mt-6 border-t-2 border-green-500 pt-6 space-y-4 relative"><h3 class="text-2xl font-bold text-green-400">Solución Final</h3><div class="bg-green-900/50 border border-green-500 rounded-lg p-6 text-center"><p class="text-4xl font-extrabold text-white break-words">${game.solution || 'N/A'}</p>${winnerHTML}</div><div class="prose prose-invert max-w-none prose-p:text-gray-300"><h4 class="text-2xl font-bold text-white mt-6 mb-2">Explicación</h4>${explanationHTML}</div></div>`;
+        }
+
+        function downloadPreviewHTML() {
+            let mode = 'full';
+            dom.downloadPreview.modes.forEach(r => { if(r.checked) mode = r.value; });
+            const clueCount = parseInt(dom.downloadPreview.countInput.value) || 1;
+
+            let cluesToRender = gameState.clues;
+            if (mode === 'partial') {
+                cluesToRender = gameState.clues.slice(0, clueCount);
+            }
+
+            const cluesHTML = cluesToRender.map((c, i) => generateClueHTML(c, i)).join('');
+            
+            let solutionHTML = '';
+            if (mode === 'full') {
+                solutionHTML = generateSolutionHTML(gameState);
+            }
+
+            const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>${gameState.title}</title><script src="https://cdn.tailwindcss.com"><\/script><style>body { background-color: #111827; color: #e5e7eb; font-family: sans-serif; }</style></head><body class="p-8"><div class="max-w-2xl mx-auto bg-gray-800 rounded-lg p-8 space-y-4 shadow-xl"><h1 class="text-3xl font-bold text-white">${gameState.title}</h1><p class="text-gray-400">${gameState.notes || ''}</p><hr class="border-gray-600">${cluesHTML}${solutionHTML}</div></body></html>`;
+
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; 
+            let filename = `preview_${gameState.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}`;
+            if(mode === 'partial') filename += `_pistas1-${cluesToRender.length}`;
+            a.download = `${filename}.html`; 
+            a.click(); URL.revokeObjectURL(url);
+        }
+
         function initEventListeners() {
             document.querySelectorAll('input, textarea, select').forEach(input => { input.addEventListener('input', () => { updateStateFromUI(); renderPreview(); }); });
             dom.showMysteryToggle.addEventListener('change', () => { gameState.showMystery = dom.showMysteryToggle.checked; renderPreview(); });
             dom.solution.isSolvedToggle.addEventListener('change', () => { gameState.isSolved = dom.solution.isSolvedToggle.checked; dom.solution.endDateWrapper.classList.toggle('hidden', !gameState.isSolved); renderPreview(); });
+
+            dom.copyIdBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(gameState.id).then(() => {
+                    const originalText = dom.copyIdBtn.textContent;
+                    dom.copyIdBtn.textContent = '¡Copiado!';
+                    setTimeout(() => dom.copyIdBtn.textContent = originalText, 2000);
+                });
+            });
+
+            dom.downloadPreview.modes.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    dom.downloadPreview.countWrapper.classList.toggle('hidden', e.target.value !== 'partial');
+                });
+            });
+
+            dom.downloadPreview.btn.addEventListener('click', downloadPreviewHTML);
 
             dom.newClue.addBtn.addEventListener('click', () => {
                 const newClue = { type: dom.newClue.type.value, content: dom.newClue.content.value, text: dom.newClue.text.value || null, publishDate: dom.newClue.publishDate.value };
@@ -413,7 +528,21 @@
             });
 
             Sortable.create(dom.cluesList, { animation: 150, ghostClass: 'sortable-ghost', onEnd: (evt) => {
-                const [item] = gameState.clues.splice(evt.oldIndex, 1); gameState.clues.splice(evt.newIndex, 0, item); renderAll();
+                // 1. Guardar las fechas originales en su orden original
+                const dates = gameState.clues.map(c => c.publishDate);
+                
+                // 2. Mover el elemento en el array (el contenido cambia de posición)
+                const [item] = gameState.clues.splice(evt.oldIndex, 1);
+                gameState.clues.splice(evt.newIndex, 0, item);
+                
+                // 3. Reasignar las fechas originales a las nuevas posiciones
+                // Esto hace que la fecha de la Posición 1 siga siendo la fecha de la Posición 1,
+                // aunque el contenido ahora sea diferente.
+                gameState.clues.forEach((clue, index) => {
+                    clue.publishDate = dates[index];
+                });
+                
+                renderAll();
             }});
 
             dom.saveClueBtn.addEventListener('click', () => {
