@@ -1,11 +1,9 @@
 {
-  "id": "387e8f94-0a31-46da-8815-7411814ba6fb",
-  "date": "2025-12-19T20:50:58.624Z",
-  "version": "2025-12-19",
-  "title": "Título",
-  "content": "Prueba.\na\ns\ndf\nSoporta HTML básico. Usa #{1fadb28b-c8e8-4cee-b774-478889a6cc94|Juego} para juegos y @{ID|Nombre} para perfiles.\n\n",
-  "btnText": "Entendidoaaa",
+  "id": "diario2_20251219",
+  "title": "¡Nuevo juego disponible!",
+  "content": "¡Hay un nuevo #{62ee73f2-d27f-4378-b2df-e1980493927c|juego} disponible! Pistas todos los días a las cinco de la tarde. ¿Te atreves a intentarlo?",
+  "btnText": "Entendido",
   "actionType": "game",
-  "actionLabel": "1fadb28b-c8e8-4cee-b774-478889a6cc94",
-  "actionValue": "32512"
+  "actionValue": "62ee73f2-d27f-4378-b2df-e1980493927c",
+  "actionLabel": "¡Jugar ahora!"
 }
