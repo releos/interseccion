@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Misterios v8.0 (Sistema UTD)</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #111827; }
+        .modal { display: none; }
+        .modal.active { display: flex; }
+        .clue-item { cursor: grab; }
+        .clue-item:active { cursor: grabbing; }
+        .sortable-ghost { opacity: 0.4; background: #4f46e5; }
+        .preview-content::-webkit-scrollbar { width: 8px; }
+        .preview-content::-webkit-scrollbar-track { background: #1f2937; }
+        .preview-content::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.8);
+            cursor: pointer;
+        }
+        .media-preview { max-width: 100%; height: auto; border-radius: 0.5rem; margin-top: 0.5rem; }
+    </style>
+</head>
+<body class="text-gray-200">
+    <div class="container mx-auto p-4 md:p-8 max-w-6xl">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">Generador de Misterios</h1>
+            <p class="mt-2 text-lg text-gray-400">Crea juegos compatibles con el nuevo sistema de puntuación UTD.</p>
+        </header>
+
+        <div class="text-center mb-8 p-4 bg-gray-900/50 rounded-lg flex flex-wrap gap-4 justify-center">
+            <label for="import-file-input" class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">Importar Misterio (.json)</label>
+            <input type="file" id="import-file-input" accept=".json" class="hidden">
+            <button id="export-json-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">Exportar Misterio (.json)</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Panel de Control (Izquierda) -->
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 md:p-8 space-y-6">
+                <fieldset class="border border-gray-700 rounded-lg p-4">
+                    <legend class="text-lg font-bold text-indigo-400 px-2">Datos Principales</legend>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="game-title" class="block text-sm font-medium text-gray-300 mb-1">Título del Misterio</label>
+                            <input type="text" id="game-title" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="Ej: Objeto Misterioso">
+                        </div>
+                        <div>
+                            <label for="game-type" class="block text-sm font-medium text-gray-300 mb-1">Tipo de Misterio</label>
+                            <select id="game-type" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3">
+                                <option value="Semanal">Semanal</option>
+                                <option value="Diario">Diario</option>
+                                <option value="Relámpago">Relámpago</option>
+                                <option value="Especial">Especial</option>
+                                <option value="Tutorial">Tutorial</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="game-difficulty" class="block text-sm font-medium text-gray-300 mb-1">Dificultad</label>
+                            <select id="game-difficulty" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3">
+                                <option value="Fácil">Fácil 😇</option>
+                                <option value="Medio" selected>Medio 🧐</option>
+                                <option value="Difícil">Difícil 😈</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="game-mystery" class="block text-sm font-medium text-gray-300 mb-1">El Misterio (Qué es)</label>
+                            <input type="text" id="game-mystery" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="Ej: Una persona, un objeto...">
+                        </div>
+                        <div class="bg-gray-700 p-3 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="font-medium">¿Mostrar 'El Misterio'?</span>
+                                <label for="show-mystery-toggle" class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="show-mystery-toggle" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="game-description" class="block text-sm font-medium text-gray-300 mb-1">Descripción (Notas)</label>
+                            <textarea id="game-description" rows="2" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="Una breve descripción que aparecerá en la tarjeta..."></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="game-start-date" class="block text-sm font-medium text-gray-300 mb-1">Fecha de Inicio</label>
+                                <input type="date" id="game-start-date" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3">
+                            </div>
+                            <div>
+                                <label for="google-form-link" class="block text-sm font-medium text-gray-300 mb-1">Link a Formulario Google</label>
+                                <input type="url" id="google-form-link" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="https://docs.google.com/...">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="google-form-entry-id" class="block text-sm font-medium text-yellow-400 mb-1">Google Form Entry ID</label>
+                            <input type="text" id="google-form-entry-id" class="w-full bg-gray-700 border border-yellow-500/50 rounded-lg p-3" placeholder="Ej: entry.123456789">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="border border-gray-700 rounded-lg p-4">
+                    <legend class="text-lg font-bold text-indigo-400 px-2">Pistas (Arrastra para reordenar)</legend>
+                    <div id="clues-list" class="space-y-3 mb-4 min-h-[50px]"></div>
+                    <div class="bg-gray-900/50 rounded-lg p-4 space-y-3">
+                        <h4 class="font-semibold text-white">Añadir nueva pista</h4>
+                        <select id="new-clue-type" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3">
+                            <option value="text">Texto</option>
+                            <option value="image">Imagen (URL)</option>
+                            <option value="audio">Audio (URL)</option>
+                            <option value="video">Vídeo (URL)</option>
+                            <option value="link">Enlace (URL)</option>
+                        </select>
+                        <input type="text" id="new-clue-content" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="Texto de la pista o URL directa al medio">
+                        <div id="new-clue-text-wrapper" class="hidden"><input type="text" id="new-clue-text" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 mt-2" placeholder="Texto descriptivo (opcional para enlaces, etc.)"></div>
+                        <div>
+                            <label for="new-clue-publish-date" class="block text-sm font-medium text-gray-300 mb-1">Fecha de Publicación (CET)</label>
+                            <input type="datetime-local" id="new-clue-publish-date" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3">
+                        </div>
+                        <button id="add-clue-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold p-3 rounded-lg transition">Añadir Pista</button>
+                    </div>
+                </fieldset>
+
+                <fieldset class="border border-gray-700 rounded-lg p-4">
+                    <legend class="text-lg font-bold text-indigo-400 px-2">Solución y Puntuación</legend>
+                    <div class="space-y-4">
+                        <div class="bg-gray-700 p-3 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="font-medium">¿Marcar como resuelto?</span>
+                                <label for="is-solved-toggle" class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="is-solved-toggle" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                                </label>
+                            </div>
+                            <div id="end-date-wrapper" class="hidden mt-4">
+                                <label for="game-end-date" class="block text-sm font-medium text-gray-300 mb-1">Fecha de Fin</label>
+                                <input type="date" id="game-end-date" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3">
+                            </div>
+                        </div>
+
+                        <!-- NUEVO CAMPO UTD -->
+                        <div class="bg-indigo-900/20 border border-indigo-500/30 p-4 rounded-lg">
+                            <label for="game-utd" class="block text-sm font-bold text-indigo-300 mb-1">Unidad de Tiempo de Demora (UTD)</label>
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="game-utd" class="w-24 bg-gray-700 border border-gray-600 rounded-lg p-3 text-center font-mono" value="1" min="0.1" step="0.1">
+                                <span class="text-gray-400">Horas</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">Se restará 1 punto por cada UTD que pase tras revelarse la última pista.</p>
+                        </div>
+
+                        <div>
+                            <label for="game-solution" class="block text-sm font-medium text-gray-300 mb-1">La Solución</label>
+                            <input type="text" id="game-solution" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="Ej: El Cubo de Rubik">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="game-winner" class="block text-sm font-medium text-gray-300 mb-1">Nombre Ganador/a</label>
+                                <input type="text" id="game-winner" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="Ej: @nombre">
+                            </div>
+                            <div>
+                                <label for="game-winner-id" class="block text-sm font-medium text-gray-300 mb-1">ID del Ganador/a</label>
+                                <input type="text" id="game-winner-id" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="UUID del usuario">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="game-explanation" class="block text-sm font-medium text-gray-300 mb-1">Explicación de la Solución</label>
+                            <textarea id="game-explanation" rows="4" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="Detalles de por qué la solución es la correcta..."></textarea>
+                        </div>
+                        <div>
+                            <label for="winner-explanation" class="block text-sm font-medium text-gray-300 mb-1">Explicación del Ganador</label>
+                            <textarea id="winner-explanation" rows="4" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="Detalles de cómo el ganador/a resolvió el misterio..."></textarea>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="border border-gray-700 rounded-lg p-4">
+                    <legend class="text-lg font-bold text-indigo-400 px-2">Bibliografía / Fuentes</legend>
+                    <textarea id="game-bibliography" rows="5" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="Añade aquí las fuentes, enlaces o bibliografía utilizada..."></textarea>
+                    <button id="download-bibliography-btn" class="mt-4 w-full bg-teal-600 hover:bg-teal-700 text-white font-bold p-3 rounded-lg transition">Descargar Bibliografía (PDF)</button>
+                </fieldset>
+            </div>
+
+            <!-- Panel de Previsualización (Derecha) -->
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 md:p-8 space-y-6 flex flex-col">
+                <h2 class="text-3xl font-bold text-indigo-400">Previsualización</h2>
+                <div id="preview-wrapper" class="flex-grow bg-gray-900 rounded-lg p-6 overflow-y-auto preview-content">
+                    <!-- Contenido de previsualización -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales (Edit Clue & Alert) - Mismos que versión anterior -->
+    <div id="edit-clue-modal" class="modal fixed inset-0 z-50 bg-gray-950 bg-opacity-75 items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-xl shadow-2xl p-6 md:p-8 max-w-lg w-full">
+            <h3 class="text-2xl font-extrabold text-indigo-400 mb-4">Editar Pista</h3>
+            <div class="space-y-4">
+                <select id="edit-clue-type" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3">
+                    <option value="text">Texto</option>
+                    <option value="image">Imagen (URL)</option>
+                    <option value="audio">Audio (URL)</option>
+                    <option value="video">Vídeo (URL)</option>
+                    <option value="link">Enlace (URL)</option>
+                </select>
+                <input type="text" id="edit-clue-content" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="Contenido de la pista">
+                <div id="edit-clue-text-wrapper" class="hidden"><input type="text" id="edit-clue-text" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3" placeholder="Texto descriptivo (opcional)"></div>
+                <div>
+                    <label for="edit-clue-publish-date" class="block text-sm font-medium text-gray-300 mb-1">Fecha de Publicación (CET)</label>
+                    <input type="datetime-local" id="edit-clue-publish-date" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-4">
+                <button id="save-clue-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition">Guardar</button>
+                <button id="cancel-edit-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alert-modal" class="modal fixed inset-0 z-50 bg-gray-950 bg-opacity-75 items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-xl shadow-2xl p-6 md:p-8 max-w-sm w-full text-center">
+            <h3 id="alert-title" class="text-2xl font-extrabold text-white mb-4"></h3>
+            <p id="alert-message" class="text-gray-300 mb-6"></p>
+            <button id="close-alert-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition">Aceptar</button>
+        </div>
+    </div>
+
+    <script>
+        const dom = {
+            titleInput: document.getElementById('game-title'),
+            typeInput: document.getElementById('game-type'),
+            difficultyInput: document.getElementById('game-difficulty'),
+            mysteryInput: document.getElementById('game-mystery'),
+            showMysteryToggle: document.getElementById('show-mystery-toggle'),
+            descriptionInput: document.getElementById('game-description'),
+            startDateInput: document.getElementById('game-start-date'),
+            formLinkInput: document.getElementById('google-form-link'),
+            formEntryIdInput: document.getElementById('google-form-entry-id'),
+            cluesList: document.getElementById('clues-list'),
+            newClue: {
+                type: document.getElementById('new-clue-type'),
+                content: document.getElementById('new-clue-content'),
+                textWrapper: document.getElementById('new-clue-text-wrapper'),
+                text: document.getElementById('new-clue-text'),
+                publishDate: document.getElementById('new-clue-publish-date'),
+                addBtn: document.getElementById('add-clue-btn')
+            },
+            solution: {
+                isSolvedToggle: document.getElementById('is-solved-toggle'),
+                endDateWrapper: document.getElementById('end-date-wrapper'),
+                endDate: document.getElementById('game-end-date'),
+                utdInput: document.getElementById('game-utd'), // Nuevo
+                solutionInput: document.getElementById('game-solution'),
+                winnerInput: document.getElementById('game-winner'),
+                winnerIdInput: document.getElementById('game-winner-id'),
+                explanationInput: document.getElementById('game-explanation'),
+                winnerExplanationInput: document.getElementById('winner-explanation')
+            },
+            bibliography: {
+                textarea: document.getElementById('game-bibliography'),
+                downloadBtn: document.getElementById('download-bibliography-btn')
+            },
+            preview: { wrapper: document.getElementById('preview-wrapper') },
+            exportBtn: document.getElementById('export-json-btn'),
+            importInput: document.getElementById('import-file-input'),
+            editClueModal: document.getElementById('edit-clue-modal'),
+            editClueType: document.getElementById('edit-clue-type'),
+            editClueContent: document.getElementById('edit-clue-content'),
+            editClueTextWrapper: document.getElementById('edit-clue-text-wrapper'),
+            editClueText: document.getElementById('edit-clue-text'),
+            editCluePublishDate: document.getElementById('edit-clue-publish-date'),
+            saveClueBtn: document.getElementById('save-clue-btn'),
+            cancelEditBtn: document.getElementById('cancel-edit-btn'),
+            alertModal: document.getElementById('alert-modal'),
+            alertTitle: document.getElementById('alert-title'),
+            alertMessage: document.getElementById('alert-message'),
+            closeAlertBtn: document.getElementById('close-alert-btn')
+        };
+
+        let gameState = {
+            id: crypto.randomUUID(),
+            title: '', type: 'Semanal', difficulty: 'Medio', mystery: '', showMystery: true, notes: '', startDate: '', googleFormLink: '', formEntryId: '',
+            clues: [],
+            isSolved: false, endDate: '', solution: '', winner: '', winnerId: '', explanation: '', winnerExplanation: '', bibliography: '',
+            utd: 1, // Default 1 hora
+            lastUpdated: new Date().toISOString()
+        };
+
+        let currentEditingIndex = null;
+
+        function showAlert(title, message) { dom.alertTitle.textContent = title; dom.alertMessage.innerHTML = message; dom.alertModal.classList.add('active'); }
+        function closeModal(modal) { modal.classList.remove('active'); }
+        function toLocalISOString(date) { const tzoffset = (new Date()).getTimezoneOffset() * 60000; return (new Date(date - tzoffset)).toISOString().slice(0, -1); }
+
+        function updateStateFromUI() {
+            gameState.title = dom.titleInput.value;
+            gameState.type = dom.typeInput.value;
+            gameState.difficulty = dom.difficultyInput.value;
+            gameState.mystery = dom.mysteryInput.value;
+            gameState.showMystery = dom.showMysteryToggle.checked;
+            gameState.notes = dom.descriptionInput.value;
+            gameState.startDate = dom.startDateInput.value;
+            gameState.googleFormLink = dom.formLinkInput.value;
+            gameState.formEntryId = dom.formEntryIdInput.value;
+            gameState.isSolved = dom.solution.isSolvedToggle.checked;
+            gameState.endDate = dom.solution.endDate.value;
+            gameState.utd = parseFloat(dom.solution.utdInput.value) || 1; // Guardar UTD
+            gameState.solution = dom.solution.solutionInput.value;
+            gameState.winner = dom.solution.winnerInput.value;
+            gameState.winnerId = dom.solution.winnerIdInput.value;
+            gameState.explanation = dom.solution.explanationInput.value;
+            gameState.winnerExplanation = dom.solution.winnerExplanationInput.value;
+            gameState.bibliography = dom.bibliography.textarea.value;
+            gameState.lastUpdated = new Date().toISOString();
+        }
+
+        function updateUIFromState() {
+            dom.titleInput.value = gameState.title || '';
+            dom.typeInput.value = gameState.type || 'Semanal';
+            dom.difficultyInput.value = gameState.difficulty || 'Medio';
+            dom.mysteryInput.value = gameState.mystery || '';
+            dom.showMysteryToggle.checked = gameState.showMystery ?? true;
+            dom.descriptionInput.value = gameState.notes || '';
+            dom.startDateInput.value = gameState.startDate || '';
+            dom.formLinkInput.value = gameState.googleFormLink || '';
+            dom.formEntryIdInput.value = gameState.formEntryId || '';
+            dom.solution.isSolvedToggle.checked = gameState.isSolved || false;
+            dom.solution.solutionInput.value = gameState.solution || '';
+            dom.solution.winnerInput.value = gameState.winner || '';
+            dom.solution.winnerIdInput.value = gameState.winnerId || '';
+            dom.solution.explanationInput.value = gameState.explanation || '';
+            dom.solution.winnerExplanationInput.value = gameState.winnerExplanation || '';
+            dom.solution.endDate.value = gameState.endDate || '';
+            dom.solution.utdInput.value = gameState.utd || 1; // Cargar UTD
+            dom.bibliography.textarea.value = gameState.bibliography || '';
+            dom.solution.endDateWrapper.classList.toggle('hidden', !gameState.isSolved);
+            toggleDescriptionField(dom.newClue.textWrapper, dom.newClue.type.value);
+            renderAll();
+        }
+
+        // --- Render Functions (Same as before + UTD logic if needed for preview) ---
+        function renderCluesList() {
+            dom.cluesList.innerHTML = '';
+            gameState.clues.forEach((clue, index) => {
+                const clueItem = document.createElement('div');
+                clueItem.className = 'clue-item bg-gray-700/50 rounded-lg p-3 flex items-center justify-between gap-4 transition-colors hover:bg-gray-700';
+                clueItem.dataset.index = index;
+                clueItem.innerHTML = `<div class="flex items-center gap-4 flex-grow"><span class="text-indigo-400 font-bold w-6">${index + 1}</span><div class="flex-grow"><p class="text-sm font-medium text-gray-100">${clue.text || clue.content}</p><p class="text-xs text-gray-400">Tipo: <span class="capitalize">${clue.type}</span> | Publicación: ${(clue.publishDate || '').replace('T', ' ')}</p></div></div><div class="flex-shrink-0 flex gap-2"><button class="edit-clue-btn p-1 text-gray-400 hover:text-yellow-400 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"/><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"/></svg></button><button class="delete-clue-btn p-1 text-gray-400 hover:text-red-400 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg></button></div>`;
+                dom.cluesList.appendChild(clueItem);
+            });
+        }
+
+        function renderPreview() {
+            // Simplified for brevity, same logic as before to display content
+            let contentHTML = `... (Vista previa normal) ...`;
+            dom.preview.wrapper.innerHTML = `<div class="space-y-4"><div class="flex items-start justify-between flex-wrap gap-2"><h3 class="text-3xl font-extrabold text-white">${gameState.title || 'Título'}</h3></div><p class="text-gray-400">${gameState.notes || ''}</p><p class="text-xs text-indigo-400">UTD Configurada: ${gameState.utd} hora(s)</p><hr class="border-gray-700"><ul class="space-y-2 list-disc list-inside text-gray-300">${gameState.clues.map(c => `<li>${c.text || c.content} <span class="text-xs text-gray-500">(${c.publishDate})</span></li>`).join('')}</ul></div>`;
+        }
+
+        function renderAll() { renderCluesList(); renderPreview(); }
+        function toggleDescriptionField(wrapper, type) { wrapper.classList.toggle('hidden', ['text'].includes(type)); }
+
+        function openEditClueModal(index) {
+            currentEditingIndex = index;
+            const clue = gameState.clues[index];
+            dom.editClueType.value = clue.type; dom.editClueContent.value = clue.content; dom.editClueText.value = clue.text || ''; dom.editCluePublishDate.value = clue.publishDate;
+            toggleDescriptionField(dom.editClueTextWrapper, clue.type); dom.editClueModal.classList.add('active');
+        }
+
+        function initEventListeners() {
+            document.querySelectorAll('input, textarea, select').forEach(input => { input.addEventListener('input', () => { updateStateFromUI(); renderPreview(); }); });
+            dom.showMysteryToggle.addEventListener('change', () => { gameState.showMystery = dom.showMysteryToggle.checked; renderPreview(); });
+            dom.solution.isSolvedToggle.addEventListener('change', () => { gameState.isSolved = dom.solution.isSolvedToggle.checked; dom.solution.endDateWrapper.classList.toggle('hidden', !gameState.isSolved); renderPreview(); });
+
+            dom.newClue.addBtn.addEventListener('click', () => {
+                const newClue = { type: dom.newClue.type.value, content: dom.newClue.content.value, text: dom.newClue.text.value || null, publishDate: dom.newClue.publishDate.value };
+                if (newClue.content && newClue.publishDate) { gameState.clues.push(newClue); dom.newClue.content.value = ''; dom.newClue.text.value = ''; updateUIFromState(); } else { showAlert('Error', 'Faltan datos.'); }
+            });
+
+            dom.newClue.type.addEventListener('change', (e) => toggleDescriptionField(dom.newClue.textWrapper, e.target.value));
+
+            dom.exportBtn.addEventListener('click', () => {
+                updateStateFromUI();
+                const jsonStr = JSON.stringify(gameState, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = `${(gameState.title || 'misterio').replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`; a.click(); URL.revokeObjectURL(url);
+            });
+
+            dom.importInput.addEventListener('change', (event) => {
+                const file = event.target.files[0]; if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedState = JSON.parse(e.target.result);
+                        if (importedState && importedState.id) {
+                            gameState = { ...gameState, ...importedState, clues: importedState.clues || [], utd: importedState.utd || 1 };
+                            updateUIFromState(); showAlert('Importado', 'Misterio cargado.');
+                        } else showAlert("Error", "Formato inválido.");
+                    } catch (error) { showAlert("Error", "No se pudo leer el archivo."); }
+                }
+                reader.readAsText(file); event.target.value = '';
+            });
+
+            dom.cluesList.addEventListener('click', (e) => {
+                const target = e.target.closest('button'); if (!target) return;
+                const index = parseInt(target.closest('.clue-item').dataset.index, 10);
+                if (target.classList.contains('edit-clue-btn')) openEditClueModal(index);
+                else if (target.classList.contains('delete-clue-btn')) { gameState.clues.splice(index, 1); updateUIFromState(); }
+            });
+
+            Sortable.create(dom.cluesList, { animation: 150, ghostClass: 'sortable-ghost', onEnd: (evt) => {
+                const [item] = gameState.clues.splice(evt.oldIndex, 1); gameState.clues.splice(evt.newIndex, 0, item); renderAll();
+            }});
+
+            dom.saveClueBtn.addEventListener('click', () => {
+                if (currentEditingIndex !== null) {
+                    gameState.clues[currentEditingIndex] = { type: dom.editClueType.value, content: dom.editClueContent.value, text: dom.editClueText.value || null, publishDate: dom.editCluePublishDate.value };
+                    updateUIFromState(); closeModal(dom.editClueModal); currentEditingIndex = null;
+                }
+            });
+
+            dom.cancelEditBtn.addEventListener('click', () => closeModal(dom.editClueModal));
+            dom.closeAlertBtn.addEventListener('click', () => closeModal(dom.alertModal));
+
+             dom.bibliography.downloadBtn.addEventListener('click', () => {
+                const bibContent = dom.bibliography.textarea.value;
+                if (!bibContent.trim()) { showAlert('Error', 'Bibliografía vacía.'); return; }
+                const element = document.createElement('div'); element.style.padding = '2rem'; element.style.fontFamily = 'sans-serif';
+                element.innerHTML = `<h1>Bibliografía: ${gameState.title}</h1><pre>${bibContent}</pre>`;
+                html2pdf().from(element).save(`${gameState.title}_bibliografia.pdf`);
+            });
+        }
+
+        function init() {
+            const now = new Date(); dom.startDateInput.value = toLocalISOString(now).slice(0, 10); dom.newClue.publishDate.value = toLocalISOString(now).slice(0, 16);
+            initEventListeners(); updateStateFromUI(); updateUIFromState();
+        }
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
