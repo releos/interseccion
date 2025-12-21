@@ -1,0 +1,60 @@
+{
+  "id": "96d05c27-303f-41b9-8228-540979da4a94",
+  "title": "Regalos de reyes",
+  "type": "Especial",
+  "difficulty": "Fácil",
+  "mystery": "",
+  "showMystery": false,
+  "notes": "Cada dos pistas son un regalo.",
+  "startDate": "2025-12-21",
+  "googleFormLink": "",
+  "formEntryId": "",
+  "clues": [
+    {
+      "type": "text",
+      "content": "Eros ha sacudido mis entrañas como el viento que en el monte sobre las encinas se lanza.",
+      "text": null,
+      "publishDate": "2025-12-21T16:04"
+    },
+    {
+      "type": "image",
+      "content": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Rey_Alfonso_XIII_de_Espa%C3%B1a%2C_by_Kaulak.jpg",
+      "text": null,
+      "publishDate": "2025-12-21T16:04"
+    },
+    {
+      "type": "link",
+      "content": "https://music.youtube.com/watch?v=RQ5Ve9RXCvY&si=kgfKgS7Py_xh8dY8",
+      "text": null,
+      "publishDate": "2025-12-21T16:04"
+    },
+    {
+      "type": "image",
+      "content": "https://upload.wikimedia.org/wikipedia/commons/8/84/Santiago_de_Compostela_plan_vertical.jpg",
+      "text": null,
+      "publishDate": "2025-12-21T16:04"
+    },
+    {
+      "type": "image",
+      "content": "https://upload.wikimedia.org/wikipedia/commons/3/36/Human-nose.jpg",
+      "text": null,
+      "publishDate": "2025-12-21T16:04"
+    },
+    {
+      "type": "image",
+      "content": "https://pasteisdebelem.pt/wp-content/uploads/2014/05/pastel_de_belem_caixa.jpg",
+      "text": null,
+      "publishDate": "2025-12-21T16:04"
+    }
+  ],
+  "isSolved": false,
+  "endDate": "",
+  "solution": "",
+  "winner": "",
+  "winnerId": "",
+  "explanation": "",
+  "winnerExplanation": "",
+  "bibliography": "",
+  "utd": 1,
+  "lastUpdated": "2025-12-21T15:20:17.294Z"
+}
