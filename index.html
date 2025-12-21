@@ -255,7 +255,7 @@
                         </div>
                     </div>
                  </div>
-                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v9.0 Temporadas</div>
+                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v9.1</div>
             </div>
         </main>
     </div>
@@ -423,6 +423,9 @@
         let showFavoritesOnly = false;
         let currentPodiumSeasonId = 'general'; // NUEVO
         let isNewUserSession = false; // Flag para tutorial
+
+        // Cache simple para podios de juegos
+        const podiumsCache = {};
 
         // --- GESTIÓN DE USUARIO (UUID) ---
         let userId = localStorage.getItem('mystery_game_userid');
@@ -893,6 +896,20 @@
                     </div>`;
         }
 
+        // --- FETCH HELPER CON CACHE ---
+        async function getPodium(gameId) {
+            if (podiumsCache[gameId]) return podiumsCache[gameId];
+            try {
+                const res = await fetch(`${PODIOS_FOLDER}${gameId}.json?v=${Date.now()}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    podiumsCache[gameId] = data;
+                    return data;
+                }
+            } catch(e) { console.error(e); }
+            return null;
+        }
+
         // --- RENDERIZADO DEL MODAL ---
 
         async function renderModal(game, view, options={}) {
@@ -962,9 +979,7 @@
 
                     // Cargar datos asíncronamente
                     try {
-                        const res = await fetch(`${PODIOS_FOLDER}${game.id}.json?v=${Date.now()}`);
-                        if(!res.ok) throw new Error();
-                        const podiumJson = await res.json();
+                        const podiumJson = await getPodium(game.id);
 
                         if (!podiumJson || !podiumJson.entries || podiumJson.entries.length === 0) {
                             dom.modalContent.innerHTML = `<div class="text-center py-10 text-gray-500"><p>No hay datos registrados para este podio.</p></div>`;
@@ -1020,9 +1035,9 @@
                         // Reutilizar lógica de loadLeaderboard pero solo para los datos
                         // 1. Identificar juegos resueltos de esta temporada
                         let seasonGames = allGames.filter(g => g.isSolved && game.gameIds.includes(g.id));
-                        
-                        // 2. Fetch podios
-                        const pPromises = seasonGames.map(g => fetch(`${PODIOS_FOLDER}${g.id}.json?v=${Date.now()}`).then(res => res.ok ? res.json() : null).catch(() => null));
+
+                        // 2. Fetch podios usando el helper con cache
+                        const pPromises = seasonGames.map(g => getPodium(g.id));
                         const results = await Promise.all(pPromises);
 
                         // 3. Agregar
@@ -1043,8 +1058,8 @@
 
                         // 4. Render Tabla
                         let html = `<div class="text-center mb-4 text-gray-400 text-sm">${game.description || ''}</div>`;
-                        
-                        // Top 3 Visual (similar al principal)
+
+                        // Top 3 Visual
                          if(sortedSeason.length > 0) {
                             html += `<div class="flex justify-center items-end gap-4 h-32 mb-6 p-4 bg-gray-900/30 rounded-lg">`;
                             // 2nd
@@ -1060,7 +1075,8 @@
                         sortedSeason.forEach((u, i) => {
                             let rClass = "border-b border-gray-700/50 hover:bg-gray-700/30";
                             if(u.id === userId) rClass += " bg-indigo-900/30 text-indigo-200 border-indigo-500 border-l-2";
-                            html += `<tr class="${rClass}"><td class="p-2 font-mono text-gray-500">${i+1}</td><td class="p-2"><span class="cursor-pointer hover:text-indigo-300 hover:underline" onclick="openProfileById('${u.id}')">${u.name}</span></td><td class="p-2 text-right font-bold text-green-400">${u.points}</td></tr>`;
+                            // CAMBIO: Al hacer clic aquí, abre perfil DE ESA TEMPORADA
+                            html += `<tr class="${rClass}"><td class="p-2 font-mono text-gray-500">${i+1}</td><td class="p-2"><span class="cursor-pointer hover:text-indigo-300 hover:underline" onclick="openSeasonProfile('${u.id}', '${game.id}')">${u.name}</span></td><td class="p-2 text-right font-bold text-green-400">${u.points}</td></tr>`;
                         });
                         html += `</tbody></table>`;
                         dom.modalContent.innerHTML = html;
@@ -1082,7 +1098,7 @@
                     break;
             }
 
-            if(view !== 'game-podium' && view !== 'season-podium') dom.modalContent.innerHTML = contentHTML; 
+            if(view !== 'game-podium' && view !== 'season-podium') dom.modalContent.innerHTML = contentHTML;
             dom.modalFooter.innerHTML = footerHTML;
             dom.modal.classList.add('active');
         }
@@ -1102,12 +1118,8 @@
                     solvedGames = solvedGames.filter(g => filterGameIds.includes(g.id));
                 }
 
-                // 3. Fetch todos los podios de esos juegos en paralelo
-                const podiumPromises = solvedGames.map(game =>
-                    fetch(`${PODIOS_FOLDER}${game.id}.json?v=${Date.now()}`)
-                        .then(res => res.ok ? res.json() : null)
-                        .catch(() => null)
-                );
+                // 3. Fetch todos los podios de esos juegos usando el helper con cache
+                const podiumPromises = solvedGames.map(game => getPodium(game.id));
 
                 const results = await Promise.all(podiumPromises);
 
@@ -1201,123 +1213,253 @@
             });
         }
 
-        async function openProfileModal(userData) {
-            let gamesListHTML = '<p class="text-gray-500 text-sm italic">Ningún juego registrado.</p>';
-            if (userData.solvedGames && userData.solvedGames.length > 0) {
-                const listItems = userData.solvedGames.map(gId => {
-                    const game = allGames.find(g => g.id === gId);
-                    return `<li class="p-2 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer profile-game-link flex justify-between" data-game-id="${gId}"><span class="text-gray-200 text-sm">${game ? game.title : 'Desconocido'}</span><span class="text-xs text-gray-500">Ver</span></li>`;
-                }).join('');
-                gamesListHTML = `<ul class="space-y-2 mt-2">${listItems}</ul>`;
-            }
+        // --- NUEVA FUNCIÓN: Perfil de Temporada Específica ---
+        async function openSeasonProfile(userId, seasonId) {
+             renderModal(null, 'info', { title: 'Cargando perfil de temporada...', content: '<p class="text-center text-gray-400 animate-pulse py-10">Calculando estadísticas...</p>' });
 
-            // CALCULO DE PUNTOS POR TEMPORADA (CAMBIO VISUAL)
-            let seasonStatsHTML = '';
-            let seasonsListItems = '';
-            
-            if (allSeasons.length > 0) {
-                const currentSeason = allSeasons.find(s => s.status === 'active') || allSeasons[0];
-                let currentPoints = 0;
+             const season = allSeasons.find(s => s.id === seasonId);
+             if (!season) return;
 
-                // Para mostrar la lista, necesitamos calcular los puntos de TODAS las temporadas donde participó
-                // Esto requiere un Promise.all de fetch de juegos, lo cual puede tardar un poco.
-                // Mostraremos un "Cargando desglose..." inicial.
-                
-                seasonStatsHTML = `
-                    <div class="bg-indigo-900/30 border border-indigo-500/30 p-4 rounded-xl text-center mb-4">
-                        <div class="text-xs text-indigo-300 uppercase tracking-widest mb-1">Temporada Actual</div>
-                        <div class="font-bold text-white text-lg">${currentSeason.name}</div>
-                        <div class="text-4xl font-extrabold text-indigo-400 mt-2" id="profile-current-points">... <span class="text-base font-normal text-gray-400">pts</span></div>
+             // Fetch podios
+             const pPromises = season.gameIds.map(gid => getPodium(gid));
+             const podiums = await Promise.all(pPromises);
+
+             // Calcular Leaderboard de esa temporada para sacar el Rank del usuario
+             const seasonMap = {};
+             podiums.forEach((pod, idx) => {
+                 if (!pod || !pod.entries) return;
+                 const gameId = season.gameIds[idx];
+                 pod.entries.forEach(e => {
+                     if (!seasonMap[e.id]) seasonMap[e.id] = { id: e.id, name: e.name, points: 0, games: [] };
+                     seasonMap[e.id].points += parseInt(e.points) || 0;
+                 });
+             });
+             const seasonLeaderboard = Object.values(seasonMap).sort((a,b) => b.points - a.points);
+             const userSeasonData = seasonLeaderboard.find(u => u.id === userId);
+             const userRank = seasonLeaderboard.findIndex(u => u.id === userId) + 1;
+
+             if (!userSeasonData) {
+                 // Usuario no jugó esta temporada
+                 renderModal(null, 'info', { title: 'Sin datos', content: '<p class="text-center">Este usuario no participó en esta temporada.</p>' });
+                 return;
+             }
+
+             // Construir lista de juegos con posición y puntos
+             let gamesListHTML = '<ul class="space-y-2 mt-2">';
+             podiums.forEach((pod, idx) => {
+                 if (!pod || !pod.entries) return;
+                 const gameId = season.gameIds[idx];
+                 const userEntry = pod.entries.find(e => e.id === userId);
+                 if (userEntry) {
+                     // Calcular rank en ese juego
+                     const gameRank = pod.entries.sort((a,b) => b.points - a.points).findIndex(x => x.id === userId) + 1;
+                     const game = allGames.find(g => g.id === gameId);
+                     gamesListHTML += `
+                        <li class="p-3 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer profile-game-link flex justify-between items-center" data-game-id="${gameId}">
+                            <div>
+                                <div class="text-gray-200 text-sm font-semibold">${game ? game.title : 'Desconocido'}</div>
+                                <div class="text-xs text-indigo-400">Posición: #${gameRank}</div>
+                            </div>
+                            <div class="font-bold text-green-400">${userEntry.points} pts</div>
+                        </li>`;
+                 }
+             });
+             gamesListHTML += '</ul>';
+
+             const content = `
+                <div class="text-center mb-6">
+                    <h3 class="text-xl font-bold text-white mb-1">${userSeasonData.name}</h3>
+                    <div class="text-sm text-indigo-300 font-bold mb-4">${season.emoji} ${season.name}</div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gray-900/50 p-4 rounded-xl text-center border border-indigo-500/30">
+                            <div class="text-xs text-gray-400 uppercase">Posición</div>
+                            <div class="text-3xl font-bold text-yellow-400">#${userRank}</div>
+                        </div>
+                        <div class="bg-gray-900/50 p-4 rounded-xl text-center border border-green-500/30">
+                            <div class="text-xs text-gray-400 uppercase">Puntos</div>
+                            <div class="text-3xl font-bold text-green-400">${userSeasonData.points}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-left">
+                        <h4 class="text-gray-400 text-sm uppercase font-bold mb-2">Desglose de Juegos</h4>
+                        <div class="max-h-60 overflow-y-auto pr-1">${gamesListHTML}</div>
                     </div>
 
-                    <details class="bg-gray-900/30 rounded-xl overflow-hidden group mb-4">
-                        <summary class="flex justify-between items-center p-4 font-semibold text-gray-300 hover:bg-gray-800 transition"><span>Desglose por Temporadas</span><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-open:rotate-180 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></summary>
-                        <div class="p-4 border-t border-gray-700 max-h-60 overflow-y-auto" id="profile-seasons-list">
-                            <p class="text-gray-500 text-xs italic animate-pulse">Calculando puntos...</p>
-                        </div>
-                    </details>
-                `;
+                    <div class="mt-8">
+                        <button onclick="openProfileById('${userId}')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg">
+                            Ver Perfil General Completo
+                        </button>
+                    </div>
+                </div>
+             `;
 
-                // Calcular puntos asíncronamente después de renderizar
-                setTimeout(async () => {
-                    const seasonsContainer = document.getElementById('profile-seasons-list');
-                    const currentPointsDisplay = document.getElementById('profile-current-points');
+             renderModal(null, 'info', { title: 'Perfil de Temporada', content: content, isProfile: true });
+             document.querySelectorAll('.profile-game-link').forEach(link => link.addEventListener('click', () => { const g = allGames.find(x => x.id === link.dataset.gameId); if(g) openModalWithGame(g); }));
+        }
+
+        async function openProfileModal(userData) {
+            // Calcular Ranking General (si existe en leaderboard global)
+            // Asegurarnos de tener leaderboard cargado, si no, lo cargamos rapido (si ya estaba cargado usa cache)
+            if (leaderboardData.length === 0) await loadLeaderboard(null); // Recarga silenciosa
+            const generalRank = leaderboardData.findIndex(u => u.id === userData.id) + 1;
+            const rankDisplay = generalRank > 0 ? `#${generalRank}` : '-';
+
+            let gamesListHTML = '<p class="text-gray-500 text-sm italic">Cargando detalles...</p>';
+            let seasonStatsHTML = '';
+
+            // Renderizar esqueleto primero para feedback instantaneo
+             const skeletonContent = `
+                <div class="text-center mb-6">
+                    <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-white mb-3">${userData.name.charAt(0).toUpperCase()}</div>
+                    <h3 class="text-2xl font-bold text-white">${userData.name}</h3>
+                    <div class="text-xs text-gray-500 font-mono mt-1 select-all">${userData.id}</div>
+                    <div class="mt-2 text-yellow-400 font-bold">Ranking General: ${rankDisplay}</div>
+                </div>
+                <div id="profile-async-content" class="animate-pulse space-y-4">
+                    <div class="h-20 bg-gray-700 rounded-xl"></div>
+                    <div class="h-40 bg-gray-700 rounded-xl"></div>
+                </div>`;
+            
+            renderModal(null, 'info', { title: 'Perfil de Jugador', content: skeletonContent, isProfile: true });
+
+            // CÁLCULOS ASÍNCRONOS DETALLADOS
+            setTimeout(async () => {
+                const asyncContainer = document.getElementById('profile-async-content');
+                if(!asyncContainer) return;
+
+                // 1. Construir lista de juegos con RANK y PUNTOS
+                let gamesListItems = '';
+                if (userData.solvedGames && userData.solvedGames.length > 0) {
+                    // Fetch podiums para sacar puntos y rank por juego
+                    const gPromises = userData.solvedGames.map(gid => getPodium(gid));
+                    const gPodiums = await Promise.all(gPromises);
                     
-                    if(!seasonsContainer) return;
+                    gamesListItems = userData.solvedGames.map((gId, idx) => {
+                        const game = allGames.find(g => g.id === gId);
+                        const pod = gPodiums[idx];
+                        let pts = '?', rank = '?';
+                        if (pod && pod.entries) {
+                            const entry = pod.entries.find(e => e.id === userData.id);
+                            if (entry) pts = entry.points;
+                            // Calc rank
+                            const sorted = pod.entries.sort((a,b) => b.points - a.points);
+                            rank = sorted.findIndex(e => e.id === userData.id) + 1;
+                        }
 
+                        return `<li class="p-3 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer profile-game-link flex justify-between items-center" data-game-id="${gId}">
+                                    <div>
+                                        <div class="text-gray-200 text-sm font-semibold">${game ? game.title : 'Desconocido'}</div>
+                                        <div class="text-xs text-indigo-400">Posición: #${rank}</div>
+                                    </div>
+                                    <div class="font-bold text-green-400">${pts} pts</div>
+                                </li>`;
+                    }).join('');
+                    gamesListHTML = `<ul class="space-y-2 mt-2">${gamesListItems}</ul>`;
+                } else {
+                    gamesListHTML = '<p class="text-gray-500 text-sm italic">Ningún juego registrado.</p>';
+                }
+
+
+                // 2. Desglose de Temporadas con RANK
+                let seasonsListHTML = '';
+                if (allSeasons.length > 0) {
+                    const currentSeason = allSeasons.find(s => s.status === 'active') || allSeasons[0];
+                    let currentSeasonHTML = '';
                     let listHTML = '<ul class="space-y-2 mt-2">';
                     let hasData = false;
 
+                    // Necesitamos iterar temporadas y CALCULAR RANKING COMPLETO de cada una para saber la posición del usuario
+                    // Esto puede ser pesado si hay muchas temporadas, pero necesario por la petición.
+                    
                     for (const season of allSeasons) {
-                        // Juegos de esta temporada que el usuario ha resuelto
-                        const gamesInSeason = userData.solvedGames.filter(gid => season.gameIds.includes(gid));
-                        
-                        if (gamesInSeason.length > 0) {
+                        // Juegos de esta temporada
+                        const sGames = season.gameIds || [];
+                        // Juegos que el usuario ha resuelto en esta temporada
+                        const userSeasonGames = userData.solvedGames.filter(gid => sGames.includes(gid));
+
+                        if (userSeasonGames.length > 0) {
                             hasData = true;
-                            let sPoints = 0;
-                            // Fetch necesario
-                            const pPromises = gamesInSeason.map(gid => fetch(`${PODIOS_FOLDER}${gid}.json?v=${Date.now()}`).then(r=>r.json()).catch(()=>null));
-                            const pResults = await Promise.all(pPromises);
-                            pResults.forEach(pod => {
-                                if(pod && pod.entries) {
-                                    const entry = pod.entries.find(e => e.id === userData.id);
-                                    if(entry) sPoints += parseInt(entry.points);
-                                }
+                            // Fetch TODOS los podios de la temporada para calcular ranking global
+                            const spPromises = sGames.map(gid => getPodium(gid));
+                            const spPodiums = await Promise.all(spPromises);
+                            
+                            // Agregar puntos globales temporada
+                            const sMap = {};
+                            spPodiums.forEach(p => {
+                                if(p && p.entries) p.entries.forEach(e => {
+                                    if(!sMap[e.id]) sMap[e.id] = 0;
+                                    sMap[e.id] += parseInt(e.points) || 0;
+                                });
                             });
+                            
+                            // Ranking temporada
+                            const sLeaderboard = Object.entries(sMap).sort(([,a], [,b]) => b - a);
+                            const userSeasonPts = sMap[userData.id] || 0;
+                            const userSeasonRank = sLeaderboard.findIndex(([id]) => id === userData.id) + 1;
 
-                            if(season.id === currentSeason.id && currentPointsDisplay) {
-                                currentPointsDisplay.innerHTML = `${sPoints} <span class="text-base font-normal text-gray-400">pts</span>`;
-                            }
-
-                            // CAMBIO 2: Elemento de lista clicable para abrir podio de temporada
-                            listHTML += `
+                            const itemHTML = `
                                 <li class="p-2 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer flex justify-between items-center group" onclick="openSeasonPodium('${season.id}')">
                                     <div class="flex items-center gap-2">
                                         <span class="text-xl">${season.emoji || '📅'}</span>
-                                        <span class="text-gray-200 text-sm font-medium group-hover:text-white">${season.name}</span>
+                                        <div>
+                                            <div class="text-gray-200 text-sm font-medium group-hover:text-white">${season.name}</div>
+                                            <div class="text-xs text-indigo-400 font-bold">Posición: #${userSeasonRank}</div>
+                                        </div>
                                     </div>
                                     <div class="flex items-center gap-3">
-                                        <span class="font-bold text-yellow-500">${sPoints} pts</span>
+                                        <span class="font-bold text-yellow-500">${userSeasonPts} pts</span>
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
                                     </div>
                                 </li>
                             `;
+                            listHTML += itemHTML;
+
+                            if(season.id === currentSeason.id) {
+                                currentSeasonHTML = `
+                                    <div class="bg-indigo-900/30 border border-indigo-500/30 p-4 rounded-xl text-center mb-4">
+                                        <div class="text-xs text-indigo-300 uppercase tracking-widest mb-1">Temporada Actual</div>
+                                        <div class="font-bold text-white text-lg">${currentSeason.name}</div>
+                                        <div class="flex justify-center gap-4 mt-2">
+                                            <div class="text-2xl font-extrabold text-green-400">${userSeasonPts} <span class="text-xs font-normal text-gray-400">pts</span></div>
+                                            <div class="text-2xl font-extrabold text-yellow-400">#${userSeasonRank}</div>
+                                        </div>
+                                    </div>
+                                `;
+                            }
                         }
                     }
                     listHTML += '</ul>';
-                    
-                    if(seasonsContainer) {
-                        seasonsContainer.innerHTML = hasData ? listHTML : '<p class="text-gray-500 text-sm italic">Sin participación en temporadas.</p>';
-                    }
-                    if(currentPointsDisplay && currentPointsDisplay.textContent.includes('...')) {
-                         currentPointsDisplay.innerHTML = `0 <span class="text-base font-normal text-gray-400">pts</span>`;
-                    }
 
-                }, 100);
-            }
+                    seasonStatsHTML = `
+                        ${currentSeasonHTML}
+                        <details class="bg-gray-900/30 rounded-xl overflow-hidden group mb-4">
+                            <summary class="flex justify-between items-center p-4 font-semibold text-gray-300 hover:bg-gray-800 transition"><span>Desglose por Temporadas</span><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-open:rotate-180 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></summary>
+                            <div class="p-4 border-t border-gray-700 max-h-60 overflow-y-auto">
+                                ${hasData ? listHTML : '<p class="text-gray-500 text-sm italic">Sin participación en temporadas.</p>'}
+                            </div>
+                        </details>
+                    `;
+                }
 
-            const content = `
-                <div class="text-center mb-6">
-                    <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-white mb-3">${userData.name.charAt(0).toUpperCase()}</div>
-                    <h3 class="text-2xl font-bold text-white">${userData.name}</h3>
-                    ${userData.id === userId ? '<p class="text-xs text-indigo-400 mt-1">Este eres tú</p>' : ''}
-                    <div class="text-xs text-gray-500 font-mono mt-1 select-all">${userData.id}</div>
-                </div>
+                asyncContainer.innerHTML = `
+                    ${seasonStatsHTML}
 
-                ${seasonStatsHTML}
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gray-900/50 p-4 rounded-xl text-center"><div class="text-sm text-gray-400">Puntos Totales</div><div class="text-3xl font-bold text-green-400">${userData.points}</div></div>
+                        <div class="bg-gray-900/50 p-4 rounded-xl text-center"><div class="text-sm text-gray-400">Juegos Resueltos</div><div class="text-3xl font-bold text-blue-400">${userData.solvedGames.length}</div></div>
+                    </div>
+                    <details class="bg-gray-900/30 rounded-xl overflow-hidden group">
+                        <summary class="flex justify-between items-center p-4 font-semibold text-gray-300 hover:bg-gray-800 transition"><span>Misterios Resueltos (Todos)</span><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-open:rotate-180 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></summary>
+                        <div class="p-4 border-t border-gray-700 max-h-60 overflow-y-auto">${gamesListHTML}</div>
+                    </details>
+                `;
 
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-gray-900/50 p-4 rounded-xl text-center"><div class="text-sm text-gray-400">Puntos Totales</div><div class="text-3xl font-bold text-green-400">${userData.points}</div></div>
-                    <div class="bg-gray-900/50 p-4 rounded-xl text-center"><div class="text-sm text-gray-400">Juegos Resueltos</div><div class="text-3xl font-bold text-blue-400">${userData.solvedGames.length}</div></div>
-                </div>
-                <details class="bg-gray-900/30 rounded-xl overflow-hidden group">
-                    <summary class="flex justify-between items-center p-4 font-semibold text-gray-300 hover:bg-gray-800 transition"><span>Misterios Resueltos (Todos)</span><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-open:rotate-180 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></summary>
-                    <div class="p-4 border-t border-gray-700 max-h-60 overflow-y-auto">${gamesListHTML}</div>
-                </details>`;
+                // Re-bind clicks
+                document.querySelectorAll('.profile-game-link').forEach(link => link.addEventListener('click', () => { const g = allGames.find(x => x.id === link.dataset.gameId); if(g) openModalWithGame(g); }));
 
-            renderModal(null, 'info', { title: 'Perfil de Jugador', content: content, isProfile: true });
-
-            document.querySelectorAll('.profile-game-link').forEach(link => link.addEventListener('click', () => { const g = allGames.find(x => x.id === link.dataset.gameId); if(g) openModalWithGame(g); }));
+            }, 50); // Small delay to allow render
         }
 
         // --- MANEJO DE EVENTOS ---
@@ -1461,16 +1603,16 @@
             dom.welcomeCloseBtn.addEventListener('click', () => { dom.welcomeModal.classList.remove('active'); showToast('Jugando como invitado (sin guardar)'); });
 
             dom.myIdBtn.addEventListener('click', openIdModal);
-            
-            // CAMBIO 3: ABRIR TUTORIAL SI EL ID ES NUEVO
-            dom.closeIdModalBtn.addEventListener('click', () => { 
+
+            // ABRIR TUTORIAL SI EL ID ES NUEVO
+            dom.closeIdModalBtn.addEventListener('click', () => {
                 dom.idModal.classList.remove('active');
                 if(isNewUserSession) {
                     openTutorial();
                     isNewUserSession = false; // Reset flag
                 }
             });
-            
+
             dom.downloadIdBtn.addEventListener('click', downloadMyId);
             dom.uploadIdInput.addEventListener('change', handleIdUpload);
 
@@ -1489,12 +1631,27 @@
             [dom.typeFilterContainer, dom.difficultyFilterContainer].forEach(container => container.addEventListener('click', (e) => { if (e.target.classList.contains('filter-btn')) { container.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active')); e.target.classList.add('active'); renderGames(); } }));
 
             dom.modal.addEventListener('click', (e) => {
-                const target = e.target.closest('a, button, span');
+                let target = e.target.closest('a, button, .winner-link, .view-clue-btn, .profile-game-link');
+                
+                // ARREGLO PARA CLIC EN ENLACES CON HIJOS (SPANS)
+                // Si el clic fue en un span o algo interno, buscamos si hay un <a> padre
+                if (!target) {
+                    const spanParent = e.target.closest('span');
+                    if (spanParent && spanParent.closest('a')) {
+                         target = spanParent.closest('a');
+                    }
+                }
+
                 if (!target) return;
+
+                // Permitir comportamiento por defecto para enlaces externos
+                if (target.matches('a[target="_blank"]')) return;
+
                 if (target.matches('.winner-link')) { const user = leaderboardData.find(u => u.id === target.dataset.winnerId) || { name: target.textContent, id: target.dataset.winnerId, points: 0, solvedGames: [] }; openProfileModal(user); return; }
                 if (target.matches('.close-modal-btn')) { closeModal(); return; }
-                if (target.matches('a[target="_blank"]')) return;
+                
                 e.preventDefault();
+                
                 if (!currentGameData && !target.closest('.winner-link')) return;
 
                 if (target.matches('.guess-btn')) {
