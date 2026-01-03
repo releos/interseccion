@@ -54,6 +54,9 @@
         /* Perfil Dropdown */
         details > summary { list-style: none; cursor: pointer; }
         details > summary::-webkit-details-marker { display: none; }
+        
+        /* Sticky User Row */
+        .sticky-user-row { position: sticky; bottom: 0; z-index: 20; box-shadow: 0 -4px 15px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body class="text-gray-200">
@@ -164,7 +167,7 @@
                         <h3 class="text-yellow-400 font-bold tracking-widest uppercase mb-4 text-sm">🏆 Salón de la Fama de Temporada 🏆</h3>
                         <div class="flex justify-center items-end gap-4 h-48 pb-2">
                              <!-- 2do Lugar -->
-                             <div class="flex flex-col items-center group w-1/3">
+                             <div class="flex flex-col items-center group w-1/3 cursor-pointer hover:scale-105 transition" id="winner-2-box">
                                 <div class="text-gray-300 font-bold text-sm mb-1 truncate w-full px-1" id="winner-2-name">-</div>
                                 <div class="w-full bg-gray-600 rounded-t-lg relative group-hover:bg-gray-500 transition-all h-[60%] flex items-end justify-center pb-2">
                                     <span class="text-2xl font-bold text-gray-300">2</span>
@@ -172,7 +175,7 @@
                                 <div class="text-xs text-gray-400 mt-1 font-mono" id="winner-2-pts">0 pts</div>
                             </div>
                             <!-- 1er Lugar -->
-                            <div class="flex flex-col items-center group w-1/3 h-full">
+                            <div class="flex flex-col items-center group w-1/3 h-full cursor-pointer hover:scale-105 transition" id="winner-1-box">
                                 <div class="text-yellow-400 font-bold text-lg mb-1 truncate w-full px-1" id="winner-1-name">-</div>
                                 <div class="w-full bg-gradient-to-t from-yellow-600 to-yellow-500 rounded-t-lg relative shadow-[0_0_20px_rgba(234,179,8,0.4)] group-hover:shadow-[0_0_30px_rgba(234,179,8,0.6)] transition-all h-[85%] flex items-end justify-center pb-2">
                                     <span class="text-4xl">👑</span>
@@ -180,7 +183,7 @@
                                 <div class="text-sm text-yellow-500 mt-1 font-bold font-mono" id="winner-1-pts">0 pts</div>
                             </div>
                             <!-- 3er Lugar -->
-                            <div class="flex flex-col items-center group w-1/3">
+                            <div class="flex flex-col items-center group w-1/3 cursor-pointer hover:scale-105 transition" id="winner-3-box">
                                 <div class="text-orange-300 font-bold text-sm mb-1 truncate w-full px-1" id="winner-3-name">-</div>
                                 <div class="w-full bg-orange-800 rounded-t-lg relative group-hover:bg-orange-700 transition-all h-[40%] flex items-end justify-center pb-2">
                                     <span class="text-2xl font-bold text-orange-300">3</span>
@@ -190,8 +193,8 @@
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
+                    <div class="overflow-x-auto relative rounded-lg">
+                        <table class="w-full text-left border-collapse mb-16">
                             <thead>
                                 <tr class="text-gray-400 border-b border-gray-700">
                                     <th class="p-4">#</th>
@@ -200,10 +203,13 @@
                                     <th class="p-4 text-center">Misterios</th>
                                 </tr>
                             </thead>
-                            <tbody id="podium-body" class="text-gray-200">
+                            <tbody id="podium-body" class="text-gray-200 pb-10">
                                 <!-- Filas generadas por JS -->
                             </tbody>
                         </table>
+                        
+                        <!-- Sticky User Footer Container (Injected via JS) -->
+                        <div id="general-podium-user-sticky"></div>
                     </div>
                     <div id="podium-loading" class="text-center text-gray-500 mt-4">Calculando clasificación...</div>
                 </div>
@@ -255,14 +261,14 @@
                         </div>
                     </div>
                  </div>
-                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v9.1</div>
+                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v9.2</div>
             </div>
         </main>
     </div>
 
     <!-- Modal Structure (Used for Games and Alerts) -->
     <div id="game-modal" class="modal fixed inset-0 bg-black bg-opacity-80 items-center justify-center p-4 z-50">
-        <div class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col relative">
             <header class="flex-shrink-0 p-4 border-b border-gray-700 flex justify-between items-center gap-4">
                 <div class="flex-grow min-w-0">
                     <h2 id="modal-title" class="text-2xl font-bold text-white truncate"></h2>
@@ -270,7 +276,7 @@
                 </div>
                 <button id="modal-close-btn" class="flex-shrink-0 text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
             </header>
-            <div id="modal-content" class="p-6 overflow-y-auto modal-content-scroll"></div>
+            <div id="modal-content" class="p-6 overflow-y-auto modal-content-scroll relative"></div>
             <footer id="modal-footer" class="flex-shrink-0 p-4 border-t border-gray-700"></footer>
         </div>
     </div>
@@ -305,6 +311,9 @@
                 <p class="text-sm text-gray-300">Si pierdes o borras este ID, perderás el acceso a tu progreso. Basta con ejecutar el archivo descargado para volver a entrar.</p>
             </div>
             <div class="grid grid-cols-1 gap-3">
+                <button id="open-my-profile-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
+                    <span>👤</span> Abrir mi Perfil
+                </button>
                 <button id="download-id-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition">Descargar mi ID (Recomendado)</button>
                 <label class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition cursor-pointer">
                     Subir ID Guardado
@@ -379,6 +388,7 @@
             downloadIdBtn: document.getElementById('download-id-btn'),
             uploadIdInput: document.getElementById('upload-id-input'),
             closeIdModalBtn: document.getElementById('close-id-modal-btn'),
+            openMyProfileBtn: document.getElementById('open-my-profile-btn'), // NUEVO
             // Welcome Modal
             welcomeModal: document.getElementById('welcome-modal'),
             welcomeNewBtn: document.getElementById('welcome-new-btn'),
@@ -544,6 +554,10 @@
             processed = processed.replace(/#\{([^|]+)\|([^}]+)\}/g, (match, id, name) => {
                 return `<span class="cursor-pointer text-yellow-400 hover:text-yellow-300 hover:underline font-bold" onclick="openGameById('${id}')">#${name}</span>`;
             });
+            // Reemplazar %{ID_Temporada|Nombre} por enlace a temporada
+            processed = processed.replace(/%\{([^|]+)\|([^}]+)\}/g, (match, id, name) => {
+                return `<span class="cursor-pointer text-orange-400 hover:text-orange-300 hover:underline font-bold" onclick="openSeasonPodium('${id}')">%${name}</span>`;
+            });
             return processed;
         }
 
@@ -577,6 +591,7 @@
                         if (ad.actionType === 'game') colorClass = 'bg-yellow-600 hover:bg-yellow-700 text-white';
                         else if (ad.actionType === 'profile') colorClass = 'bg-purple-600 hover:bg-purple-700 text-white';
                         else if (ad.actionType === 'link') colorClass = 'bg-green-600 hover:bg-green-700 text-white';
+                        else if (ad.actionType === 'season') colorClass = 'bg-orange-600 hover:bg-orange-700 text-white';
 
                         extraBtn.className = `extra-action-btn w-full ${colorClass} font-bold py-3 px-4 rounded-lg transition shadow-lg mb-2`;
 
@@ -586,6 +601,7 @@
                             if (ad.actionType === 'game') openGameById(ad.actionValue);
                             else if (ad.actionType === 'profile') openProfileById(ad.actionValue);
                             else if (ad.actionType === 'link') window.open(ad.actionValue.startsWith('http') ? ad.actionValue : `https://${ad.actionValue}`, '_blank');
+                            else if (ad.actionType === 'season') openSeasonPodium(ad.actionValue);
                         };
 
                         // Insertar antes del botón cerrar
@@ -629,6 +645,8 @@
             const season = allSeasons.find(s => s.id === seasonId);
             if(season) {
                 renderModal(season, 'season-podium');
+            } else {
+                showToast(`Temporada no encontrada (${seasonId})`, true);
             }
         };
 
@@ -1028,7 +1046,7 @@
                     dom.modalTitle.textContent = `${game.emoji} ${game.name}`;
                     dom.modalBadges.innerHTML = `<span class="bg-indigo-600 text-white px-2 py-1 rounded text-xs font-bold">Temporada</span>`;
                     dom.modalContent.innerHTML = `<div class="text-center py-10"><p class="text-gray-400 animate-pulse">Calculando clasificación de temporada...</p></div>`;
-                    dom.modalFooter.innerHTML = `<div class="text-center"><button class="close-modal-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Cerrar</button></div>`;
+                    dom.modalFooter.innerHTML = `<div class="flex justify-center gap-3"><button class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg close-modal-btn">Cerrar</button><button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg share-season-btn" data-season-id="${game.id}">Compartir Temporada</button><button class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg open-season-games-btn" data-season-id="${game.id}">🎮 Ver Juegos</button></div>`;
                     dom.modal.classList.add('active');
 
                     try {
@@ -1063,15 +1081,15 @@
                          if(sortedSeason.length > 0) {
                             html += `<div class="flex justify-center items-end gap-4 h-32 mb-6 p-4 bg-gray-900/30 rounded-lg">`;
                             // 2nd
-                            if(sortedSeason[1]) html += `<div class="flex flex-col items-center w-1/4"><div class="text-xs text-gray-300 truncate w-full text-center">${sortedSeason[1].name}</div><div class="w-full h-16 bg-gray-600 rounded-t flex items-end justify-center"><span class="font-bold">2</span></div><div class="text-xs">${sortedSeason[1].points}</div></div>`;
+                            if(sortedSeason[1]) html += `<div class="flex flex-col items-center w-1/4 cursor-pointer hover:scale-105 transition" onclick="openSeasonProfile('${sortedSeason[1].id}', '${game.id}')"><div class="text-xs text-gray-300 truncate w-full text-center">${sortedSeason[1].name}</div><div class="w-full h-16 bg-gray-600 rounded-t flex items-end justify-center"><span class="font-bold">2</span></div><div class="text-xs">${sortedSeason[1].points}</div></div>`;
                             // 1st
-                            if(sortedSeason[0]) html += `<div class="flex flex-col items-center w-1/3"><div class="text-sm font-bold text-yellow-400 truncate w-full text-center">${sortedSeason[0].name}</div><div class="w-full h-24 bg-yellow-600 rounded-t flex items-end justify-center shadow-lg"><span class="text-2xl">👑</span></div><div class="text-sm font-bold text-yellow-500">${sortedSeason[0].points}</div></div>`;
+                            if(sortedSeason[0]) html += `<div class="flex flex-col items-center w-1/3 cursor-pointer hover:scale-105 transition" onclick="openSeasonProfile('${sortedSeason[0].id}', '${game.id}')"><div class="text-sm font-bold text-yellow-400 truncate w-full text-center">${sortedSeason[0].name}</div><div class="w-full h-24 bg-yellow-600 rounded-t flex items-end justify-center shadow-lg"><span class="text-2xl">👑</span></div><div class="text-sm font-bold text-yellow-500">${sortedSeason[0].points}</div></div>`;
                             // 3rd
-                            if(sortedSeason[2]) html += `<div class="flex flex-col items-center w-1/4"><div class="text-xs text-gray-300 truncate w-full text-center">${sortedSeason[2].name}</div><div class="w-full h-12 bg-orange-800 rounded-t flex items-end justify-center"><span class="font-bold">3</span></div><div class="text-xs">${sortedSeason[2].points}</div></div>`;
+                            if(sortedSeason[2]) html += `<div class="flex flex-col items-center w-1/4 cursor-pointer hover:scale-105 transition" onclick="openSeasonProfile('${sortedSeason[2].id}', '${game.id}')"><div class="text-xs text-gray-300 truncate w-full text-center">${sortedSeason[2].name}</div><div class="w-full h-12 bg-orange-800 rounded-t flex items-end justify-center"><span class="font-bold">3</span></div><div class="text-xs">${sortedSeason[2].points}</div></div>`;
                             html += `</div>`;
                         }
 
-                        html += `<table class="w-full text-left border-collapse"><thead><tr class="text-gray-400 border-b border-gray-700"><th class="p-2">#</th><th class="p-2">Nombre</th><th class="p-2 text-right">Pts</th></tr></thead><tbody>`;
+                        html += `<div class="relative"><table class="w-full text-left border-collapse mb-10"><thead><tr class="text-gray-400 border-b border-gray-700"><th class="p-2">#</th><th class="p-2">Nombre</th><th class="p-2 text-right">Pts</th></tr></thead><tbody>`;
                         sortedSeason.forEach((u, i) => {
                             let rClass = "border-b border-gray-700/50 hover:bg-gray-700/30";
                             if(u.id === userId) rClass += " bg-indigo-900/30 text-indigo-200 border-indigo-500 border-l-2";
@@ -1079,6 +1097,25 @@
                             html += `<tr class="${rClass}"><td class="p-2 font-mono text-gray-500">${i+1}</td><td class="p-2"><span class="cursor-pointer hover:text-indigo-300 hover:underline" onclick="openSeasonProfile('${u.id}', '${game.id}')">${u.name}</span></td><td class="p-2 text-right font-bold text-green-400">${u.points}</td></tr>`;
                         });
                         html += `</tbody></table>`;
+
+                        // STICKY FOOTER PARA EL USUARIO EN TEMPORADA
+                        if(userId) {
+                            const myRankSeason = sortedSeason.findIndex(u => u.id === userId);
+                            if(myRankSeason !== -1) {
+                                const me = sortedSeason[myRankSeason];
+                                html += `
+                                <div class="sticky-user-row bg-indigo-900 border-t-2 border-indigo-500 p-3 flex justify-between items-center text-white rounded-t-lg absolute bottom-0 left-0 right-0">
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-bold text-lg text-yellow-400">#${myRankSeason + 1}</span>
+                                        <span class="font-medium">Tu Posición</span>
+                                    </div>
+                                    <div class="font-bold text-green-400 font-mono text-lg">${me.points} pts</div>
+                                </div>`;
+                            }
+                        }
+                        
+                        html += `</div>`; // Close relative container
+
                         dom.modalContent.innerHTML = html;
 
                     } catch(err) {
@@ -1091,6 +1128,20 @@
                     const nextBtn = revealedClueCount < availableClues.length ? `<button class="next-clue-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">Siguiente Pista</button>` : `<button class="reveal-solution-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">Ver Solución</button>`;
                     footerHTML = `<div class="flex flex-wrap justify-center gap-4">${nextBtn}</div>`;
                     break;
+                
+                case 'season-games':
+                    // Mostrar lista de juegos de la temporada
+                     dom.modalTitle.textContent = `${game.emoji} Juegos de ${game.name}`;
+                     let gamesList = '<ul class="space-y-2">';
+                     const sGames = allGames.filter(g => game.gameIds.includes(g.id));
+                     sGames.forEach(g => {
+                         const solvedTag = g.isSolved ? '<span class="text-xs bg-green-600 px-2 py-0.5 rounded ml-2">Resuelto</span>' : '<span class="text-xs bg-yellow-500 text-black px-2 py-0.5 rounded ml-2">En curso</span>';
+                         gamesList += `<li class="bg-gray-700 p-3 rounded hover:bg-gray-600 cursor-pointer flex justify-between items-center" onclick="openModalWithGame(allGames.find(x=>x.id==='${g.id}'))"><span>${g.title}</span> ${solvedTag}</li>`;
+                     });
+                     gamesList += '</ul>';
+                     contentHTML = gamesList;
+                     footerHTML = `<div class="text-center"><button class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" onclick="openSeasonPodium('${game.id}')">Volver al Podio</button></div>`;
+                     break;
 
                 case 'info':
                     contentHTML = options.content;
@@ -1098,8 +1149,8 @@
                     break;
             }
 
-            if(view !== 'game-podium' && view !== 'season-podium') dom.modalContent.innerHTML = contentHTML;
-            dom.modalFooter.innerHTML = footerHTML;
+            if(view !== 'game-podium' && view !== 'season-podium' && view !== 'season-games') dom.modalContent.innerHTML = contentHTML;
+            if(view !== 'season-podium' && view !== 'season-games') dom.modalFooter.innerHTML = footerHTML;
             dom.modal.classList.add('active');
         }
 
@@ -1107,6 +1158,7 @@
         async function loadLeaderboard(filterGameIds = null) {
              dom.podiumLoading.style.display = 'block';
              dom.podiumBody.innerHTML = '';
+             document.getElementById('general-podium-user-sticky').innerHTML = ''; // Limpiar sticky anterior
              dom.seasonWinnersDisplay.classList.add('hidden'); // Ocultar por defecto
 
              try {
@@ -1168,7 +1220,8 @@
             const p1 = data[0];
             const p2 = data[1];
             const p3 = data[2];
-
+            
+            // Asignar nombres y puntos
             document.getElementById('winner-1-name').textContent = p1 ? p1.name : '-';
             document.getElementById('winner-1-pts').textContent = p1 ? p1.points + ' pts' : '';
 
@@ -1178,11 +1231,20 @@
             document.getElementById('winner-3-name').textContent = p3 ? p3.name : '-';
             document.getElementById('winner-3-pts').textContent = p3 ? p3.points + ' pts' : '';
 
+            // Asignar OnClick para abrir perfil de temporada (el ID de temporada es currentPodiumSeasonId)
+            const seasonId = currentPodiumSeasonId;
+            if(p1) document.getElementById('winner-1-box').onclick = () => openSeasonProfile(p1.id, seasonId);
+            if(p2) document.getElementById('winner-2-box').onclick = () => openSeasonProfile(p2.id, seasonId);
+            if(p3) document.getElementById('winner-3-box').onclick = () => openSeasonProfile(p3.id, seasonId);
+
             dom.seasonWinnersDisplay.classList.remove('hidden');
         }
 
         function renderPodium() {
             dom.podiumBody.innerHTML = '';
+            const stickyContainer = document.getElementById('general-podium-user-sticky');
+            stickyContainer.innerHTML = '';
+
             if(leaderboardData.length === 0) {
                  dom.podiumBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500">No hay datos en esta selección.</td></tr>`;
                  return;
@@ -1208,9 +1270,33 @@
                     <td class="p-4 text-right font-bold text-green-400">${user.points}</td>
                     <td class="p-4 text-center text-gray-400">${user.solvedGames.length}</td>
                 `;
-                tr.addEventListener('click', () => openProfileModal(user));
+                
+                // Si estamos en modo temporada, abrir season profile. Si es general, abrir general profile
+                if (currentPodiumSeasonId !== 'general') {
+                    tr.addEventListener('click', () => openSeasonProfile(user.id, currentPodiumSeasonId));
+                } else {
+                    tr.addEventListener('click', () => openProfileModal(user));
+                }
+                
                 dom.podiumBody.appendChild(tr);
             });
+
+            // STICKY FOOTER PARA EL USUARIO EN GENERAL
+            if (userId) {
+                const myRank = leaderboardData.findIndex(u => u.id === userId);
+                if (myRank !== -1) {
+                    const me = leaderboardData[myRank];
+                    stickyContainer.innerHTML = `
+                        <div class="sticky-user-row bg-indigo-900 border-t-2 border-indigo-500 p-4 flex justify-between items-center text-white rounded-b-lg">
+                            <div class="flex items-center gap-4">
+                                <span class="font-bold text-xl text-yellow-400">#${myRank + 1}</span>
+                                <span class="font-medium text-lg">Tu Posición</span>
+                            </div>
+                            <div class="font-bold text-green-400 font-mono text-xl">${me.points} pts</div>
+                        </div>
+                    `;
+                }
+            }
         }
 
         // --- NUEVA FUNCIÓN: Perfil de Temporada Específica ---
@@ -1270,7 +1356,7 @@
                 <div class="text-center mb-6">
                     <h3 class="text-xl font-bold text-white mb-1">${userSeasonData.name}</h3>
                     <div class="text-sm text-indigo-300 font-bold mb-4">${season.emoji} ${season.name}</div>
-                    
+
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <div class="bg-gray-900/50 p-4 rounded-xl text-center border border-indigo-500/30">
                             <div class="text-xs text-gray-400 uppercase">Posición</div>
@@ -1281,7 +1367,7 @@
                             <div class="text-3xl font-bold text-green-400">${userSeasonData.points}</div>
                         </div>
                     </div>
-                    
+
                     <div class="text-left">
                         <h4 class="text-gray-400 text-sm uppercase font-bold mb-2">Desglose de Juegos</h4>
                         <div class="max-h-60 overflow-y-auto pr-1">${gamesListHTML}</div>
@@ -1309,7 +1395,6 @@
             let gamesListHTML = '<p class="text-gray-500 text-sm italic">Cargando detalles...</p>';
             let seasonStatsHTML = '';
 
-            // Renderizar esqueleto primero para feedback instantaneo
              const skeletonContent = `
                 <div class="text-center mb-6">
                     <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-white mb-3">${userData.name.charAt(0).toUpperCase()}</div>
@@ -1321,7 +1406,7 @@
                     <div class="h-20 bg-gray-700 rounded-xl"></div>
                     <div class="h-40 bg-gray-700 rounded-xl"></div>
                 </div>`;
-            
+
             renderModal(null, 'info', { title: 'Perfil de Jugador', content: skeletonContent, isProfile: true });
 
             // CÁLCULOS ASÍNCRONOS DETALLADOS
@@ -1335,7 +1420,7 @@
                     // Fetch podiums para sacar puntos y rank por juego
                     const gPromises = userData.solvedGames.map(gid => getPodium(gid));
                     const gPodiums = await Promise.all(gPromises);
-                    
+
                     gamesListItems = userData.solvedGames.map((gId, idx) => {
                         const game = allGames.find(g => g.id === gId);
                         const pod = gPodiums[idx];
@@ -1372,7 +1457,7 @@
 
                     // Necesitamos iterar temporadas y CALCULAR RANKING COMPLETO de cada una para saber la posición del usuario
                     // Esto puede ser pesado si hay muchas temporadas, pero necesario por la petición.
-                    
+
                     for (const season of allSeasons) {
                         // Juegos de esta temporada
                         const sGames = season.gameIds || [];
@@ -1384,7 +1469,7 @@
                             // Fetch TODOS los podios de la temporada para calcular ranking global
                             const spPromises = sGames.map(gid => getPodium(gid));
                             const spPodiums = await Promise.all(spPromises);
-                            
+
                             // Agregar puntos globales temporada
                             const sMap = {};
                             spPodiums.forEach(p => {
@@ -1393,7 +1478,7 @@
                                     sMap[e.id] += parseInt(e.points) || 0;
                                 });
                             });
-                            
+
                             // Ranking temporada
                             const sLeaderboard = Object.entries(sMap).sort(([,a], [,b]) => b - a);
                             const userSeasonPts = sMap[userData.id] || 0;
@@ -1418,7 +1503,7 @@
 
                             if(season.id === currentSeason.id) {
                                 currentSeasonHTML = `
-                                    <div class="bg-indigo-900/30 border border-indigo-500/30 p-4 rounded-xl text-center mb-4">
+                                    <div class="bg-indigo-900/30 border border-indigo-500/30 p-4 rounded-xl text-center mb-4 cursor-pointer hover:bg-indigo-900/50 transition" onclick="openSeasonPodium('${currentSeason.id}')">
                                         <div class="text-xs text-indigo-300 uppercase tracking-widest mb-1">Temporada Actual</div>
                                         <div class="font-bold text-white text-lg">${currentSeason.name}</div>
                                         <div class="flex justify-center gap-4 mt-2">
@@ -1530,14 +1615,21 @@
 
         function handleUrlSharing() {
             const hash = window.location.hash;
-            if (!hash.startsWith('#mystery=')) return;
-            const params = new URLSearchParams(hash.substring(1));
-            const mysteryId = params.get('mystery');
-            const clueIndex = params.get('clue');
-            if (mysteryId) {
-                const gameToOpen = allGames.find(g => g.id === mysteryId);
-                if (gameToOpen) setTimeout(() => { openModalWithGame(gameToOpen, clueIndex !== null ? 'single-clue' : null, clueIndex !== null ? { clueIndex: parseInt(clueIndex, 10) } : {}); }, 500);
-                else showToast(`Misterio con ID ${mysteryId} no encontrado.`, true);
+            if (hash.startsWith('#mystery=')) {
+                const params = new URLSearchParams(hash.substring(1));
+                const mysteryId = params.get('mystery');
+                const clueIndex = params.get('clue');
+                if (mysteryId) {
+                    const gameToOpen = allGames.find(g => g.id === mysteryId);
+                    if (gameToOpen) setTimeout(() => { openModalWithGame(gameToOpen, clueIndex !== null ? 'single-clue' : null, clueIndex !== null ? { clueIndex: parseInt(clueIndex, 10) } : {}); }, 500);
+                    else showToast(`Misterio con ID ${mysteryId} no encontrado.`, true);
+                }
+            } else if (hash.startsWith('#season=')) {
+                const params = new URLSearchParams(hash.substring(1));
+                const seasonId = params.get('season');
+                if (seasonId) {
+                    setTimeout(() => { openSeasonPodium(seasonId); }, 500);
+                }
             }
         }
 
@@ -1603,6 +1695,16 @@
             dom.welcomeCloseBtn.addEventListener('click', () => { dom.welcomeModal.classList.remove('active'); showToast('Jugando como invitado (sin guardar)'); });
 
             dom.myIdBtn.addEventListener('click', openIdModal);
+            
+            // NUEVO: Abrir mi perfil desde ID modal
+            dom.openMyProfileBtn.addEventListener('click', () => {
+                if(userId) {
+                    dom.idModal.classList.remove('active');
+                    openProfileById(userId);
+                } else {
+                    showToast('Crea un ID primero', true);
+                }
+            });
 
             // ABRIR TUTORIAL SI EL ID ES NUEVO
             dom.closeIdModalBtn.addEventListener('click', () => {
@@ -1632,7 +1734,7 @@
 
             dom.modal.addEventListener('click', (e) => {
                 let target = e.target.closest('a, button, .winner-link, .view-clue-btn, .profile-game-link');
-                
+
                 // ARREGLO PARA CLIC EN ENLACES CON HIJOS (SPANS)
                 // Si el clic fue en un span o algo interno, buscamos si hay un <a> padre
                 if (!target) {
@@ -1650,8 +1752,22 @@
                 if (target.matches('.winner-link')) { const user = leaderboardData.find(u => u.id === target.dataset.winnerId) || { name: target.textContent, id: target.dataset.winnerId, points: 0, solvedGames: [] }; openProfileModal(user); return; }
                 if (target.matches('.close-modal-btn')) { closeModal(); return; }
                 
-                e.preventDefault();
+                // NUEVOS BOTONES DE TEMPORADA
+                if (target.matches('.share-season-btn')) {
+                    const sid = target.dataset.seasonId;
+                    copyToClipboard(`${window.location.origin}${window.location.pathname}#season=${sid}`);
+                    return;
+                }
                 
+                if (target.matches('.open-season-games-btn')) {
+                    const sid = target.dataset.seasonId;
+                    const season = allSeasons.find(s => s.id === sid);
+                    if(season) renderModal(season, 'season-games');
+                    return;
+                }
+
+                e.preventDefault();
+
                 if (!currentGameData && !target.closest('.winner-link')) return;
 
                 if (target.matches('.guess-btn')) {
