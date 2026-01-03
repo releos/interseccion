@@ -1,9 +1,11 @@
 {
-  "id": "diario2_20251219",
-  "title": "¡Nuevo juego disponible!",
-  "content": "¡Hay un nuevo #{2025-08-62ee73f2-d27f-4378-b2df-e1980493927c|juego} disponible! Pistas todos los días a las cinco de la tarde. ¿Te atreves a intentarlo?",
+  "id": "fin2025",
+  "date": "2026-01-03T13:26:23.766Z",
+  "version": "2026-01-03",
+  "title": "Fin de temporada",
+  "content": "La %{2025_1|termporada de 2025} ya ha finalizado. ¡Échale un vistazo al podio final!\n\nPrimer puesto: @{b23e08d4-ad46-4176-8186-a8346d96872a|Bea} (27 puntos)\nSegundo puesto: @{eb1f03df-9132-4233-a211-62d5314a3800|Pata} (17 puntos)\nTercer puesto: @{6|Isma} (3 puntos)\n\n¡Hasta la próxima, y feliz 2026!",
   "btnText": "Entendido",
-  "actionType": "game",
-  "actionValue": "2025-08-62ee73f2-d27f-4378-b2df-e1980493927c",
-  "actionLabel": "¡Jugar ahora!"
+  "actionType": "season",
+  "actionLabel": "Abrir podio",
+  "actionValue": "2025_1"
 }
