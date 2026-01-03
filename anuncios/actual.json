@@ -1,9 +1,9 @@
 {
   "id": "diario2_20251219",
   "title": "¡Nuevo juego disponible!",
-  "content": "¡Hay un nuevo #{62ee73f2-d27f-4378-b2df-e1980493927c|juego} disponible! Pistas todos los días a las cinco de la tarde. ¿Te atreves a intentarlo?",
+  "content": "¡Hay un nuevo #{2025-08-62ee73f2-d27f-4378-b2df-e1980493927c|juego} disponible! Pistas todos los días a las cinco de la tarde. ¿Te atreves a intentarlo?",
   "btnText": "Entendido",
   "actionType": "game",
-  "actionValue": "62ee73f2-d27f-4378-b2df-e1980493927c",
+  "actionValue": "2025-08-62ee73f2-d27f-4378-b2df-e1980493927c",
   "actionLabel": "¡Jugar ahora!"
 }
