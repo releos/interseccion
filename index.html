@@ -156,7 +156,24 @@
                             </div>
                         </div>
 
+                        <!-- NUEVO: Botones de Acción de Temporada -->
+                        <div id="season-actions-container" class="hidden flex gap-3 mt-4">
+                            <button id="share-season-btn" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                                Compartir
+                            </button>
+                            <button id="view-season-games-btn" class="bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 16 16"><path d="M2.5 0a2.5 2.5 0 0 0-2.5 2.5v7.33l2.308-1.73a.5.5 0 0 1 .6.007l3.227 2.42 4.17-3.649a.5.5 0 0 1 .658 0L16 11.235V2.5A2.5 2.5 0 0 0 13.5 0h-11Zm0 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5Z"/></svg>
+                                Juegos de Temporada
+                            </button>
+                        </div>
+
                         <p class="text-center text-gray-400 mt-2 text-sm" id="podium-description">Puntos sumados de todos los misterios resueltos</p>
+                    </div>
+
+                    <!-- NUEVO: Estadística personal en Podio -->
+                    <div id="my-podium-stats" class="mb-6 p-4 bg-indigo-900/30 border border-indigo-500/30 rounded-lg hidden">
+                        <!-- Se llena dinámicamente -->
                     </div>
 
                     <!-- Contenedor especial para Top 3 de Temporada Finalizada -->
@@ -165,7 +182,7 @@
                         <div class="flex justify-center items-end gap-4 h-48 pb-2">
                              <!-- 2do Lugar -->
                              <div class="flex flex-col items-center group w-1/3">
-                                <div class="text-gray-300 font-bold text-sm mb-1 truncate w-full px-1" id="winner-2-name">-</div>
+                                <div class="text-gray-300 font-bold text-sm mb-1 truncate w-full px-1 cursor-pointer hover:text-indigo-400" id="winner-2-name">-</div>
                                 <div class="w-full bg-gray-600 rounded-t-lg relative group-hover:bg-gray-500 transition-all h-[60%] flex items-end justify-center pb-2">
                                     <span class="text-2xl font-bold text-gray-300">2</span>
                                 </div>
@@ -173,7 +190,7 @@
                             </div>
                             <!-- 1er Lugar -->
                             <div class="flex flex-col items-center group w-1/3 h-full">
-                                <div class="text-yellow-400 font-bold text-lg mb-1 truncate w-full px-1" id="winner-1-name">-</div>
+                                <div class="text-yellow-400 font-bold text-lg mb-1 truncate w-full px-1 cursor-pointer hover:text-white" id="winner-1-name">-</div>
                                 <div class="w-full bg-gradient-to-t from-yellow-600 to-yellow-500 rounded-t-lg relative shadow-[0_0_20px_rgba(234,179,8,0.4)] group-hover:shadow-[0_0_30px_rgba(234,179,8,0.6)] transition-all h-[85%] flex items-end justify-center pb-2">
                                     <span class="text-4xl">👑</span>
                                 </div>
@@ -181,7 +198,7 @@
                             </div>
                             <!-- 3er Lugar -->
                             <div class="flex flex-col items-center group w-1/3">
-                                <div class="text-orange-300 font-bold text-sm mb-1 truncate w-full px-1" id="winner-3-name">-</div>
+                                <div class="text-orange-300 font-bold text-sm mb-1 truncate w-full px-1 cursor-pointer hover:text-indigo-400" id="winner-3-name">-</div>
                                 <div class="w-full bg-orange-800 rounded-t-lg relative group-hover:bg-orange-700 transition-all h-[40%] flex items-end justify-center pb-2">
                                     <span class="text-2xl font-bold text-orange-300">3</span>
                                 </div>
@@ -255,7 +272,7 @@
                         </div>
                     </div>
                  </div>
-                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v9.1</div>
+                 <div class="absolute bottom-2 right-2 text-xs text-gray-600">v9.2</div>
             </div>
         </main>
     </div>
@@ -305,6 +322,7 @@
                 <p class="text-sm text-gray-300">Si pierdes o borras este ID, perderás el acceso a tu progreso. Basta con ejecutar el archivo descargado para volver a entrar.</p>
             </div>
             <div class="grid grid-cols-1 gap-3">
+                <button id="open-my-profile-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition">Abrir Perfil</button>
                 <button id="download-id-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition">Descargar mi ID (Recomendado)</button>
                 <label class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition cursor-pointer">
                     Subir ID Guardado
@@ -379,6 +397,7 @@
             downloadIdBtn: document.getElementById('download-id-btn'),
             uploadIdInput: document.getElementById('upload-id-input'),
             closeIdModalBtn: document.getElementById('close-id-modal-btn'),
+            openMyProfileBtn: document.getElementById('open-my-profile-btn'), // NUEVO
             // Welcome Modal
             welcomeModal: document.getElementById('welcome-modal'),
             welcomeNewBtn: document.getElementById('welcome-new-btn'),
@@ -397,6 +416,10 @@
             podiumTitle: document.getElementById('podium-title'), // NUEVO
             podiumDescription: document.getElementById('podium-description'), // NUEVO
             seasonWinnersDisplay: document.getElementById('season-winners-display'), // NUEVO
+            seasonActionsContainer: document.getElementById('season-actions-container'), // NUEVO
+            shareSeasonBtn: document.getElementById('share-season-btn'), // NUEVO
+            viewSeasonGamesBtn: document.getElementById('view-season-games-btn'), // NUEVO
+            myPodiumStats: document.getElementById('my-podium-stats'), // NUEVO
             // Anuncios y Tutorial
             adModal: document.getElementById('ad-modal'),
             adTitle: document.getElementById('ad-title'),
@@ -544,6 +567,10 @@
             processed = processed.replace(/#\{([^|]+)\|([^}]+)\}/g, (match, id, name) => {
                 return `<span class="cursor-pointer text-yellow-400 hover:text-yellow-300 hover:underline font-bold" onclick="openGameById('${id}')">#${name}</span>`;
             });
+             // Reemplazar %{ID_Temporada|Texto} por enlace a temporada (Podio directo)
+            processed = processed.replace(/%\{([^|]+)\|([^}]+)\}/g, (match, id, name) => {
+                return `<span class="cursor-pointer text-orange-400 hover:text-orange-300 hover:underline font-bold" onclick="openSeasonPodiumTab('${id}')">${name}</span>`;
+            });
             return processed;
         }
 
@@ -577,6 +604,7 @@
                         if (ad.actionType === 'game') colorClass = 'bg-yellow-600 hover:bg-yellow-700 text-white';
                         else if (ad.actionType === 'profile') colorClass = 'bg-purple-600 hover:bg-purple-700 text-white';
                         else if (ad.actionType === 'link') colorClass = 'bg-green-600 hover:bg-green-700 text-white';
+                        else if (ad.actionType === 'season') colorClass = 'bg-orange-600 hover:bg-orange-700 text-white';
 
                         extraBtn.className = `extra-action-btn w-full ${colorClass} font-bold py-3 px-4 rounded-lg transition shadow-lg mb-2`;
 
@@ -586,6 +614,7 @@
                             if (ad.actionType === 'game') openGameById(ad.actionValue);
                             else if (ad.actionType === 'profile') openProfileById(ad.actionValue);
                             else if (ad.actionType === 'link') window.open(ad.actionValue.startsWith('http') ? ad.actionValue : `https://${ad.actionValue}`, '_blank');
+                            else if (ad.actionType === 'season') openSeasonPodiumTab(ad.actionValue); // Ir directo a tab
                         };
 
                         // Insertar antes del botón cerrar
@@ -625,11 +654,29 @@
             }
         };
 
-        window.openSeasonPodium = (seasonId) => {
+        window.openSeasonPodiumTab = (seasonId) => {
             const season = allSeasons.find(s => s.id === seasonId);
-            if(season) {
-                renderModal(season, 'season-podium');
-            }
+            if(!season) return showToast('Temporada no encontrada', true);
+
+            // Cambiar a pestaña Podio
+            dom.tabs.forEach(t => t.classList.remove('active'));
+            const podiumTabBtn = document.querySelector('button[data-tab="podio"]');
+            if(podiumTabBtn) podiumTabBtn.classList.add('active');
+
+            dom.tabContents.forEach(content => content.classList.add('hidden'));
+            document.getElementById('podio').classList.remove('hidden');
+
+            // Seleccionar temporada y cargar
+            dom.podiumSeasonSelect.value = seasonId;
+            currentPodiumSeasonId = seasonId;
+
+            // Actualizar UI manual
+            dom.podiumTitle.innerHTML = `${season.emoji} ${season.name}`;
+            dom.podiumDescription.textContent = season.description || 'Clasificación de temporada';
+            loadLeaderboard(season.gameIds);
+
+            // Scroll al podio
+            document.getElementById('podio').scrollIntoView({ behavior: 'smooth' });
         };
 
         // --- TUTORIAL ---
@@ -795,6 +842,33 @@
                 optPodium.value = season.id;
                 optPodium.textContent = `${season.emoji || ''} ${season.name}`;
                 dom.podiumSeasonSelect.appendChild(optPodium);
+            });
+        }
+
+        function openSeasonGamesModal(seasonId) {
+            const season = allSeasons.find(s => s.id === seasonId);
+            if (!season) return;
+
+            const gamesInSeason = allGames.filter(g => season.gameIds.includes(g.id));
+
+            let gamesHTML = '<div class="space-y-3">';
+            gamesInSeason.forEach(game => {
+                 const statusBadge = game.isSolved ? '<span class="text-green-400 text-xs border border-green-500 px-1 rounded">Finalizado</span>' : '<span class="text-yellow-400 text-xs border border-yellow-500 px-1 rounded">En curso</span>';
+                 gamesHTML += `
+                    <div class="p-4 bg-gray-700 hover:bg-gray-600 rounded-lg cursor-pointer transition flex justify-between items-center" onclick="openModalWithGame(allGames.find(g=>g.id=='${game.id}'))">
+                        <div>
+                            <div class="font-bold text-white">${game.title}</div>
+                            <div class="text-xs text-gray-400 mt-1">${statusBadge} ${game.difficulty}</div>
+                        </div>
+                        <div class="text-gray-400 text-xl">›</div>
+                    </div>
+                 `;
+            });
+            gamesHTML += '</div>';
+
+            renderModal(null, 'info', {
+                title: `${season.emoji} Juegos: ${season.name}`,
+                content: gamesHTML
             });
         }
 
@@ -1024,7 +1098,8 @@
                     }
                     return;
 
-                case 'season-podium': // NUEVO CASO PARA PODIO DE TEMPORADA
+                // NOTA: 'season-podium' se mantiene como fallback o para vistas modales secundarias, pero el flujo principal usa la pestaña.
+                case 'season-podium':
                     dom.modalTitle.textContent = `${game.emoji} ${game.name}`;
                     dom.modalBadges.innerHTML = `<span class="bg-indigo-600 text-white px-2 py-1 rounded text-xs font-bold">Temporada</span>`;
                     dom.modalContent.innerHTML = `<div class="text-center py-10"><p class="text-gray-400 animate-pulse">Calculando clasificación de temporada...</p></div>`;
@@ -1032,15 +1107,9 @@
                     dom.modal.classList.add('active');
 
                     try {
-                        // Reutilizar lógica de loadLeaderboard pero solo para los datos
-                        // 1. Identificar juegos resueltos de esta temporada
                         let seasonGames = allGames.filter(g => g.isSolved && game.gameIds.includes(g.id));
-
-                        // 2. Fetch podios usando el helper con cache
                         const pPromises = seasonGames.map(g => getPodium(g.id));
                         const results = await Promise.all(pPromises);
-
-                        // 3. Agregar
                         const userMap = {};
                         results.forEach((podium) => {
                             if (!podium || !podium.entries) return;
@@ -1050,40 +1119,25 @@
                             });
                         });
                         const sortedSeason = Object.values(userMap).sort((a,b) => b.points - a.points);
+                        if(sortedSeason.length === 0) { dom.modalContent.innerHTML = `<div class="text-center py-10 text-gray-500"><p>No hay datos suficientes.</p></div>`; return; }
 
-                        if(sortedSeason.length === 0) {
-                             dom.modalContent.innerHTML = `<div class="text-center py-10 text-gray-500"><p>No hay datos suficientes para esta temporada.</p></div>`;
-                             return;
-                        }
-
-                        // 4. Render Tabla
                         let html = `<div class="text-center mb-4 text-gray-400 text-sm">${game.description || ''}</div>`;
-
-                        // Top 3 Visual
-                         if(sortedSeason.length > 0) {
+                        if(sortedSeason.length > 0) {
                             html += `<div class="flex justify-center items-end gap-4 h-32 mb-6 p-4 bg-gray-900/30 rounded-lg">`;
-                            // 2nd
                             if(sortedSeason[1]) html += `<div class="flex flex-col items-center w-1/4"><div class="text-xs text-gray-300 truncate w-full text-center">${sortedSeason[1].name}</div><div class="w-full h-16 bg-gray-600 rounded-t flex items-end justify-center"><span class="font-bold">2</span></div><div class="text-xs">${sortedSeason[1].points}</div></div>`;
-                            // 1st
                             if(sortedSeason[0]) html += `<div class="flex flex-col items-center w-1/3"><div class="text-sm font-bold text-yellow-400 truncate w-full text-center">${sortedSeason[0].name}</div><div class="w-full h-24 bg-yellow-600 rounded-t flex items-end justify-center shadow-lg"><span class="text-2xl">👑</span></div><div class="text-sm font-bold text-yellow-500">${sortedSeason[0].points}</div></div>`;
-                            // 3rd
                             if(sortedSeason[2]) html += `<div class="flex flex-col items-center w-1/4"><div class="text-xs text-gray-300 truncate w-full text-center">${sortedSeason[2].name}</div><div class="w-full h-12 bg-orange-800 rounded-t flex items-end justify-center"><span class="font-bold">3</span></div><div class="text-xs">${sortedSeason[2].points}</div></div>`;
                             html += `</div>`;
                         }
-
                         html += `<table class="w-full text-left border-collapse"><thead><tr class="text-gray-400 border-b border-gray-700"><th class="p-2">#</th><th class="p-2">Nombre</th><th class="p-2 text-right">Pts</th></tr></thead><tbody>`;
                         sortedSeason.forEach((u, i) => {
                             let rClass = "border-b border-gray-700/50 hover:bg-gray-700/30";
                             if(u.id === userId) rClass += " bg-indigo-900/30 text-indigo-200 border-indigo-500 border-l-2";
-                            // CAMBIO: Al hacer clic aquí, abre perfil DE ESA TEMPORADA
                             html += `<tr class="${rClass}"><td class="p-2 font-mono text-gray-500">${i+1}</td><td class="p-2"><span class="cursor-pointer hover:text-indigo-300 hover:underline" onclick="openSeasonProfile('${u.id}', '${game.id}')">${u.name}</span></td><td class="p-2 text-right font-bold text-green-400">${u.points}</td></tr>`;
                         });
                         html += `</tbody></table>`;
                         dom.modalContent.innerHTML = html;
-
-                    } catch(err) {
-                        dom.modalContent.innerHTML = `<div class="text-center py-10 text-red-400"><p>Error cargando temporada.</p></div>`;
-                    }
+                    } catch(err) { dom.modalContent.innerHTML = `<div class="text-center py-10 text-red-400"><p>Error cargando temporada.</p></div>`; }
                     return;
 
                 case 'play-solved':
@@ -1107,7 +1161,17 @@
         async function loadLeaderboard(filterGameIds = null) {
              dom.podiumLoading.style.display = 'block';
              dom.podiumBody.innerHTML = '';
-             dom.seasonWinnersDisplay.classList.add('hidden'); // Ocultar por defecto
+             dom.seasonWinnersDisplay.classList.add('hidden');
+             dom.myPodiumStats.classList.add('hidden'); // Ocultar por defecto
+
+             // Mostrar botones de temporada solo si es temporada específica
+             if (currentPodiumSeasonId !== 'general') {
+                 dom.seasonActionsContainer.classList.remove('hidden');
+                 dom.seasonActionsContainer.classList.add('flex');
+             } else {
+                 dom.seasonActionsContainer.classList.add('hidden');
+                 dom.seasonActionsContainer.classList.remove('flex');
+             }
 
              try {
                 // 1. Identificar juegos resueltos
@@ -1120,7 +1184,6 @@
 
                 // 3. Fetch todos los podios de esos juegos usando el helper con cache
                 const podiumPromises = solvedGames.map(game => getPodium(game.id));
-
                 const results = await Promise.all(podiumPromises);
 
                 // 4. Agregar datos
@@ -1129,17 +1192,12 @@
                 results.forEach((podium, index) => {
                     if (!podium || !podium.entries) return;
                     const gameId = solvedGames[index].id;
-
                     podium.entries.forEach(entry => {
                         if (!userMap[entry.id]) {
                             userMap[entry.id] = { id: entry.id, name: entry.name, points: 0, solvedGames: [] };
                         }
-                        // Sumar puntos
                         userMap[entry.id].points += (parseInt(entry.points) || 0);
-                        // Añadir juego al historial si no está
-                        if (!userMap[entry.id].solvedGames.includes(gameId)) {
-                            userMap[entry.id].solvedGames.push(gameId);
-                        }
+                        if (!userMap[entry.id].solvedGames.includes(gameId)) userMap[entry.id].solvedGames.push(gameId);
                     });
                 });
 
@@ -1152,6 +1210,15 @@
                     const season = allSeasons.find(s => s.id === currentPodiumSeasonId);
                     if(season && season.status === 'finished') {
                         renderSeasonWinners(leaderboardData);
+                    }
+                }
+
+                // 7. Mostrar "Mis Estadísticas" Sticky/Highlight
+                if (userId) {
+                    const myRankIndex = leaderboardData.findIndex(u => u.id === userId);
+                    if (myRankIndex !== -1) {
+                        const myData = leaderboardData[myRankIndex];
+                        renderMyRank(myData, myRankIndex + 1);
                     }
                 }
 
@@ -1169,16 +1236,50 @@
             const p2 = data[1];
             const p3 = data[2];
 
-            document.getElementById('winner-1-name').textContent = p1 ? p1.name : '-';
+            // Click events para Top 3 para abrir Perfil de Temporada
+            const setupWinnerClick = (elementId, user) => {
+                const el = document.getElementById(elementId);
+                el.textContent = user ? user.name : '-';
+                // Remove listeners antiguos clonando nodo
+                const newEl = el.cloneNode(true);
+                el.parentNode.replaceChild(newEl, el);
+
+                if (user) {
+                    newEl.classList.add('cursor-pointer');
+                    newEl.onclick = () => {
+                        if (currentPodiumSeasonId === 'general') openProfileModal(user);
+                        else openSeasonProfile(user.id, currentPodiumSeasonId);
+                    };
+                }
+            };
+
+            setupWinnerClick('winner-1-name', p1);
+            setupWinnerClick('winner-2-name', p2);
+            setupWinnerClick('winner-3-name', p3);
+
             document.getElementById('winner-1-pts').textContent = p1 ? p1.points + ' pts' : '';
-
-            document.getElementById('winner-2-name').textContent = p2 ? p2.name : '-';
             document.getElementById('winner-2-pts').textContent = p2 ? p2.points + ' pts' : '';
-
-            document.getElementById('winner-3-name').textContent = p3 ? p3.name : '-';
             document.getElementById('winner-3-pts').textContent = p3 ? p3.points + ' pts' : '';
 
             dom.seasonWinnersDisplay.classList.remove('hidden');
+        }
+
+        function renderMyRank(user, rank) {
+            dom.myPodiumStats.innerHTML = `
+                <div class="flex justify-between items-center text-sm md:text-base">
+                    <div>
+                        <span class="text-indigo-300 uppercase font-bold text-xs tracking-wider">Tu Posición</span>
+                        <div class="font-bold text-white text-xl md:text-2xl mt-1">
+                            #${rank} <span class="text-sm font-normal text-gray-400">(${user.name})</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-green-400 uppercase font-bold text-xs tracking-wider">Puntos</span>
+                        <div class="font-bold text-white text-xl md:text-2xl mt-1">${user.points}</div>
+                    </div>
+                </div>
+            `;
+            dom.myPodiumStats.classList.remove('hidden');
         }
 
         function renderPodium() {
@@ -1208,7 +1309,13 @@
                     <td class="p-4 text-right font-bold text-green-400">${user.points}</td>
                     <td class="p-4 text-center text-gray-400">${user.solvedGames.length}</td>
                 `;
-                tr.addEventListener('click', () => openProfileModal(user));
+                // LÓGICA DE CLICK EN FILA:
+                // Si es temporada general -> Perfil General
+                // Si es temporada específica -> Perfil de Temporada (modal simple)
+                tr.addEventListener('click', () => {
+                    if (currentPodiumSeasonId === 'general') openProfileModal(user);
+                    else openSeasonProfile(user.id, currentPodiumSeasonId);
+                });
                 dom.podiumBody.appendChild(tr);
             });
         }
@@ -1309,7 +1416,7 @@
             let gamesListHTML = '<p class="text-gray-500 text-sm italic">Cargando detalles...</p>';
             let seasonStatsHTML = '';
 
-            // Renderizar esqueleto primero para feedback instantaneo. En el segundo div he quitado esto porque la animación intermitente en el perfil era molesta: class="animate-pulse space-y-4"
+            // Renderizar esqueleto primero para feedback instantaneo
              const skeletonContent = `
                 <div class="text-center mb-6">
                     <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-white mb-3">${userData.name.charAt(0).toUpperCase()}</div>
@@ -1332,7 +1439,6 @@
                 // 1. Construir lista de juegos con RANK y PUNTOS
                 let gamesListItems = '';
                 if (userData.solvedGames && userData.solvedGames.length > 0) {
-                    // Fetch podiums para sacar puntos y rank por juego
                     const gPromises = userData.solvedGames.map(gid => getPodium(gid));
                     const gPodiums = await Promise.all(gPromises);
 
@@ -1343,7 +1449,6 @@
                         if (pod && pod.entries) {
                             const entry = pod.entries.find(e => e.id === userData.id);
                             if (entry) pts = entry.points;
-                            // Calc rank
                             const sorted = pod.entries.sort((a,b) => b.points - a.points);
                             rank = sorted.findIndex(e => e.id === userData.id) + 1;
                         }
@@ -1370,13 +1475,8 @@
                     let listHTML = '<ul class="space-y-2 mt-2">';
                     let hasData = false;
 
-                    // Necesitamos iterar temporadas y CALCULAR RANKING COMPLETO de cada una para saber la posición del usuario
-                    // Esto puede ser pesado si hay muchas temporadas, pero necesario por la petición.
-
                     for (const season of allSeasons) {
-                        // Juegos de esta temporada
                         const sGames = season.gameIds || [];
-                        // Juegos que el usuario ha resuelto en esta temporada
                         const userSeasonGames = userData.solvedGames.filter(gid => sGames.includes(gid));
 
                         if (userSeasonGames.length > 0) {
@@ -1385,7 +1485,6 @@
                             const spPromises = sGames.map(gid => getPodium(gid));
                             const spPodiums = await Promise.all(spPromises);
 
-                            // Agregar puntos globales temporada
                             const sMap = {};
                             spPodiums.forEach(p => {
                                 if(p && p.entries) p.entries.forEach(e => {
@@ -1394,13 +1493,13 @@
                                 });
                             });
 
-                            // Ranking temporada
                             const sLeaderboard = Object.entries(sMap).sort(([,a], [,b]) => b - a);
                             const userSeasonPts = sMap[userData.id] || 0;
                             const userSeasonRank = sLeaderboard.findIndex(([id]) => id === userData.id) + 1;
 
+                            // IMPORTANTE: Cambio de onclick para abrir TAB en lugar de MODAL
                             const itemHTML = `
-                                <li class="p-2 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer flex justify-between items-center group" onclick="openSeasonPodium('${season.id}')">
+                                <li class="p-2 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer flex justify-between items-center group" onclick="closeModal(); openSeasonPodiumTab('${season.id}')">
                                     <div class="flex items-center gap-2">
                                         <span class="text-xl">${season.emoji || '📅'}</span>
                                         <div>
@@ -1530,14 +1629,21 @@
 
         function handleUrlSharing() {
             const hash = window.location.hash;
-            if (!hash.startsWith('#mystery=')) return;
-            const params = new URLSearchParams(hash.substring(1));
-            const mysteryId = params.get('mystery');
-            const clueIndex = params.get('clue');
-            if (mysteryId) {
-                const gameToOpen = allGames.find(g => g.id === mysteryId);
-                if (gameToOpen) setTimeout(() => { openModalWithGame(gameToOpen, clueIndex !== null ? 'single-clue' : null, clueIndex !== null ? { clueIndex: parseInt(clueIndex, 10) } : {}); }, 500);
-                else showToast(`Misterio con ID ${mysteryId} no encontrado.`, true);
+             // 1. Manejo de link a juego (#mystery=ID)
+            if (hash.startsWith('#mystery=')) {
+                const params = new URLSearchParams(hash.substring(1));
+                const mysteryId = params.get('mystery');
+                const clueIndex = params.get('clue');
+                if (mysteryId) {
+                    const gameToOpen = allGames.find(g => g.id === mysteryId);
+                    if (gameToOpen) setTimeout(() => { openModalWithGame(gameToOpen, clueIndex !== null ? 'single-clue' : null, clueIndex !== null ? { clueIndex: parseInt(clueIndex, 10) } : {}); }, 500);
+                    else showToast(`Misterio con ID ${mysteryId} no encontrado.`, true);
+                }
+            }
+            // 2. Manejo de link a temporada (#season=ID)
+            else if (hash.startsWith('#season=')) {
+                const seasonId = hash.split('=')[1];
+                if(seasonId) setTimeout(() => openSeasonPodiumTab(seasonId), 500);
             }
         }
 
@@ -1594,6 +1700,19 @@
                 }
             });
 
+            // Share Season Button
+            dom.shareSeasonBtn.addEventListener('click', () => {
+                if(currentPodiumSeasonId === 'general') return;
+                const url = `${window.location.origin}${window.location.pathname}#season=${currentPodiumSeasonId}`;
+                copyToClipboard(url, 'Enlace a temporada copiado');
+            });
+
+            // View Season Games Button
+            dom.viewSeasonGamesBtn.addEventListener('click', () => {
+                if(currentPodiumSeasonId === 'general') return;
+                openSeasonGamesModal(currentPodiumSeasonId);
+            });
+
             // Filtro Temporada Evento
             dom.seasonFilterSelect.addEventListener('change', renderGames);
 
@@ -1610,6 +1729,16 @@
                 if(isNewUserSession) {
                     openTutorial();
                     isNewUserSession = false; // Reset flag
+                }
+            });
+
+            // Open My Profile Button (NEW)
+            dom.openMyProfileBtn.addEventListener('click', () => {
+                if(userId) {
+                    dom.idModal.classList.remove('active');
+                    openProfileById(userId);
+                } else {
+                    showToast('Crea un ID primero', true);
                 }
             });
 
