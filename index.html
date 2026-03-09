@@ -496,82 +496,76 @@
         async function loadSheetsData() {
             if (!SHEET_ID) return null;
             if (sheetsDataPromise) return sheetsDataPromise;
-        
+
             sheetsDataPromise = (async () => {
                 try {
-                    // CSV es más fiable que gviz JSON: no trunca columnas ni mezcla labels
-                    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(PRINCIPAL_SHEET)}`;
-                    const res = await fetch(url);
+                    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(PRINCIPAL_SHEET)}`;
+                    const res  = await fetch(url);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     const text = await res.text();
-        
-                    const rows = parseSheetCSV(text);
-                    if (rows.length < 2) throw new Error('Hoja vacía');
-        
-                    const headers = rows[0];
+
+                    // La respuesta gviz envuelve el JSON: google.visualization.Query.setResponse({...});
+                    const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);\s*$/);
+                    if (!match) throw new Error('Formato gviz inesperado');
+                    const { table } = JSON.parse(match[1]);
+
+                    if (!table || !table.cols) throw new Error('Tabla vacía');
+
+                    const cols = table.cols;
+                    // Las columnas 0,1,2 son ID_PUBLICO, Nombre, Puntos_Total
+                    // A partir de la 3 son los IDs de misterios
                     const MYSTERY_START = 3;
-                    const mysteryColMap = {};
-                    for (let i = MYSTERY_START; i < headers.length; i++) {
-                        const lbl = headers[i]?.trim();
+                    const mysteryColMap = {}; // mysteryId → índice de columna
+                    for (let i = MYSTERY_START; i < cols.length; i++) {
+                        const lbl = cols[i].label?.trim();
                         if (lbl) mysteryColMap[lbl] = i;
                     }
-        
-                    // Detectar si la primera fila de datos es la de explicaciones (col 0 vacía)
-                    let firstDataRow = 1;
-                    if (rows.length > 1 && !rows[1][0]?.trim()) {
-                        const expRow = rows[1];
-                        for (const [mid, ci] of Object.entries(mysteryColMap)) {
-                            const v = expRow[ci]?.trim();
-                            if (v) sheetsWinnerExplanations[mid] = v;
+
+                    // Detectar si la primera fila es la de explicaciones (col 0 vacía)
+                    // o un usuario directo (gviz omite filas vacías, así que puede no estar)
+                    let firstDataRow = 0;
+                    if (table.rows.length > 0) {
+                        const firstId = table.rows[0].c?.[0]?.v?.toString()?.trim();
+                        if (!firstId) {
+                            // Es la fila de explicaciones del ganador
+                            const expRow = table.rows[0];
+                            for (const [mid, ci] of Object.entries(mysteryColMap)) {
+                                const v = expRow.c?.[ci]?.v;
+                                if (v != null && v !== '') sheetsWinnerExplanations[mid] = v.toString();
+                            }
+                            firstDataRow = 1;
                         }
-                        firstDataRow = 2;
+                        // Si tiene valor en col 0, no hay fila de explicaciones → usuarios desde fila 0
                     }
-        
+
+                    // Filas de usuarios
+                    // Filas 1+ de los datos = fila 3+ de la hoja = usuarios
                     const users = [];
-                    for (let ri = firstDataRow; ri < rows.length; ri++) {
-                        const row = rows[ri];
-                        const publicId = row[0]?.trim();
+                    for (let ri = firstDataRow; ri < table.rows.length; ri++) {
+                        const row = table.rows[ri];
+                        if (!row?.c) continue;
+                        const publicId    = row.c[0]?.v?.toString()?.trim();
+                        const name        = row.c[1]?.v?.toString()?.trim() || 'Anónimo';
+                        const totalPoints = parseInt(row.c[2]?.v) || 0;
                         if (!publicId) continue;
-                        const name = row[1]?.trim() || 'Anónimo';
-                        const totalPoints = parseInt(row[2]) || 0;
+
                         const mysteryPoints = {};
                         for (const [mid, ci] of Object.entries(mysteryColMap)) {
-                            const v = row[ci]?.trim();
-                            if (v) { const p = parseInt(v); if (!isNaN(p)) mysteryPoints[mid] = p; }
+                            const v = row.c[ci]?.v;
+                            if (v != null && v !== '') mysteryPoints[mid] = parseInt(v) || 0;
                         }
                         users.push({ id: publicId, name, points: totalPoints, mysteryPoints });
                     }
-        
+
                     return { users, mysteryColMap };
                 } catch (e) {
-                    console.error('[Sheets] Error:', e);
-                    sheetsDataPromise = null;
+                    console.error('[Sheets] Error al cargar datos:', e);
+                    sheetsDataPromise = null; // Permite reintentar
                     return null;
                 }
             })();
-        
+
             return sheetsDataPromise;
-        }
-        
-        // Parser CSV robusto (maneja comillas, comas dentro de celdas y saltos de línea)
-        function parseSheetCSV(text) {
-            const rows = [];
-            let row = [], cell = '', inQuote = false;
-            for (let i = 0; i < text.length; i++) {
-                const c = text[i];
-                if (inQuote) {
-                    if (c === '"' && text[i+1] === '"') { cell += '"'; i++; }
-                    else if (c === '"') { inQuote = false; }
-                    else { cell += c; }
-                } else {
-                    if      (c === '"')  { inQuote = true; }
-                    else if (c === ',')  { row.push(cell); cell = ''; }
-                    else if (c === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
-                    else if (c !== '\r') { cell += c; }
-                }
-            }
-            if (cell || row.length) { row.push(cell); rows.push(row); }
-            return rows.filter(r => r.some(c => c.trim()));
         }
 
         // =====================================================================
