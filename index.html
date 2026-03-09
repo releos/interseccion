@@ -496,59 +496,58 @@
         async function loadSheetsData() {
             if (!SHEET_ID) return null;
             if (sheetsDataPromise) return sheetsDataPromise;
-
+        
             sheetsDataPromise = (async () => {
                 try {
-                    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(PRINCIPAL_SHEET)}`;
+                    // headers=0 → gviz no interpreta ninguna fila como cabecera,
+                    // así lee los IDs de misterio como strings en bruto (evita que
+                    // los trate como fechas por empezar por "2026-01-...")
+                    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(PRINCIPAL_SHEET)}&headers=0`;
                     const res  = await fetch(url);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     const text = await res.text();
-
-                    // La respuesta gviz envuelve el JSON: google.visualization.Query.setResponse({...});
+        
                     const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);\s*$/);
                     if (!match) throw new Error('Formato gviz inesperado');
                     const { table } = JSON.parse(match[1]);
-
-                    if (!table || !table.cols) throw new Error('Tabla vacía');
-
-                    const cols = table.cols;
-                    // Las columnas 0,1,2 son ID_PUBLICO, Nombre, Puntos_Total
-                    // A partir de la 3 son los IDs de misterios
+                    if (!table?.rows?.length) throw new Error('Tabla vacía');
+        
+                    // Fila 0 de rows = fila 1 de la hoja = cabeceras
+                    // Las leemos como strings para evitar que gviz mangle las IDs
+                    const headerRow = table.rows[0].c;
                     const MYSTERY_START = 3;
                     const mysteryColMap = {}; // mysteryId → índice de columna
-                    for (let i = MYSTERY_START; i < cols.length; i++) {
-                        const lbl = cols[i].label?.trim();
+                    for (let i = MYSTERY_START; i < headerRow.length; i++) {
+                        const lbl = headerRow[i]?.v?.toString()?.trim();
                         if (lbl) mysteryColMap[lbl] = i;
                     }
-
-                    // Detectar si la primera fila es la de explicaciones (col 0 vacía)
-                    // o un usuario directo (gviz omite filas vacías, así que puede no estar)
-                    let firstDataRow = 0;
-                    if (table.rows.length > 0) {
-                        const firstId = table.rows[0].c?.[0]?.v?.toString()?.trim();
-                        if (!firstId) {
-                            // Es la fila de explicaciones del ganador
-                            const expRow = table.rows[0];
+        
+                    // Fila 1 de rows = fila 2 de la hoja = explicaciones del ganador
+                    // (si la col 0 está vacía es la fila de explicaciones; si no, la omitimos)
+                    let firstUserRow = 1;
+                    if (table.rows.length > 1) {
+                        const possibleExp = table.rows[1];
+                        const col0 = possibleExp.c?.[0]?.v?.toString()?.trim();
+                        if (!col0) {
+                            // Es la fila de explicaciones
                             for (const [mid, ci] of Object.entries(mysteryColMap)) {
-                                const v = expRow.c?.[ci]?.v;
+                                const v = possibleExp.c?.[ci]?.v;
                                 if (v != null && v !== '') sheetsWinnerExplanations[mid] = v.toString();
                             }
-                            firstDataRow = 1;
+                            firstUserRow = 2;
                         }
-                        // Si tiene valor en col 0, no hay fila de explicaciones → usuarios desde fila 0
                     }
-                    
-                    // Filas de usuarios
-                    // Filas 1+ de los datos = fila 3+ de la hoja = usuarios
+        
+                    // Resto = usuarios
                     const users = [];
-                    for (let ri = firstDataRow; ri < table.rows.length; ri++) {
+                    for (let ri = firstUserRow; ri < table.rows.length; ri++) {
                         const row = table.rows[ri];
                         if (!row?.c) continue;
                         const publicId    = row.c[0]?.v?.toString()?.trim();
                         const name        = row.c[1]?.v?.toString()?.trim() || 'Anónimo';
                         const totalPoints = parseInt(row.c[2]?.v) || 0;
                         if (!publicId) continue;
-
+        
                         const mysteryPoints = {};
                         for (const [mid, ci] of Object.entries(mysteryColMap)) {
                             const v = row.c[ci]?.v;
@@ -556,15 +555,15 @@
                         }
                         users.push({ id: publicId, name, points: totalPoints, mysteryPoints });
                     }
-
+        
                     return { users, mysteryColMap };
                 } catch (e) {
                     console.error('[Sheets] Error al cargar datos:', e);
-                    sheetsDataPromise = null; // Permite reintentar
+                    sheetsDataPromise = null;
                     return null;
                 }
             })();
-
+        
             return sheetsDataPromise;
         }
 
