@@ -499,79 +499,69 @@
         
             sheetsDataPromise = (async () => {
                 try {
-                    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(PRINCIPAL_SHEET)}`;
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    const rows = parseSheetCSV(await res.text());
-                    if (rows.length < 2) throw new Error('Hoja vacía');
+                    const base = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(PRINCIPAL_SHEET)}`;
         
-                    const headers = rows[0];
-                    const MYSTERY_START = 3;
+                    // Tres peticiones en paralelo: cabeceras (fila 1), explicaciones (fila 2), datos (fila 3+)
+                    const [rHead, rExp, rData] = await Promise.all([
+                        fetch(`${base}&range=1:1`),
+                        fetch(`${base}&range=2:2`),
+                        fetch(`${base}&range=3:9999`)
+                    ]);
+        
+                    const parseGviz = async (res) => {
+                        const text = await res.text();
+                        const m = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);\s*$/);
+                        if (!m) throw new Error('Formato gviz inesperado');
+                        return JSON.parse(m[1]).table;
+                    };
+        
+                    const [tHead, tExp, tData] = await Promise.all([
+                        parseGviz(rHead), parseGviz(rExp), parseGviz(rData)
+                    ]);
+        
+                    // 1. Cabeceras → mapa gameId → índice de columna
+                    const headerRow = tHead.rows[0]?.c || [];
                     const mysteryColMap = {};
-                    for (let i = MYSTERY_START; i < headers.length; i++) {
-                        const lbl = headers[i]?.trim();
-                        if (lbl) mysteryColMap[lbl] = i;
+                    const MYSTERY_START = 3;
+                    for (let i = MYSTERY_START; i < headerRow.length; i++) {
+                        const label = headerRow[i]?.v?.toString()?.trim();
+                        if (label) mysteryColMap[label] = i;
                     }
         
-                    // Detectar si la fila 1 es de explicaciones (col 0 vacía) o ya es un usuario
-                    let firstDataRow = 1;
-                    if (rows.length > 1 && !rows[1][0]?.trim()) {
-                        const expRow = rows[1];
-                        for (const [mid, ci] of Object.entries(mysteryColMap)) {
-                            const v = expRow[ci]?.trim();
-                            if (v) sheetsWinnerExplanations[mid] = v;
-                        }
-                        firstDataRow = 2;
+                    // 2. Explicaciones del ganador (fila 2)
+                    const expRow = tExp.rows[0]?.c || [];
+                    for (const [mid, ci] of Object.entries(mysteryColMap)) {
+                        const v = expRow[ci]?.v;
+                        if (v != null && v !== '') sheetsWinnerExplanations[mid] = v.toString();
                     }
         
+                    // 3. Usuarios (fila 3 en adelante)
                     const users = [];
-                    for (let ri = firstDataRow; ri < rows.length; ri++) {
-                        const row = rows[ri];
-                        const publicId = row[0]?.trim();
+                    for (const row of (tData.rows || [])) {
+                        if (!row?.c) continue;
+                        const publicId = row.c[0]?.v?.toString()?.trim();
                         if (!publicId) continue;
-                        const name = row[1]?.trim() || 'Anónimo';
-                        const totalPoints = parseInt(row[2]) || 0;
+                        const name        = row.c[1]?.v?.toString()?.trim() || 'Anónimo';
+                        const totalPoints = parseInt(row.c[2]?.v) || 0;
+        
                         const mysteryPoints = {};
                         for (const [mid, ci] of Object.entries(mysteryColMap)) {
-                            const v = row[ci]?.trim();
-                            if (v !== undefined && v !== '') mysteryPoints[mid] = parseInt(v) || 0;
+                            const v = row.c[ci]?.v;
+                            if (v != null && v !== '') mysteryPoints[mid] = parseInt(v) || 0;
                         }
                         users.push({ id: publicId, name, points: totalPoints, mysteryPoints });
                     }
         
                     return { users, mysteryColMap };
+        
                 } catch(e) {
-                    console.error('[Sheets] Error:', e);
+                    console.error('[Sheets] Error al cargar datos:', e);
                     sheetsDataPromise = null;
                     return null;
                 }
             })();
         
             return sheetsDataPromise;
-        }
-        
-        function parseSheetCSV(text) {
-            const rows = [];
-            let row = [], cell = '', inQuote = false;
-            for (let i = 0; i < text.length; i++) {
-                const c = text[i], next = text[i + 1];
-                if (inQuote) {
-                    if (c === '"' && next === '"') { cell += '"'; i++; }
-                    else if (c === '"') inQuote = false;
-                    else cell += c;
-                } else {
-                    if (c === '"') inQuote = true;
-                    else if (c === ',') { row.push(cell); cell = ''; }
-                    else if (c === '\n' || (c === '\r' && next === '\n')) {
-                        if (c === '\r') i++;
-                        row.push(cell); cell = '';
-                        if (row.some(v => v !== '')) rows.push(row);
-                        row = [];
-                    } else if (c !== '\r') cell += c;
-                }
-            }
-            if (cell || row.length) { row.push(cell); if (row.some(v => v !== '')) rows.push(row); }
-            return rows;
         }
 
         // =====================================================================
