@@ -278,20 +278,51 @@
     <!-- NUEVO Welcome Modal -->
     <div id="welcome-modal" class="modal fixed inset-0 bg-black bg-opacity-95 items-center justify-center p-4 z-[65]">
         <div class="bg-gray-900 border border-indigo-500 rounded-2xl shadow-2xl w-full max-w-md p-6 text-center">
-            <h2 class="text-3xl font-extrabold text-white mb-2">¡Bienvenid@!</h2>
-            <p class="text-gray-400 mb-6">Para jugar y guardar tu progreso, necesitamos identificarte.</p>
 
-            <div class="space-y-3">
-                <button id="welcome-new-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg flex items-center justify-center gap-2">
-                    <span>✨</span> ¿Eres nuev@? Crear ID
-                </button>
-                <button id="welcome-existing-btn" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-4 rounded-lg transition border border-gray-600 flex items-center justify-center gap-2">
-                    <span>📂</span> ¿Ya tienes cuenta? Subir archivo
-                </button>
-                <button id="welcome-close-btn" class="mt-4 text-sm text-gray-500 hover:text-gray-300 underline">
-                    Cerrar (Jugar sin guardar)
-                </button>
+            <!-- Paso 1: elección -->
+            <div id="welcome-step-1">
+                <h2 class="text-3xl font-extrabold text-white mb-2">¡Bienvenid@!</h2>
+                <p class="text-gray-400 mb-6">Para jugar y guardar tu progreso, necesitamos identificarte.</p>
+                <div class="space-y-3">
+                    <button id="welcome-new-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg flex items-center justify-center gap-2">
+                        <span>✨</span> ¿Eres nuev@? Crear ID
+                    </button>
+                    <button id="welcome-existing-btn" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-4 rounded-lg transition border border-gray-600 flex items-center justify-center gap-2">
+                        <span>📂</span> ¿Ya tienes cuenta? Subir archivo
+                    </button>
+                    <button id="welcome-close-btn" class="mt-4 text-sm text-gray-500 hover:text-gray-300 underline">
+                        Cerrar (Jugar sin guardar)
+                    </button>
+                </div>
             </div>
+
+            <!-- Paso 2: formulario de creación de cuenta -->
+            <div id="welcome-step-2" class="hidden text-left">
+                <h2 class="text-2xl font-extrabold text-white mb-1 text-center">Crear tu cuenta</h2>
+                <p class="text-gray-400 mb-5 text-sm text-center">Esto solo se hace una vez.</p>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-indigo-300 mb-1">Nombre de usuario <span class="text-gray-500 font-normal">(aparece en el podio)</span></label>
+                        <input id="welcome-username" type="text" maxlength="12" placeholder="ej: nekro99" autocomplete="off" spellcheck="false"
+                            class="w-full bg-gray-800 border border-gray-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg p-3 text-white font-mono placeholder-gray-600 transition outline-none">
+                        <p class="text-xs text-gray-500 mt-1">3–12 caracteres. Solo letras, números y guion bajo. Sin espacios.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-indigo-300 mb-1">Nombre para mostrar <span class="text-gray-500 font-normal">(como quieres que te llamen)</span></label>
+                        <input id="welcome-displayname" type="text" maxlength="20" placeholder="ej: El Detective Oscuro"
+                            class="w-full bg-gray-800 border border-gray-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg p-3 text-white placeholder-gray-600 transition outline-none">
+                        <p class="text-xs text-gray-500 mt-1">Máximo 20 caracteres. Puede tener espacios y tildes.</p>
+                    </div>
+                    <p id="welcome-form-error" class="text-red-400 text-sm hidden"></p>
+                    <button id="welcome-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg">
+                        ✅ Crear mi ID
+                    </button>
+                    <button id="welcome-back-btn" class="w-full text-sm text-gray-500 hover:text-gray-300 underline pt-1">
+                        ← Volver
+                    </button>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -299,10 +330,33 @@
     <div id="id-modal" class="modal fixed inset-0 bg-black bg-opacity-90 items-center justify-center p-4 z-[60]">
         <div class="bg-gray-900 border border-indigo-500 rounded-2xl shadow-2xl w-full max-w-md p-6 text-center">
             <h2 class="text-2xl font-bold text-white mb-4">Tu Identidad de Jugador</h2>
-            <div class="bg-gray-800 p-4 rounded-lg mb-4 break-all font-mono text-indigo-300 border border-gray-700" id="user-id-display"></div>
-            <div class="text-left bg-yellow-900/30 p-4 rounded-lg border border-yellow-700/50 mb-6">
+
+            <!-- ID Público -->
+            <div class="text-left mb-3">
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">ID Público <span class="normal-case text-gray-600">(lo que aparece en el podio)</span></p>
+                <div class="bg-gray-800 px-4 py-3 rounded-lg font-mono text-indigo-300 border border-gray-700 text-lg tracking-wider" id="user-id-display"></div>
+            </div>
+
+            <!-- Nombre de display -->
+            <div class="text-left mb-3">
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Nombre de display</p>
+                <div class="bg-gray-800 px-4 py-3 rounded-lg text-gray-200 border border-gray-700" id="user-displayname-display"></div>
+            </div>
+
+            <!-- ID Privado (colapsable) -->
+            <details class="text-left mb-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                <summary class="px-4 py-3 text-xs text-gray-500 cursor-pointer hover:text-gray-300 select-none uppercase tracking-widest">
+                    🔒 Ver ID privado completo
+                </summary>
+                <div class="px-4 pb-3">
+                    <p class="text-xs text-gray-600 mb-2">Este es tu ID completo. Contiene toda tu información. Nunca lo compartas.</p>
+                    <div class="bg-gray-900 p-3 rounded font-mono text-xs text-gray-400 break-all border border-gray-700" id="user-private-id-display"></div>
+                </div>
+            </details>
+
+            <div class="text-left bg-yellow-900/30 p-4 rounded-lg border border-yellow-700/50 mb-5">
                 <h4 class="font-bold text-yellow-500 mb-1">¡Advertencia!</h4>
-                <p class="text-sm text-gray-300">Si pierdes o borras este ID, perderás el acceso a tu progreso. Basta con ejecutar el archivo descargado para volver a entrar.</p>
+                <p class="text-sm text-gray-300">Si pierdes o borras este archivo, perderás el acceso a tu progreso. Basta con ejecutarlo para volver a entrar.</p>
             </div>
             <div class="grid grid-cols-1 gap-3">
                 <button id="download-id-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition">Descargar mi ID (Recomendado)</button>
@@ -341,11 +395,7 @@
             <p class="text-gray-300 mb-4">Se va a enviar tu ID automáticamente.</p>
             <div class="bg-indigo-900/30 p-3 rounded border border-indigo-500/30 mb-4">
                  <p class="text-sm text-indigo-200">ID copiado al portapapeles: <span class="font-mono" id="redirect-id-preview"></span></p>
-                 <p class="text-xs text-indigo-400 mt-1">(Pégalo si el autorrelleno falla — este es tu ID privado completo)</p>
-            </div>
-            <div class="bg-yellow-900/20 p-4 rounded border border-yellow-600/30 mb-6">
-                <p class="text-sm text-yellow-200 font-semibold">Instrucción crucial:</p>
-                <p class="text-sm text-gray-300 mt-1">Por favor, introduzca el <strong>nombre con el que desea aparecer en el Podio</strong> en el campo correspondiente del formulario.</p>
+                 <p class="text-xs text-indigo-400 mt-1">(Pégalo si el autorrelleno falla)</p>
             </div>
             <div class="flex justify-end gap-3">
                 <button id="cancel-redirect-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Cancelar</button>
@@ -376,14 +426,23 @@
             myIdBtn: document.getElementById('my-id-btn'),
             idModal: document.getElementById('id-modal'),
             userIdDisplay: document.getElementById('user-id-display'),
+            userDisplaynameDisplay: document.getElementById('user-displayname-display'),
+            userPrivateIdDisplay: document.getElementById('user-private-id-display'),
             downloadIdBtn: document.getElementById('download-id-btn'),
             uploadIdInput: document.getElementById('upload-id-input'),
             closeIdModalBtn: document.getElementById('close-id-modal-btn'),
             // Welcome Modal
             welcomeModal: document.getElementById('welcome-modal'),
+            welcomeStep1: document.getElementById('welcome-step-1'),
+            welcomeStep2: document.getElementById('welcome-step-2'),
             welcomeNewBtn: document.getElementById('welcome-new-btn'),
             welcomeExistingBtn: document.getElementById('welcome-existing-btn'),
             welcomeCloseBtn: document.getElementById('welcome-close-btn'),
+            welcomeUsername: document.getElementById('welcome-username'),
+            welcomeDisplayname: document.getElementById('welcome-displayname'),
+            welcomeSubmitBtn: document.getElementById('welcome-submit-btn'),
+            welcomeBackBtn: document.getElementById('welcome-back-btn'),
+            welcomeFormError: document.getElementById('welcome-form-error'),
             // Redirect Modal
             redirectModal: document.getElementById('redirect-modal'),
             redirectIdPreview: document.getElementById('redirect-id-preview'),
@@ -408,18 +467,16 @@
         };
 
         const GAMES_INDEX_PATH = 'games/index.json';
-        const SEASONS_INDEX_PATH = 'seasons/index.json'; // NUEVO
+        const SEASONS_INDEX_PATH = 'seasons/index.json';
         const EXAMPLE_GAME_PATH = 'games/ejemplo_resuelto.json';
         const ADS_PATH = 'anuncios/actual.json';
-        const PODIOS_FOLDER = 'podios/';
 
         // =====================================================================
         // CONFIGURACIÓN GOOGLE SHEETS
-        // Rellena SHEET_ID con el ID de tu Google Sheets (el trozo largo de la URL).
-        // Si lo dejas vacío, se usarán los JSON de podios (sistema anterior).
-        // La hoja debe estar compartida como "Cualquiera con el enlace puede ver".
+        // Rellenar SHEET_ID con el ID del Google Sheets (el trozo largo de la URL).
+        // Recordatorio para mi yo del futuro: la hoja debe estar compartida como "Cualquiera con el enlace puede ver", que si no pasa lo que pasa.
         // =====================================================================
-        const SHEET_ID = '1I-PYK23ii8JJ8TikzYCQ__vKJgvS-SJ7SlngU063VR8'; // ← TU ID AQUÍ (ej: '1BxiM...Qw')
+        const SHEET_ID = '1I-PYK23ii8JJ8TikzYCQ__vKJgvS-SJ7SlngU063VR8'; // ← EL ID VA AQUÍ (ej: '1BxiM...Qw')
         const PRINCIPAL_SHEET = 'PRINCIPAL';
 
         let allGames = [];
@@ -433,7 +490,7 @@
         let currentPodiumSeasonId = 'general'; // NUEVO
         let isNewUserSession = false; // Flag para tutorial
 
-        // Caché para podios de juegos (JSON y Sheets)
+        // Caché para podios de juegos (Sheets)
         const podiumsCache = {};
 
         // =====================================================================
@@ -443,37 +500,91 @@
         const sheetsWinnerExplanations = {};  // mysteryId → explicación del ganador (desde Sheets)
 
         // =====================================================================
-        // SISTEMA DE IDs DUAL
-        // ID Privado: {UUID}-{timestamp_intercalado_letras}  (~63 chars)
-        //   → Se guarda en localStorage. Se envía en el formulario. Nunca se muestra.
-        // ID Público: la última parte del privado (el timestamp codificado, ~26 chars)
-        //   → Se muestra al usuario. Se usa en la hoja PRINCIPAL. No se puede falsificar
-        //     sin conocer el ID privado correspondiente.
-        // Compatibilidad: los UUIDs antiguos (36 chars) se tratan como privado=público.
+        // SISTEMA DE IDs — v2
+        //
+        // FORMATO NUEVO: {usuario}~{nombreB64url}~{fechaB36}~{random8}
+        //   usuario    → nombre de usuario alfanumérico, 3–12 chars (minúsculas)
+        //   nombreB64url → nombre de display en base64url (sin +, /, =)
+        //   fechaB36   → fecha de alta como YYYYMMDD en base 36 (≤6 chars)
+        //   random8    → 8 chars aleatorios en base 36 (unicidad)
+        //
+        // ID PÚBLICO: {usuario}#{random8.slice(0,4)}
+        //   → Lo que aparece en el podio y en perfiles.
+        //
+        // COMPATIBILIDAD: IDs del formato antiguo (UUID con guiones) siguen funcionando.
         // =====================================================================
 
-        function generatePrivateId() {
-            const uuid = crypto.randomUUID(); // 36 chars hex
-            const ts   = Date.now().toString(); // 13 dígitos
-            // Intercalar cada dígito con una letra aleatoria → 26 chars alfanuméricos
-            const encoded = ts.split('').map(d =>
-                d + String.fromCharCode(65 + Math.floor(Math.random() * 26))
-            ).join('');
-            return `${uuid}-${encoded}`; // total ~63 chars
+        // Helpers de codificación del nombre de display (base64url, soporta Unicode)
+        function encodeDisplayName(name) {
+            try {
+                return btoa(unescape(encodeURIComponent(name)))
+                    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+            } catch(e) { return btoa(name).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''); }
+        }
+        function decodeDisplayName(enc) {
+            try {
+                const b64 = enc.replace(/-/g, '+').replace(/_/g, '/');
+                return decodeURIComponent(escape(atob(b64)));
+            } catch(e) { return enc; }
         }
 
-        // Extrae el ID público desde el privado (o lo devuelve intacto si es formato viejo)
+        // Genera 'len' caracteres aleatorios en base 36
+        function randomBase36(len) {
+            const chars = '0123456789abcdefghijklmnopqrstuvwxyz';
+            const arr = new Uint8Array(len);
+            crypto.getRandomValues(arr);
+            return Array.from(arr, b => chars[b % 36]).join('');
+        }
+
+        // Genera el ID privado completo
+        function generatePrivateId(username, displayName) {
+            const user    = username.toLowerCase().trim();
+            const nameEnc = encodeDisplayName(displayName.trim());
+            const today   = new Date();
+            const yyyymmdd= today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+            const dateB36 = yyyymmdd.toString(36);
+            const rand    = randomBase36(8);
+            return `${user}~${nameEnc}~${dateB36}~${rand}`;
+        }
+
+        // Detecta si es el nuevo formato
+        function isNewFormat(id) { return id && id.includes('~'); }
+
+        // Extrae el ID público
         function getPublicId(id) {
             if (!id) return '';
+            if (isNewFormat(id)) {
+                const parts = id.split('~');
+                return `${parts[0]}#${parts[3].slice(0, 4)}`;
+            }
+            // Formato antiguo: UUID-encodedTimestamp
             const parts = id.split('-');
-            // Nuevo formato: UUID (5 segmentos) + encoded (6º segmento) = 6 partes
             return parts.length === 6 ? parts[5] : id;
         }
 
-        // Obtiene la fecha de registro desde el ID (solo nuevo formato)
+        // Extrae el nombre de display (solo nuevo formato)
+        function getDisplayName(id) {
+            if (!id || !isNewFormat(id)) return '';
+            return decodeDisplayName(id.split('~')[1]);
+        }
+
+        // Obtiene la fecha de registro
         function getJoinDate(id) {
-            if (!id || id.split('-').length !== 6) return null;
-            const encoded = getPublicId(id);
+            if (!id) return null;
+            if (isNewFormat(id)) {
+                try {
+                    const dateB36 = id.split('~')[2];
+                    const yyyymmdd = parseInt(dateB36, 36);
+                    const y = Math.floor(yyyymmdd / 10000);
+                    const m = Math.floor((yyyymmdd % 10000) / 100) - 1;
+                    const d = yyyymmdd % 100;
+                    const dt = new Date(y, m, d);
+                    return isNaN(dt.getTime()) ? null : dt;
+                } catch(e) { return null; }
+            }
+            // Formato antiguo
+            if (id.split('-').length !== 6) return null;
+            const encoded = id.split('-')[5];
             const digits  = encoded.split('').filter((_, i) => i % 2 === 0).join('');
             const ts = parseInt(digits, 10);
             return isNaN(ts) ? null : new Date(ts);
@@ -494,7 +605,10 @@
         // =====================================================================
 
         async function loadSheetsData() {
-            if (!SHEET_ID) return null;
+            if (!SHEET_ID) {
+                console.warn('[Sheets] SHEET_ID no configurado.');
+                return null;
+            }
             if (sheetsDataPromise) return sheetsDataPromise;
         
             sheetsDataPromise = (async () => {
@@ -573,9 +687,9 @@
             const params = new URLSearchParams(window.location.search);
             // CASO 1: Viene de un archivo de ID ejecutado
             if(params.has('restore_id')) {
-                const restoredId = params.get('restore_id');
+                const restoredId = decodeURIComponent(params.get('restore_id'));
                 // Acepta tanto UUIDs clásicos (36 chars) como el nuevo formato (~63 chars)
-                if(restoredId && restoredId.length >= 36) {
+                if(restoredId && restoredId.length >= 10) {
                     userId = restoredId;
                     localStorage.setItem('mystery_game_userid', userId);
                     const newUrl = window.location.pathname;
@@ -595,12 +709,12 @@
             dom.welcomeModal.classList.add('active');
         }
 
-        function createNewUser() {
-            userId = generatePrivateId(); // ID privado largo con timestamp codificado
+        function createNewUser(username, displayName) {
+            userId = generatePrivateId(username, displayName);
             localStorage.setItem('mystery_game_userid', userId);
-            isNewUserSession = true; // Marcar para mostrar tutorial
+            isNewUserSession = true;
             dom.welcomeModal.classList.remove('active');
-            openIdModal(); // Mostrar modal ID para que descargue
+            openIdModal();
         }
 
         function triggerUpload() {
@@ -608,27 +722,30 @@
         }
 
         function openIdModal() {
-            // Mostrar ID público (el que aparece en el podio y en el formulario como referencia)
-            // El ID privado (más largo) nunca se muestra, pero está en el archivo descargable.
-            dom.userIdDisplay.textContent = getPublicId(userId) || 'Sin ID guardado';
+            const pubId   = getPublicId(userId) || 'Sin ID guardado';
+            const dispName = userId ? getDisplayName(userId) : '';
+            dom.userIdDisplay.textContent = pubId;
+            dom.userDisplaynameDisplay.textContent = dispName || '—';
+            if (dom.userPrivateIdDisplay) dom.userPrivateIdDisplay.textContent = userId || '—';
             dom.idModal.classList.add('active');
         }
 
         function downloadMyId() {
             if(!userId) return showToast("No tienes un ID para descargar", true);
-            const baseUrl  = window.location.href.split('?')[0].split('#')[0];
-            const publicId = getPublicId(userId);
-            const joinDate = getJoinDate(userId);
-            const joinStr  = joinDate ? joinDate.toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' }) : '';
-            // Muestra el ID PÚBLICO al usuario; el ID privado viaja en la URL de restauración (no visible en pantalla)
+            const baseUrl    = window.location.href.split('?')[0].split('#')[0];
+            const publicId   = getPublicId(userId);
+            const displayName = getDisplayName(userId);
+            const joinDate   = getJoinDate(userId);
+            const joinStr    = joinDate ? joinDate.toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' }) : '';
             const htmlContent = `
                 <!DOCTYPE html><html><head><title>Mi ID - La Intersección</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <style>
                     body { background:#111827; color:#f3f4f6; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; text-align: center; padding: 1rem; }
                     .card { background: #1f2937; padding: 2rem; border-radius: 1rem; border: 1px solid #374151; max-width: 420px; width:100%; }
-                    .label { font-size: 0.7rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.25rem; }
-                    .code { background:#111; padding:1rem; margin:0.75rem 0; font-family:monospace; font-size:1.05rem; border:1px solid #4f46e5; color: #818cf8; word-break: break-all; border-radius: 0.5rem; }
+                    .label { font-size: 0.7rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.25rem; text-align:left; }
+                    .code { background:#111; padding:0.75rem 1rem; margin:0.4rem 0 1rem; font-family:monospace; font-size:1.05rem; border:1px solid #4f46e5; color: #818cf8; word-break: break-all; border-radius: 0.5rem; text-align:left; }
+                    .code.small { font-size:0.7rem; color:#4b5563; border-color:#374151; }
                     .join { font-size: 0.75rem; color: #6b7280; margin-bottom: 1.25rem; }
                     .note { font-size: 0.8rem; color: #9ca3af; margin: 1rem 0; line-height:1.5; }
                     .btn { background: #4f46e5; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 0.5rem; font-weight: bold; display: inline-block; }
@@ -637,15 +754,18 @@
                 </head><body>
                 <div class="card">
                     <h1 style="margin-top:0">Tu Llave de Acceso</h1>
+                    <div class="label">Tu nombre de display</div>
+                    <div class="code">${displayName || '—'}</div>
                     <div class="label">Tu ID público (el que aparece en el podio)</div>
                     <div class="code">${publicId}</div>
                     ${joinStr ? `<div class="join">Miembro desde ${joinStr}</div>` : ''}
+                    <div class="label">ID privado completo (no compartir)</div>
+                    <div class="code small">${userId}</div>
                     <div class="note">Tu acceso completo está integrado en este archivo.<br>Guárdalo en un lugar seguro.<br>Si no se redirige automáticamente, pulsa el botón.</div>
-                    <a href="${baseUrl}?restore_id=${userId}" id="login-link" class="btn">Entrar al Juego</a>
+                    <a href="${baseUrl}?restore_id=${encodeURIComponent(userId)}" id="login-link" class="btn">Entrar al Juego</a>
                 </div>
                 <script>
-                    // El ID privado completo está en la URL (no se muestra en pantalla)
-                    const targetUrl = "${baseUrl}?restore_id=${userId}";
+                    const targetUrl = "${baseUrl}?restore_id=${encodeURIComponent(userId)}";
                     setTimeout(() => { window.location.href = targetUrl; }, 1200);
                 <\/script>
                 </body></html>`;
@@ -665,9 +785,9 @@
             const reader = new FileReader();
             reader.onload = (e) => {
                 const content = e.target.result;
-                const matchNew = content.match(/restore_id=([A-Za-z0-9\-]{36,80})/);
+                const matchNew = content.match(/restore_id=([A-Za-z0-9~_\-]{10,120})/);
                 const matchOld = content.match(/localStorage\.setItem\('mystery_game_userid', '([a-f0-9-]+)'\)/);
-                let foundId = matchNew ? matchNew[1] : (matchOld ? matchOld[1] : null);
+                let foundId = matchNew ? decodeURIComponent(matchNew[1]) : (matchOld ? matchOld[1] : null);
 
                 if (foundId) {
                     userId = foundId;
@@ -992,8 +1112,24 @@
                     ${descriptionHTML}
                     <p class="text-sm text-gray-500 mt-3">Pistas reveladas: ${getVisibleClues(game).length}/${game.clues.length}</p>
                 </div>
-                <div class="mt-4 border-t border-gray-700 pt-3 text-right">
+                <div class="mt-4 border-t border-gray-700 pt-3 flex justify-between items-end">
                     <p class="text-xs text-gray-500">${game.isSolved ? 'Finalizado' : 'Iniciado'}: ${startDate}</p>
+                    ${(() => {
+                        if (game.isSolved) return '';
+                        const now = new Date();
+                        const nextClue = game.clues
+                            .map(c => c.publishDate ? new Date(c.publishDate) : null)
+                            .filter(d => d && d > now)
+                            .sort((a, b) => a - b)[0];
+                        if (!nextClue) return '';
+                        const diffMs = nextClue - now;
+                        const diffH = Math.floor(diffMs / 3600000);
+                        const nextStr = nextClue.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+                        const timeHint = diffH < 24
+                            ? `<span class="text-orange-400">en ${diffH}h</span>`
+                            : `<span class="text-gray-400">${nextStr}</span>`;
+                        return `<p class="text-xs">🔍 Próxima pista: ${timeHint}</p>`;
+                    })()}
                 </div>`;
 
             card.addEventListener('click', (e) => {
@@ -1049,34 +1185,20 @@
                     </div>`;
         }
 
-        // --- FETCH HELPER CON CACHE (SHEETS + JSON FALLBACK) ---
+        // --- PODIO POR JUEGO (con caché en memoria) ---
         async function getPodium(gameId) {
             if (podiumsCache[gameId]) return podiumsCache[gameId];
 
-            // RUTA 1: Google Sheets configurado
-            if (SHEET_ID) {
-                const data = await loadSheetsData();
-                if (data) {
-                    const entries = data.users
-                        .filter(u => u.mysteryPoints[gameId] !== undefined)
-                        .map(u => ({ id: u.id, name: u.name, points: u.mysteryPoints[gameId] }))
-                        .sort((a, b) => b.points - a.points);
-                    const podium = { gameId, entries };
-                    podiumsCache[gameId] = podium;
-                    return podium;
-                }
-            }
+            const data = await loadSheetsData();
+            if (!data) return null;
 
-            // RUTA 2: JSON estático (sistema anterior)
-            try {
-                const res = await fetch(`${PODIOS_FOLDER}${gameId}.json?v=${Date.now()}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    podiumsCache[gameId] = data;
-                    return data;
-                }
-            } catch(e) { console.error(e); }
-            return null;
+            const entries = data.users
+                .filter(u => u.mysteryPoints[gameId] !== undefined)
+                .map(u => ({ id: u.id, name: u.name, points: u.mysteryPoints[gameId] }))
+                .sort((a, b) => b.points - a.points);
+            const podium = { gameId, entries };
+            podiumsCache[gameId] = podium;
+            return podium;
         }
 
         // --- RENDERIZADO DEL MODAL ---
@@ -1116,7 +1238,38 @@
                                 ${availableClues.map((clue, index) => `<li><a href="#" class="view-clue-btn flex justify-between items-center w-full hover:bg-gray-700/50 p-3 rounded-lg transition-colors" data-clue-index="${index}"><span class="font-semibold">${getOrdinal(index + 1)} pista</span>${getClueTypeTag(clue.type)}</a></li>`).join('')}
                             </ul>
                         </div>` : '<p class="text-gray-500 mt-4">Aún no hay pistas disponibles.</p>';
-                    contentHTML = `<div class="space-y-4">${game.showMystery && game.mystery ? `<div class="bg-gray-700/50 p-4 rounded-lg"><p class="text-sm text-gray-400"><strong>Lo que buscamos es:</strong> ${game.mystery}</p></div>` : ''}<div class="bg-gray-900/50 p-4 rounded-lg border border-gray-700"><p class="text-gray-300">${game.notes || 'Descripción del misterio...'}</p></div>${cluesIndex}</div>`;
+
+                    // Próxima pista (solo si el misterio está en curso)
+                    const nextClueInfoHTML = (() => {
+                        if (game.isSolved) return '';
+                        const now = new Date();
+                        const futureDates = (game.clues || [])
+                            .map(c => c.publishDate ? new Date(c.publishDate) : null)
+                            .filter(d => d && d > now)
+                            .sort((a, b) => a - b);
+                        if (futureDates.length === 0) return '';
+                        const next = futureDates[0];
+                        const diffMs = next - now;
+                        const diffH  = Math.floor(diffMs / 3600000);
+                        const diffM  = Math.floor((diffMs % 3600000) / 60000);
+                        const dateStr = next.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+                        const timeStr = next.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                        let countdown = '';
+                        if (diffH < 1)       countdown = `<span class="text-orange-400 font-bold">¡en ${diffM} min!</span>`;
+                        else if (diffH < 24) countdown = `<span class="text-orange-400 font-bold">en ${diffH}h ${diffM}min</span> <span class="text-gray-500">(hoy a las ${timeStr})</span>`;
+                        else                 countdown = `<span class="text-gray-200 font-semibold">${dateStr}</span> <span class="text-gray-500">a las ${timeStr}</span>`;
+                        const pending = futureDates.length;
+                        return `
+                            <div class="flex items-start gap-3 bg-indigo-900/20 border border-indigo-500/30 rounded-lg px-4 py-3">
+                                <span class="text-lg mt-0.5">🔍</span>
+                                <div class="text-sm leading-relaxed">
+                                    <div><span class="text-gray-400">Próxima pista: </span>${countdown}</div>
+                                    <div class="text-gray-600 text-xs mt-1">${pending} pista${pending > 1 ? 's' : ''} pendiente${pending > 1 ? 's' : ''} en total</div>
+                                </div>
+                            </div>`;
+                    })();
+
+                    contentHTML = `<div class="space-y-4">${game.showMystery && game.mystery ? `<div class="bg-gray-700/50 p-4 rounded-lg"><p class="text-sm text-gray-400"><strong>Lo que buscamos es:</strong> ${game.mystery}</p></div>` : ''}<div class="bg-gray-900/50 p-4 rounded-lg border border-gray-700"><p class="text-gray-300">${game.notes || 'Descripción del misterio...'}</p></div>${nextClueInfoHTML}${cluesIndex}</div>`;
                     footerHTML = `<div class="flex flex-wrap justify-center gap-4"><button class="share-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" data-game-id="${game.id}">Compartir</button><button class="view-all-clues-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">Mostrar Pistas y Resolver</button></div>`;
                     break;
 
@@ -1163,8 +1316,7 @@
                         const eDate = game.endDate ? new Date(game.endDate).toLocaleDateString('es-ES') : 'En curso';
 
                         let tableHTML = `
-                            <div class="text-center mb-4 space-y-1">
-                                <span class="bg-indigo-900 text-indigo-200 px-3 py-1 rounded text-xs font-mono">UTD: ${podiumJson.utdApplied || 1}h</span>
+                            <div class="text-center mb-4">
                                 <div class="text-xs text-gray-400">Del ${sDate} al ${eDate}</div>
                             </div>
                         `;
@@ -1276,92 +1428,39 @@
         async function loadLeaderboard(filterGameIds = null) {
              dom.podiumLoading.style.display = 'block';
              dom.podiumBody.innerHTML = '';
-             dom.seasonWinnersDisplay.classList.add('hidden'); // Ocultar por defecto
+             dom.seasonWinnersDisplay.classList.add('hidden');
 
              try {
-                // ============================================================
-                // RUTA 1: Google Sheets configurado
-                // Lee la hoja PRINCIPAL una sola vez y filtra por temporada si aplica.
-                // ============================================================
-                if (SHEET_ID) {
-                    const data = await loadSheetsData();
-                    if (data) {
-                        let users = data.users.map(u => {
-                            const filteredPts = filterGameIds
-                                ? Object.entries(u.mysteryPoints)
-                                    .filter(([gid]) => filterGameIds.includes(gid))
-                                    .reduce((sum, [, pts]) => sum + pts, 0)
-                                : u.points;
-                            const solvedGames = Object.keys(u.mysteryPoints).filter(gid =>
-                                !filterGameIds || filterGameIds.includes(gid)
-                            );
-                            return { id: u.id, name: u.name, points: filteredPts, solvedGames };
-                        });
-
-                        if (filterGameIds) users = users.filter(u => u.points > 0);
-                        leaderboardData = users.sort((a, b) => b.points - a.points);
-                        renderPodium();
-
-                        if (currentPodiumSeasonId !== 'general' && leaderboardData.length > 0) {
-                            const season = allSeasons.find(s => s.id === currentPodiumSeasonId);
-                            if (season && season.status === 'finished') renderSeasonWinners(leaderboardData);
-                        }
-                        return; // ← Terminamos aquí si Sheets funcionó
-                    }
+                const data = await loadSheetsData();
+                if (!data) {
+                    dom.podiumBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500">No se pudo conectar con la hoja de cálculo.</td></tr>`;
+                    return;
                 }
 
-                // ============================================================
-                // RUTA 2: JSON estáticos (sistema anterior)
-                // ============================================================
-
-                // 1. Identificar juegos resueltos
-                let solvedGames = allGames.filter(g => g.isSolved);
-
-                // 2. Aplicar filtro de temporada si existe
-                if(filterGameIds) {
-                    solvedGames = solvedGames.filter(g => filterGameIds.includes(g.id));
-                }
-
-                // 3. Fetch todos los podios de esos juegos usando el helper con cache
-                const podiumPromises = solvedGames.map(game => getPodium(game.id));
-
-                const results = await Promise.all(podiumPromises);
-
-                // 4. Agregar datos
-                const userMap = {}; // userId -> {name, points, solvedGames: []}
-
-                results.forEach((podium, index) => {
-                    if (!podium || !podium.entries) return;
-                    const gameId = solvedGames[index].id;
-
-                    podium.entries.forEach(entry => {
-                        if (!userMap[entry.id]) {
-                            userMap[entry.id] = { id: entry.id, name: entry.name, points: 0, solvedGames: [] };
-                        }
-                        // Sumar puntos
-                        userMap[entry.id].points += (parseInt(entry.points) || 0);
-                        // Añadir juego al historial si no está
-                        if (!userMap[entry.id].solvedGames.includes(gameId)) {
-                            userMap[entry.id].solvedGames.push(gameId);
-                        }
-                    });
+                let users = data.users.map(u => {
+                    const filteredPts = filterGameIds
+                        ? Object.entries(u.mysteryPoints)
+                            .filter(([gid]) => filterGameIds.includes(gid))
+                            .reduce((sum, [, pts]) => sum + pts, 0)
+                        : u.points;
+                    const solvedGames = Object.keys(u.mysteryPoints).filter(gid =>
+                        !filterGameIds || filterGameIds.includes(gid)
+                    );
+                    return { id: u.id, name: u.name, points: filteredPts, solvedGames };
                 });
 
-                // 5. Convertir a array y ordenar
-                leaderboardData = Object.values(userMap).sort((a,b) => b.points - a.points);
+                if (filterGameIds) users = users.filter(u => u.points > 0);
+                leaderboardData = users.sort((a, b) => b.points - a.points);
                 renderPodium();
 
-                // 6. Si es temporada finalizada y tiene datos, mostrar podio especial
-                if(currentPodiumSeasonId !== 'general' && leaderboardData.length > 0) {
+                if (currentPodiumSeasonId !== 'general' && leaderboardData.length > 0) {
                     const season = allSeasons.find(s => s.id === currentPodiumSeasonId);
-                    if(season && season.status === 'finished') {
-                        renderSeasonWinners(leaderboardData);
-                    }
+                    if (season && season.status === 'finished') renderSeasonWinners(leaderboardData);
                 }
 
              } catch(err) {
                  console.error(err);
-                 dom.podiumBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-400">Error calculando podio.</td></tr>`;
+                 dom.podiumBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-400">Error cargando el podio.</td></tr>`;
              } finally {
                  dom.podiumLoading.style.display = 'none';
              }
@@ -1519,6 +1618,14 @@
                     <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-white mb-3">${userData.name.charAt(0).toUpperCase()}</div>
                     <h3 class="text-2xl font-bold text-white">${userData.name}</h3>
                     <div class="text-xs text-gray-500 font-mono mt-1 select-all" title="Tu ID público">${userData.id}</div>
+                    ${(() => {
+                        // Solo podemos saber la fecha de alta del usuario propio (está en el ID privado)
+                        if (userData.id !== currentPublicId() || !userId) return '';
+                        const jd = getJoinDate(userId);
+                        if (!jd) return '';
+                        const jdStr = jd.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+                        return `<div class="text-xs text-gray-500 mt-1">📅 Miembro desde ${jdStr}</div>`;
+                    })()}
                     <div class="mt-2 text-yellow-400 font-bold">Ranking General: ${rankDisplay}</div>
                 </div>
                 <div id="profile-async-content">
@@ -1802,7 +1909,37 @@
             dom.seasonFilterSelect.addEventListener('change', renderGames);
 
             // Welcome Modal & ID
-            dom.welcomeNewBtn.addEventListener('click', createNewUser);
+            dom.welcomeNewBtn.addEventListener('click', () => {
+                dom.welcomeStep1.classList.add('hidden');
+                dom.welcomeStep2.classList.remove('hidden');
+                dom.welcomeUsername.focus();
+            });
+            dom.welcomeBackBtn.addEventListener('click', () => {
+                dom.welcomeStep2.classList.add('hidden');
+                dom.welcomeStep1.classList.remove('hidden');
+                dom.welcomeFormError.classList.add('hidden');
+            });
+            dom.welcomeSubmitBtn.addEventListener('click', () => {
+                const username    = dom.welcomeUsername.value.trim();
+                const displayName = dom.welcomeDisplayname.value.trim();
+                const usernameOk  = /^[A-Za-z0-9_]{3,12}$/.test(username);
+                if (!usernameOk) {
+                    dom.welcomeFormError.textContent = 'El nombre de usuario debe tener 3–12 caracteres y solo puede contener letras, números y guion bajo.';
+                    dom.welcomeFormError.classList.remove('hidden');
+                    return;
+                }
+                if (!displayName) {
+                    dom.welcomeFormError.textContent = 'El nombre de display no puede estar vacío.';
+                    dom.welcomeFormError.classList.remove('hidden');
+                    return;
+                }
+                dom.welcomeFormError.classList.add('hidden');
+                createNewUser(username, displayName);
+            });
+            // Permitir Enter en los inputs del formulario
+            [dom.welcomeUsername, dom.welcomeDisplayname].forEach(input => {
+                input.addEventListener('keydown', (e) => { if (e.key === 'Enter') dom.welcomeSubmitBtn.click(); });
+            });
             dom.welcomeExistingBtn.addEventListener('click', triggerUpload);
             dom.welcomeCloseBtn.addEventListener('click', () => { dom.welcomeModal.classList.remove('active'); showToast('Jugando como invitado (sin guardar)'); });
 
